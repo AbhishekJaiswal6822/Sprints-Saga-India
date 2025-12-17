@@ -1,7 +1,7 @@
 // frontend/src/api.js - FINAL VERSION WITH STRUCTURED ERROR PRESERVATION
 
 // const API_BASE_URL = "https://ssi-testing-phase.onrender.com";
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 /**
  * Utility function to handle API calls, authentication, and different body types (JSON/FormData).
