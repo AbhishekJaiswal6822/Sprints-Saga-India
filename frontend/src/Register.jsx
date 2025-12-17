@@ -155,9 +155,9 @@ const TShirtSizePopover = ({ isOpen, onClose }) => {
 const IdUploadBlock = ({ idType, idNumber, idFile, handleTypeChange, handleNumberChange, handleFileChange, sectionId }) => (
     <>
         <div className="md:col-span-2">
-            <h4 className="text-md font-semibold text-slate-800 mt-4 mb-2 border-t pt-4">National Identity Card Upload </h4>
+            <h4 className="text-md font-semibold text-slate-800 mt-4 mb-2 ">National Identity Card Upload </h4>
         </div>
-    
+
         <div id={`${sectionId}-idType-wrapper`}>
             <label className="block text-sm font-medium text-slate-700 mb-1">ID Proof Type *</label>
             <select
@@ -292,20 +292,25 @@ function Register() {
     };
 
     // *** START FIX 1: setMemberCount Logic for input field ***
-    const setMemberCount = (countStr) => {
-        // 1. Remove non-digit characters and parse, defaulting to 1 if resulting number is invalid
-        // Using toString() ensures it works even if countStr is null/undefined during weird event sequences
-        const rawValue = countStr.toString().replace(/[^0-9]/g, '');
-        const parsedCount = parseInt(rawValue) || 1;
 
-        // 2. n is the actual number of members we will set in state (capped at MAX_GROUP_MEMBERS and min at 1)
-        const n = Math.max(1, Math.min(MAX_GROUP_MEMBERS, parsedCount));
+    const setMemberCount = (countValue) => {
+        // 1. If the input is empty (user deleted everything), default to 1 so the field isn't broken
+        if (countValue === "" || countValue === null) {
+            setGroupMembers([newMemberObject()]);
+            return;
+        }
 
-        // 3. If the user tries to enter a number > MAX_GROUP_MEMBERS, show the toast (using specific ID)
+        // 2. Parse the value to a number. 
+        // This ensures typing "12" replaces "1" instead of becoming "112"
+        const parsedCount = parseInt(countValue, 10);
+
+        // 3. n is the actual number of members we will set in state (capped at MAX_GROUP_MEMBERS and min at 1)
+        const n = Math.max(1, Math.min(MAX_GROUP_MEMBERS, parsedCount || 1));
+
+        // 4. Show toast if user tries to exceed 35
         if (parsedCount > MAX_GROUP_MEMBERS) {
-            // FIX 2: Use a fixed toastId to prevent stacking for this specific error.
             toast.error(`Group limit is ${MAX_GROUP_MEMBERS} members.`, {
-                toastId: 'group-limit-error-input', // Added specific ID
+                toastId: 'group-limit-error-input',
                 autoClose: 5000,
                 pauseOnFocusLoss: false,
             });
@@ -316,16 +321,15 @@ function Register() {
             if (n === cur) return prev;
 
             if (n > cur) {
-                // Adding members
                 const addCount = n - cur;
                 const membersToAdd = Array.from({ length: addCount }, () => newMemberObject());
                 return [...prev, ...membersToAdd];
             } else {
-                // Removing members (capped at min 1)
                 return prev.slice(0, n);
             }
         });
     };
+    // *** END FIX 1 ***
     // *** END FIX 1: setMemberCount Logic for input field ***
 
     const handleRemoveMember = (indexToRemove) => setGroupMembers((prev) => prev.length <= 1 ? prev : prev.filter((_, i) => i !== indexToRemove));
@@ -963,6 +967,10 @@ function Register() {
                                 </div>
                             </div>
 
+                            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
+                                <IdUploadBlock idType={individualRunner.idType} idNumber={individualRunner.idNumber} idFile={individualRunner.idFile} handleTypeChange={handleIndividualChange} handleNumberChange={handleIndividualChange} handleFileChange={handleIndividualChange} sectionId="ind-id" />
+                            </div>
+
                             {/* Runner Information */}
                             <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8 space-y-6">
                                 <h2 className="text-xl font-semibold text-slate-900">Runner Information</h2>
@@ -999,10 +1007,6 @@ function Register() {
                                         I need transportation assistance
                                     </label>
                                 </div>
-                            </div>
-
-                            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
-                                <IdUploadBlock idType={individualRunner.idType} idNumber={individualRunner.idNumber} idFile={individualRunner.idFile} handleTypeChange={handleIndividualChange} handleNumberChange={handleIndividualChange} handleFileChange={handleIndividualChange} sectionId="ind-id" />
                             </div>
                         </>
                     )}
@@ -1074,33 +1078,50 @@ function Register() {
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Pincode *</label>
                                     <input type="text" maxLength="6" value={charityParticipant.pincode} onChange={e => handleCharityParticipantChange('pincode', e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required id="charity-pincode" />
                                 </div>
-                                
 
-                                
+                                {/* newaddedline */}
+                                {/* Nationality */}
+                               {/* --- National Identity Card Upload Section --- */}
+<div className="md:col-span-2">
+    <h4 className="text-md font-semibold text-slate-800 mt-4 mb-2 border-t pt-4">
+        National Identity Card Upload *
+    </h4>
+</div>
 
-                                {/* ADDED: ID Upload Block for Charity Registration (Unchanged) */}
-                                <IdUploadBlock
-                                    idType={charityParticipant.idType}
-                                    idNumber={charityParticipant.idNumber}
-                                    idFile={charityParticipant.idFile}
-                                    handleTypeChange={(field, value) => handleCharityParticipantChange(field, value)}
-                                    handleNumberChange={(field, value) => handleCharityParticipantChange(field, value)}
-                                    handleFileChange={(field, file) => handleCharityParticipantChange(field, file)}
-                                    sectionId="charity"
-                                />
+{/* 1. Nationality comes first in this section */}
+<div id="charity-nationality-wrapper">
+    <label className="block text-sm font-medium text-slate-700 mb-1 ">Nationality *</label>
+    <select 
+        value={charityParticipant.nationality} 
+        onChange={(e) => handleCharityParticipantChange('nationality', e.target.value)} 
+        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" 
+        required 
+        id="charity-nationality"
+    >
+        <option value="">Select your nationality</option>
+        {nationalitiesISO.map((country) => (
+            <option key={country} value={country}>{country}</option>
+        ))}
+    </select>
+</div>
+
+{/* 2. ID Upload Block follows (ID Type, Number, and File) */}
+<IdUploadBlock
+    idType={charityParticipant.idType}
+    idNumber={charityParticipant.idNumber}
+    idFile={charityParticipant.idFile}
+    handleTypeChange={(field, value) => handleCharityParticipantChange(field, value)}
+    handleNumberChange={(field, value) => handleCharityParticipantChange(field, value)}
+    handleFileChange={(field, file) => handleCharityParticipantChange(field, file)}
+    sectionId="charity"
+/>
                                 {/* END ADDED: ID Upload Block */}
 
                             </div>
 
                             {/* Charity Partner & Cause Selection (Unchanged) */}
-                            {/* newaddedline */}
-                            {/* Nationality */}
-                                <div id="charity-nationality-wrapper"><label className="block text-sm font-medium text-slate-700 mb-1">Nationality *</label><select value={charityParticipant.nationality} onChange={(e) => handleCharityParticipantChange('nationality', e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required id="charity-nationality">
-                                    <option value="">Select your nationality</option>
-                                    {nationalitiesISO.map((country) => <option key={country} value={country}>{country}</option>)}
-                                </select>
-                                </div>
-                            
+
+
                             <div className="mt-8 pt-6 border-t border-slate-100 space-y-4">
                                 <div className="grid md:grid-cols-2 gap-4">
                                     {/* Cause Selection */}
@@ -1111,6 +1132,39 @@ function Register() {
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Optional Message / Dedication</label>
                                     <textarea rows={2} value={charityParticipant.dedication} onChange={(e) => handleCharityParticipantChange('dedication', e.target.value)} placeholder="e.g., Running in memory of my grandmother..." className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" />
+                                </div>
+
+                                {/* T-Shirt Size Selection for Charity */}
+
+                                <div className="md:col-span-2 md:max-w-xs relative" id="charity-tshirtSize-wrapper">
+                                    <label className="text-sm font-medium text-slate-700 mb-1 flex items-center gap-1">
+                                        T-Shirt Size *
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleSizeChart('charity')}
+                                            className="text-teal-600 hover:text-teal-800 text-lg font-bold ml-1"
+                                            aria-label="View T-Shirt Size Chart"
+                                        >
+                                            ⓘ
+                                        </button>
+                                    </label>
+
+                                    <select
+                                        value={charityParticipant.tshirtSize}
+                                        onChange={(e) => handleCharityParticipantChange('tshirtSize', e.target.value)}
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50"
+                                        required
+                                        id="charity-tshirtSize"
+                                    >
+                                        <option value="">Select size</option>
+                                        {/* Uses the helper function to show Male/Female specific chest measurements */}
+                                        {getFilteredSizes(charityParticipant.gender).map((size) => (
+
+                                            <option key={size.size} value={size.value}>
+                                                {size.label}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 
@@ -1239,8 +1293,11 @@ function Register() {
                                                 </select>
                                             </div>
                                             {/* END T-Shirt Size Size - MODIFIED FOR GROUP MEMBERS */}
+                                            <div className="md:col-span-4 border-t border-slate-200 my-4"></div>
                                             <div>{index === 0 && (<div id="group-nationality-wrapper"><label className="block text-sm font-medium text-slate-700 mb-1">Nationality *</label><select value={member.nationality} onChange={(e) => handleMemberChange(index, "nationality", e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required id="group-nationality"><option value="">Select nationality</option>{nationalitiesISO.map((country) => (<option key={country} value={country}>{country}</option>))}</select></div>)}</div>
                                         </div>
+                                        
+                                        
                                         {/* ADDED: ID Upload Block for Group Leader (Member 1) (Unchanged) */}
                                         {index === 0 && (
                                             <>
