@@ -481,10 +481,10 @@ function Register() {
         parentName: `individual-parentName-wrapper`,
         parentPhone: `individual-parentPhone-wrapper`,
         experience: `individual-experience-wrapper`,
-        address: `individual-address-wrapper`,
+        // address: `individual-address-wrapper`,
         city: `individual-city-wrapper`,
         state: `individual-state-wrapper`,
-        pincode: `individual-pincode-wrapper`,
+        // pincode: `individual-pincode-wrapper`,
         country: `individual-country-wrapper`,
 
         // Charity Specific Fields
