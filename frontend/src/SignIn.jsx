@@ -185,7 +185,7 @@ function SignIn() {
         onSubmit={submit}
         className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 border border-slate-200 relative z-10"
       >
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Sign in to your Account</h2>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Log in to your Account</h2>
         <p className="text-slate-500 mb-6">Access the marathon registration system.</p>
 
         {/* Email Input */}
