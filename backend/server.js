@@ -20,7 +20,8 @@ const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGO_URI; 
 
 const allowedOrigins = [
-  'http://localhost:4173', 
+  'http://localhost:5173', 
+  'http://127.0.0.1:5173',
   'https://ssi-testing-frontend-phase-1.onrender.com' // Add your Render URL here
 ];
 
