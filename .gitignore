@@ -28,3 +28,4 @@ build/
 
 # Optional
 coverage/
+backend/uploads/
