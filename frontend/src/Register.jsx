@@ -795,6 +795,16 @@ function Register() {
         buttonDisabled = true;
         buttonText = `Contact for Partnership`;
     }
+
+    if (isSubmitting) {
+        buttonText = `Payment Processing - ₹${totalAmountPayable.toFixed(2)}`;
+    } else if (isRaceSelectionValid && !isOverGroupLimit) { 
+        // We add !isOverGroupLimit so it doesn't overwrite the partnership message
+        buttonText = `Proceed to Payment - ₹${totalAmountPayable.toFixed(2)}`;
+        buttonDisabled = false;
+    }
+
+
     // --- END BUTTON TEXT LOGIC ---
 
 
@@ -981,7 +991,7 @@ function Register() {
                                     <div><label className="block text-sm font-medium text-slate-700">City *</label><input type="text" value={individualRunner.city} onChange={e => handleIndividualChange('city', e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required /></div>
                                     <div><label className="block text-sm font-medium text-slate-700">State *</label><select value={individualRunner.state} onChange={e => handleIndividualChange('state', e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white" required><option value="">Select state</option>{statesInIndia.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
                                     <div><label className="block text-sm font-medium text-slate-700">Pincode *</label><input type="text" maxLength="6" value={individualRunner.pincode} onChange={e => handleIndividualChange('pincode', e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required /></div>
-                                    {/* <div><label className="block text-sm font-medium text-slate-700">Country *</label><input type="text" value={individualRunner.country} className="w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm" disabled /></div> */}
+
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700">Country *</label>
                                         <input
@@ -1479,8 +1489,8 @@ function Register() {
                         <div className="mt-8 flex justify-center">
                             <button
                                 type="submit"
-                                className={`cursor-pointer inline-flex items-center justify-center rounded-full bg-linear-to-r from-teal-600 to-cyan-500 px-16 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-600 focus-visible:outline-none focus-visible:ring-2 focus:ring-teal-500 focus-visible:ring-offset-2 whitespace-nowrap ${buttonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                disabled={buttonDisabled}
+                                className={`cursor-pointer inline-flex items-center justify-center rounded-full bg-linear-to-r from-teal-600 to-cyan-500 px-16 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-600 focus-visible:outline-none focus-visible:ring-2 focus:ring-teal-500 focus-visible:ring-offset-2 whitespace-nowrap ${buttonDisabled || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={buttonDisabled || isSubmitting} // Use both conditions here
                             >
                                 {buttonText}
                             </button>
