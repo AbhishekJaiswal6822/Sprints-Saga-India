@@ -204,17 +204,27 @@ const IdUploadBlock = ({ idType, idNumber, idFile, handleTypeChange, handleNumbe
 // --- END ID Upload Block Component ---
 
 
+// --- DEFINE DEFAULTS OUTSIDE TO PREVENT INITIALIZATION ERRORS ---
+const INITIAL_INDIVIDUAL_STATE = {
+    firstName: "", lastName: "", parentName: "", parentPhone: "", email: "", phone: "",
+    whatsapp: "", dob: "", gender: "", bloodGroup: "", nationality: "",
+    address: "", city: "", state: "", pincode: "", country: "",
+    experience: "", finishTime: "", dietary: "", tshirtSize: "",
+    referralCode: "", referralPoints: "", idType: "", idNumber: "", idFile: null,
+};
+
+const INITIAL_GROUP_STATE = [{
+    firstName: "", lastName: "", email: "", phone: "", gender: "", tshirtSize: "",
+    nationality: "", address: "", raceId: "", idType: "", idNumber: "",
+    idFile: null, queryBox: ""
+}];
+
 function Register() {
     // Use the 10K prebook price for default calculation if needed
     const defaultRace = raceCategories.find(r => r.id === '5k');
     const { token, user } = useAuth();
 
-    const [registrationType, setRegistrationType] = useState("individual");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    // Reset race selection when switching between Individual, Group, or Charity
-    React.useEffect(() => {
-        setSelectedRace(null);
-    }, [registrationType]);
+
 
     // --- Race Selection State ---
     const [selectedRace, setSelectedRace] = useState(null);
@@ -259,60 +269,33 @@ function Register() {
 
     // --- Group State (UPDATED: Added queryBox) ---
     const [groupName, setGroupName] = useState("");
+    // Keep ONLY this one version
     const [groupMembers, setGroupMembers] = useState(() => {
-    const savedVersion = localStorage.getItem("data_version");
-    const groupDefault = [{ 
-        firstName: "", lastName: "", email: "", phone: "", gender: "", tshirtSize: "", 
-        nationality: "", address: "", raceId: "", idType: "", idNumber: "", 
-        idFile: null, queryBox: "" 
-    }];
-
-    // Only clear if the version check wasn't already handled by the individualRunner block
-    if (savedVersion !== REGISTRATION_DATA_VERSION) {
-        // (Removal and version set are handled above; just return the default here)
-        return groupDefault;
-    }
-
-    const saved = localStorage.getItem("temp_group_members");
-    if (saved) {
         try {
-            return JSON.parse(saved);
-        } catch (e) {
-            return groupDefault;
+            const savedVersion = localStorage.getItem("data_version");
+            if (savedVersion !== REGISTRATION_DATA_VERSION) return INITIAL_GROUP_STATE;
+            const saved = localStorage.getItem("temp_group_members");
+            return saved ? JSON.parse(saved) : INITIAL_GROUP_STATE;
+        } catch (e) { 
+            return INITIAL_GROUP_STATE; 
         }
-    }
-    return groupDefault;
-});
+    });
 
     // State for Individual Registration fields (Unchanged)
     const [individualRunner, setIndividualRunner] = useState(() => {
-    const savedVersion = localStorage.getItem("data_version");
-    const standardDefault = {
-        firstName: "", lastName: "", parentName: "", parentPhone: "", email: "", phone: "",
-        whatsapp: "", dob: "", gender: "", bloodGroup: "", nationality: "",
-        address: "", city: "", state: "", pincode: "", country: "",
-        experience: "", finishTime: "", dietary: "", tshirtSize: "",
-        referralCode: "", referralPoints: "", idType: "", idNumber: "", idFile: null,
-    };
-
-    // If version is missing or old, ignore the cache and start fresh
-    if (savedVersion !== REGISTRATION_DATA_VERSION) {
-        localStorage.removeItem("temp_individual_runner");
-        localStorage.removeItem("temp_group_members");
-        localStorage.setItem("data_version", REGISTRATION_DATA_VERSION);
-        return standardDefault;
-    }
-
-    const saved = localStorage.getItem("temp_individual_runner");
-    if (saved) {
-        try {
-            return JSON.parse(saved);
-        } catch (e) {
-            console.error("Storage parse error:", e);
-            return standardDefault;
+    try {
+        const savedVersion = localStorage.getItem("data_version");
+        if (savedVersion !== REGISTRATION_DATA_VERSION) {
+            localStorage.removeItem("temp_individual_runner");
+            localStorage.removeItem("temp_group_members");
+            localStorage.setItem("data_version", REGISTRATION_DATA_VERSION);
+            return INITIAL_INDIVIDUAL_STATE;
         }
+        const saved = localStorage.getItem("temp_individual_runner");
+        return saved ? JSON.parse(saved) : INITIAL_INDIVIDUAL_STATE;
+    } catch (e) { 
+        return INITIAL_INDIVIDUAL_STATE; 
     }
-    return standardDefault;
 });
     React.useEffect(() => {
         const { idFile, ...dataToSave } = individualRunner;
