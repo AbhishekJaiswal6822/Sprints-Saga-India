@@ -1,4 +1,4 @@
-﻿// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Register.jsx - FINAL STABLE VERSION
+﻿﻿// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Register.jsx - FINAL STABLE VERSION
 
 import React, { useState, useEffect } from "react";
 import { RACE_PRICING } from "./constants/racePricing";
@@ -209,6 +209,8 @@ const INITIAL_INDIVIDUAL_STATE = {
     firstName: "", lastName: "", parentName: "", parentPhone: "", email: "", phone: "",
     whatsapp: "", dob: "", gender: "", bloodGroup: "", nationality: "",
     address: "", city: "", state: "", pincode: "", country: "",
+    needAccommodation: false,   // ADD THIS: Checkboxes must be false
+    needTransportation: false,  // ADD THIS: Checkboxes must be false
     experience: "", finishTime: "", dietary: "", tshirtSize: "",
     referralCode: "", referralPoints: "", idType: "", idNumber: "", idFile: null,
 };
@@ -220,30 +222,57 @@ const INITIAL_GROUP_STATE = [{
 }];
 
 function Register() {
-    // Use the 10K prebook price for default calculation if needed
-    const defaultRace = raceCategories.find(r => r.id === '5k');
     const { token, user } = useAuth();
+    const navigate = useNavigate();
 
-
-
-    // --- Race Selection State ---
+    // STEP 1: Declare basic variables FIRST
+    const [registrationType, setRegistrationType] = useState("individual");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedRace, setSelectedRace] = useState(null);
+    const [openPopoverId, setOpenPopoverId] = useState(null);
+    const [groupName, setGroupName] = useState("");
+
+    // STEP 2: Declare Data States with Persistence Logic
+    const [groupMembers, setGroupMembers] = useState(() => {
+        try {
+            const savedVersion = localStorage.getItem("data_version");
+            if (savedVersion !== REGISTRATION_DATA_VERSION) return INITIAL_GROUP_STATE;
+            const saved = localStorage.getItem("temp_group_members");
+            return saved ? JSON.parse(saved) : INITIAL_GROUP_STATE;
+        } catch (e) { return INITIAL_GROUP_STATE; }
+    });
+
+    const [individualRunner, setIndividualRunner] = useState(() => {
+        try {
+            const savedVersion = localStorage.getItem("data_version");
+            if (savedVersion !== REGISTRATION_DATA_VERSION) {
+                localStorage.setItem("data_version", REGISTRATION_DATA_VERSION);
+                return INITIAL_INDIVIDUAL_STATE;
+            }
+            const saved = localStorage.getItem("temp_individual_runner");
+            return saved ? JSON.parse(saved) : INITIAL_INDIVIDUAL_STATE;
+        } catch (e) { return INITIAL_INDIVIDUAL_STATE; }
+    });
+
+    // STEP 3: Logic Hooks (Effects) AFTER variables are defined
     React.useEffect(() => {
         setSelectedRace(null);
     }, [registrationType]);
 
-    // --- START AUTO-SAVE CODE HERE ---
-
-
-    // Auto-save Group Data
     React.useEffect(() => {
         const membersToSave = groupMembers.map(({ idFile, ...rest }) => rest);
         localStorage.setItem("temp_group_members", JSON.stringify(membersToSave));
     }, [groupMembers]);
+
+    React.useEffect(() => {
+        const { idFile, ...dataToSave } = individualRunner;
+        localStorage.setItem("temp_individual_runner", JSON.stringify(dataToSave));
+    }, [individualRunner]);
+
     // --- END AUTO-SAVE CODE ---
 
     // --- MODIFIED STATE FOR POPOVER (Unchanged) ---
-    const [openPopoverId, setOpenPopoverId] = useState(null);
+    
     const toggleSizeChart = (id) => {
         setOpenPopoverId(prevId => prevId === id ? null : id);
     };
@@ -268,35 +297,12 @@ function Register() {
 
 
     // --- Group State (UPDATED: Added queryBox) ---
-    const [groupName, setGroupName] = useState("");
+    
     // Keep ONLY this one version
-    const [groupMembers, setGroupMembers] = useState(() => {
-        try {
-            const savedVersion = localStorage.getItem("data_version");
-            if (savedVersion !== REGISTRATION_DATA_VERSION) return INITIAL_GROUP_STATE;
-            const saved = localStorage.getItem("temp_group_members");
-            return saved ? JSON.parse(saved) : INITIAL_GROUP_STATE;
-        } catch (e) { 
-            return INITIAL_GROUP_STATE; 
-        }
-    });
+    
 
     // State for Individual Registration fields (Unchanged)
-    const [individualRunner, setIndividualRunner] = useState(() => {
-    try {
-        const savedVersion = localStorage.getItem("data_version");
-        if (savedVersion !== REGISTRATION_DATA_VERSION) {
-            localStorage.removeItem("temp_individual_runner");
-            localStorage.removeItem("temp_group_members");
-            localStorage.setItem("data_version", REGISTRATION_DATA_VERSION);
-            return INITIAL_INDIVIDUAL_STATE;
-        }
-        const saved = localStorage.getItem("temp_individual_runner");
-        return saved ? JSON.parse(saved) : INITIAL_INDIVIDUAL_STATE;
-    } catch (e) { 
-        return INITIAL_INDIVIDUAL_STATE; 
-    }
-});
+    
     React.useEffect(() => {
         const { idFile, ...dataToSave } = individualRunner;
         localStorage.setItem("temp_individual_runner", JSON.stringify(dataToSave));
@@ -326,7 +332,7 @@ function Register() {
         });
     };
 
-    const navigate = useNavigate();
+    
 
     // Helper functions (UPDATED: Added queryBox)
     const newMemberObject = () => ({
