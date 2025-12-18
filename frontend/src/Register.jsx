@@ -263,12 +263,23 @@ function Register() {
         idFile: null,
     });
 
+    // --- CRITICAL FIX FOR UNCONTROLLED INPUT ERROR ---
     const handleIndividualChange = (field, value) => {
-        if (field === 'gender') {
-            setIndividualRunner(prev => ({ ...prev, gender: value, tshirtSize: "" }));
-        } else {
-            setIndividualRunner(prev => ({ ...prev, [field]: value }));
-        }
+        setIndividualRunner((prev) => {
+            // 1. Create a complete shallow copy of the previous state
+            const updatedState = { ...prev };
+
+            // 2. Update the specific field being changed
+            updatedState[field] = value;
+
+            // 3. Special handling for gender (to reset T-Shirt size)
+            if (field === 'gender') {
+                updatedState.tshirtSize = "";
+            }
+
+            // 4. Return the full object so no fields become 'undefined'
+            return updatedState;
+        });
     };
 
     const navigate = useNavigate();
@@ -987,7 +998,15 @@ function Register() {
                                 <div className="mt-4 p-6 bg-teal-50/30 rounded-2xl border border-teal-100">
                                     <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">🎁 Referral Code</h3>
                                     <p className="text-xs text-slate-500 mt-1">Have a referral code? Enter it here to earn bonus points!</p>
-                                    <input type="text" placeholder="Enter referral code" value={individualRunner.referralCode} onChange={e => handleIndividualChange('referralCode', e.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                                    <input
+                                        type="text"
+                                        placeholder="Enter referral code"
+                                        // Ensure this is 'referralCode' (two 'r's)
+                                        value={individualRunner.referralCode}
+                                        // Ensure this string matches exactly
+                                        onChange={e => handleIndividualChange('referralCode', e.target.value)}
+                                        className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                                    />
                                 </div>
                             </div>
 
@@ -1083,40 +1102,40 @@ function Register() {
 
                                 {/* newaddedline */}
                                 {/* Nationality */}
-                               {/* --- National Identity Card Upload Section --- */}
-<div className="md:col-span-2">
-    <h4 className="text-md font-semibold text-slate-800 mt-4 mb-2 border-t pt-4">
-        National Identity Card Upload *
-    </h4>
-</div>
+                                {/* --- National Identity Card Upload Section --- */}
+                                <div className="md:col-span-2">
+                                    <h4 className="text-md font-semibold text-slate-800 mt-4 mb-2 border-t pt-4">
+                                        National Identity Card Upload *
+                                    </h4>
+                                </div>
 
-{/* 1. Nationality comes first in this section */}
-<div id="charity-nationality-wrapper">
-    <label className="block text-sm font-medium text-slate-700 mb-1 ">Nationality *</label>
-    <select 
-        value={charityParticipant.nationality} 
-        onChange={(e) => handleCharityParticipantChange('nationality', e.target.value)} 
-        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" 
-        required 
-        id="charity-nationality"
-    >
-        <option value="">Select your nationality</option>
-        {nationalitiesISO.map((country) => (
-            <option key={country} value={country}>{country}</option>
-        ))}
-    </select>
-</div>
+                                {/* 1. Nationality comes first in this section */}
+                                <div id="charity-nationality-wrapper">
+                                    <label className="block text-sm font-medium text-slate-700 mb-1 ">Nationality *</label>
+                                    <select
+                                        value={charityParticipant.nationality}
+                                        onChange={(e) => handleCharityParticipantChange('nationality', e.target.value)}
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50"
+                                        required
+                                        id="charity-nationality"
+                                    >
+                                        <option value="">Select your nationality</option>
+                                        {nationalitiesISO.map((country) => (
+                                            <option key={country} value={country}>{country}</option>
+                                        ))}
+                                    </select>
+                                </div>
 
-{/* 2. ID Upload Block follows (ID Type, Number, and File) */}
-<IdUploadBlock
-    idType={charityParticipant.idType}
-    idNumber={charityParticipant.idNumber}
-    idFile={charityParticipant.idFile}
-    handleTypeChange={(field, value) => handleCharityParticipantChange(field, value)}
-    handleNumberChange={(field, value) => handleCharityParticipantChange(field, value)}
-    handleFileChange={(field, file) => handleCharityParticipantChange(field, file)}
-    sectionId="charity"
-/>
+                                {/* 2. ID Upload Block follows (ID Type, Number, and File) */}
+                                <IdUploadBlock
+                                    idType={charityParticipant.idType}
+                                    idNumber={charityParticipant.idNumber}
+                                    idFile={charityParticipant.idFile}
+                                    handleTypeChange={(field, value) => handleCharityParticipantChange(field, value)}
+                                    handleNumberChange={(field, value) => handleCharityParticipantChange(field, value)}
+                                    handleFileChange={(field, file) => handleCharityParticipantChange(field, file)}
+                                    sectionId="charity"
+                                />
                                 {/* END ADDED: ID Upload Block */}
 
                             </div>
@@ -1298,8 +1317,8 @@ function Register() {
                                             <div className="md:col-span-4 border-t border-slate-200 my-4"></div>
                                             <div>{index === 0 && (<div id="group-nationality-wrapper"><label className="block text-sm font-medium text-slate-700 mb-1">Nationality *</label><select value={member.nationality} onChange={(e) => handleMemberChange(index, "nationality", e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required id="group-nationality"><option value="">Select nationality</option>{nationalitiesISO.map((country) => (<option key={country} value={country}>{country}</option>))}</select></div>)}</div>
                                         </div>
-                                        
-                                        
+
+
                                         {/* ADDED: ID Upload Block for Group Leader (Member 1) (Unchanged) */}
                                         {index === 0 && (
                                             <>
