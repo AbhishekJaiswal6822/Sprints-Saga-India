@@ -74,7 +74,7 @@ export default function Hero() {
 
 
   return (
-    <div className='mt-8 max-w-[1500px] h-[550px] sm:h-[450px] md:h-[600px] lg:h-[680px] w-full m-auto py-8 px-2 relative group select-none'>
+    <div className='mt-8 max-w-[1200px] h-[550px] sm:h-[450px] md:h-[600px] lg:h-[650px] w-full m-auto py-8 px-2 relative group select-none'>
 
       <div
         onTouchStart={onTouchStart}

@@ -174,7 +174,7 @@ function ImageSlider() {
   }, [currentIndex]);
 
   return (
-    <div className='max-w-[1500px] h-[300px] sm:h-[450px] md:h-[600px] lg:h-[680px] w-full m-auto py-8 px-4 relative group select-none'>
+    <div className='max-w-[1200px] h-[300px] sm:h-[450px] md:h-[600px] lg:h-[650px] w-full m-auto py-8 px-4 relative group select-none'>
       
       {/* WRAPPER DIV: Holds the <img>. 
           We use overflow-hidden to keep the rounded corners sharp.
