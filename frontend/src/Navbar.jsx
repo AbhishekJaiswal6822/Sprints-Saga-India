@@ -159,7 +159,7 @@ function Navbar() {
           onClick={closeMenu}
           className="block text-center px-4 py-2 rounded-lg border text-slate-700"
         >
-          Sign In
+          Login 
         </Link>
       </li>
 
