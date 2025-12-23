@@ -11,6 +11,9 @@ import { useAuth } from "./AuthProvider";
 // 1. IMPORT TOAST FOR MODERN NOTIFICATIONS
 import { toast } from 'react-toastify';
 
+// T-shirt chart image 
+import tshirtChart from "./assets/tshirt-size.jpeg"
+
 const REGISTRATION_DATA_VERSION = "v1.0"; // Change this to "v1.1" when keys change
 
 // --- CONFIGURATION CONSTANTS ---
@@ -147,7 +150,7 @@ const TShirtSizePopover = ({ isOpen, onClose }) => {
                 </button>
             </h4>
             <img
-                src={"/src/assets/tshirt-size.jpeg"}
+                src={tshirtChart}
                 alt="T-shirt size chart"
                 className="w-full h-auto rounded"
             />
