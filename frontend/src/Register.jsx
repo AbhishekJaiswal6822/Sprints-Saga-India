@@ -1573,18 +1573,51 @@ function Register() {
                             </ul>
                         </div>
 
-                        <div className="mt-8 flex justify-center">
-                            <button
-                                type="submit"
-                                className={`cursor-pointer inline-flex items-center justify-center rounded-full bg-linear-to-r from-teal-600 to-cyan-500 px-16 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-600 focus-visible:outline-none focus-visible:ring-2 focus:ring-teal-500 focus-visible:ring-offset-2 whitespace-nowrap ${buttonDisabled || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                disabled={buttonDisabled || isSubmitting} // Use both conditions here
-                            >
-                                {buttonText}
-                            </button>
-                        </div>
+
                     </div>
                 </form>
+                {/* <div className="mt-8 flex justify-center sticky">
+                    <button
+                        type="submit"
+                        className={`cursor-pointer inline-flex items-center justify-center rounded-full bg-linear-to-r from-teal-600 to-cyan-500 px-16 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-600 focus-visible:outline-none focus-visible:ring-2 focus:ring-teal-500 focus-visible:ring-offset-2 whitespace-nowrap ${buttonDisabled || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={buttonDisabled || isSubmitting} // Use both conditions here
+                    >
+                        {buttonText}
+                    </button>
+                </div> */}
+                {/* 🔒 Sticky Bottom CTA */}
+<div className="fixed bottom-0 left-0 right-0 z-50  px-4 py-3">
+    <div className="max-w-6xl mx-auto flex justify-center">
+        <button
+            type="button"
+            onClick={handleProceedToPayment}
+            disabled={buttonDisabled || isSubmitting}
+            className={`
+                w-full md:w-auto
+                cursor-pointer
+                inline-flex items-center justify-center
+                rounded-full
+                bg-linear-to-r from-teal-600 to-cyan-500
+                px-10 md:px-16
+                py-3
+                text-sm md:text-base
+                font-semibold text-white
+                shadow-lg shadow-teal-500/30
+                hover:from-teal-700 hover:to-cyan-600
+                focus-visible:outline-none
+                focus-visible:ring-2 focus-visible:ring-teal-500
+                focus-visible:ring-offset-2
+                whitespace-nowrap
+                ${buttonDisabled || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
+        >
+            {buttonText}
+        </button>
+    </div>
+</div>
+
             </section>
+
 
             {/* ADDED: T-Shirt Size Chart Modal/Popover outside the main section */}
             {openPopoverId && (
