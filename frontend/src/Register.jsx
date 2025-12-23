@@ -97,11 +97,11 @@ const getPlatformFee = (raceId) => {
 const raceCategories = [
     // Change charityFee from 1600 to 0.1 for live testing
     // { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 1200, prebookPrice: 1000, charityFee: 1600 },
-    { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 1200, prebookPrice: 1000, charityFee: 1600 },
-    { id: "10k", name: "10K Challenge", description: "Step up your game", regularPrice: 1700, prebookPrice: 1500, charityFee: 2500 },
-    { id: "half", name: "Half Marathon (21.097K)", description: "The classic distance (21.1K)", regularPrice: 2500, prebookPrice: 2200, charityFee: 2800 },
-    { id: "35k", name: "35K Ultra", description: "Push your limits", regularPrice: 2700, prebookPrice: 2500, charityFee: 3500 },
-    { id: "full", name: "Full Marathon (42K)", description: "The ultimate challenge", regularPrice: 3000, prebookPrice: 2700, charityFee: 4000 }
+    { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 699, charityFee: 1600 },
+    { id: "10k", name: "10K Challenge", description: "Step up your game", regularPrice: 1199, prebookPrice: 1049, charityFee: 2500 },
+    { id: "half", name: "Half Marathon (21.097K)", description: "The classic distance (21.1K)", regularPrice: 1599, prebookPrice: 1449, charityFee: 2800 },
+    { id: "35k", name: "35K Ultra", description: "Push your limits", regularPrice: 2399, prebookPrice: 2249, charityFee: 3500 },
+    { id: "full", name: "Full Marathon (42K)", description: "The ultimate challenge", regularPrice: 2799, prebookPrice: 2599, charityFee: 4000 }
 ];
 
 const charityOptions = [
