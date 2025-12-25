@@ -214,45 +214,38 @@ exports.uploadIDProof = multer({
 // --- 3. Unified Registration Logic ---
 exports.submitRegistration = async (req, res) => {
     try {
-        // Validation: Ensure file was uploaded
         if (!req.file) {
             return res.status(400).json({ success: false, message: 'ID Proof file is required.' });
         }
 
-        const { 
-            registrationType, 
-            raceCategory, 
-            runnerDetails, // Expecting a JSON object or string from frontend
-            registrationFee,
-            discountAmount,
-            platformFee,
-            pgFee,
-            gstAmount,
-            amount,
-            idType,
-            idNumber
-        } = req.body;
+        // 🟢 FIX: Take everything from req.body
+        const data = req.body;
 
-        // Parse runnerDetails if it comes as a string (common with FormData/Multer)
-        const parsedDetails = typeof runnerDetails === 'string' ? JSON.parse(runnerDetails) : runnerDetails;
+        // 🟢 FIX: Handle 'dob' whether it's nested or flat (Since you aren't changing Register.jsx)
+        const rawDob = data.dob || (data.runnerDetails && JSON.parse(data.runnerDetails).dob);
+        
+        if (!rawDob) {
+            return res.status(400).json({ success: false, message: 'Date of Birth (dob) is required.' });
+        }
 
         const registration = new Registration({
             user: req.user.id,
-            registrationType,
-            raceCategory,
+            registrationType: data.registrationType,
+            raceCategory: data.raceCategory || data.raceId,
             runnerDetails: {
-                ...parsedDetails, 
-                dob: new Date(parsedDetails.dob), // Convert to Date object
-                registrationFee: Number(registrationFee) || 0,
-                discountAmount: Number(discountAmount) || 0,
-                platformFee: Number(platformFee) || 0,
-                pgFee: Number(pgFee) || 0,
-                gstAmount: Number(gstAmount) || 0,
-                amount: Number(amount) || 0 
+                // Spread all data from body to capture firstName, lastName, phone, etc.
+                ...data,
+                dob: new Date(rawDob), 
+                registrationFee: Number(data.registrationFee) || 0,
+                discountAmount: Number(data.discountAmount) || 0,
+                platformFee: Number(data.platformFee) || 0,
+                pgFee: Number(data.pgFee) || 0,
+                gstAmount: Number(data.gstAmount) || 0,
+                amount: Number(data.amount) || 0 
             },
             idProof: {
-                idType,
-                idNumber,
+                idType: data.idType,
+                idNumber: data.idNumber,
                 path: req.file.path 
             },
             registrationStatus: 'Pending Payment'
@@ -267,10 +260,9 @@ exports.submitRegistration = async (req, res) => {
         });
         
     } catch (error) {
-        // Clean up the uploaded file if saving fails
         if (req.file) { fs.unlinkSync(req.file.path); }
-        
         console.error('Registration Error:', error.message);
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 };
+
