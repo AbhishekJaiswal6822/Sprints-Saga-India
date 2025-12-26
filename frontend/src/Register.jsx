@@ -489,9 +489,13 @@ function Register() {
             rawRegistrationFee = memberPrices.reduce((sum, price) => sum + price, 0);
 
             // Group Discount calculation remains the same, based on rawRegistrationFee
-            if (memberCount >= 25) discountPercent = 20;
-            else if (memberCount >= 10) discountPercent = 15;
-            else if (memberCount >= 5) discountPercent = 10;
+            // if (memberCount >= 25) discountPercent = 20;
+            // else if (memberCount >= 10) discountPercent = 15;
+            // else if (memberCount >= 5) discountPercent = 10;
+
+            if (memberCount >= 25) discountPercent = 12;
+            else if (memberCount >= 10) discountPercent = 8;
+            else if (memberCount >= 5) discountPercent = 0;
 
             if (discountPercent > 0) {
                 discountAmount = Math.round(rawRegistrationFee * (discountPercent / 100));
@@ -923,7 +927,7 @@ function Register() {
                             </button>
                             <button type="button" onClick={() => setRegistrationType("group")} className={`rounded-2xl border p-4 text-left transition ${registrationType === "group" ? "border-teal-600 bg-teal-50" : "border-slate-200 hover:border-teal-400"}`}>
                                 <h3 className="font-semibold text-slate-900">Group Registration</h3>
-                                <p className="text-sm text-slate-600 mt-1">Register multiple participants together. Discounts available for 5, 10, or 25+ members.</p>
+                                <p className="text-sm text-slate-600 mt-1">Register multiple participants together. Discounts available for 10, or 25+ members.</p>
                             </button>
                             <button type="button" onClick={() => setRegistrationType("charity")} className={`rounded-2xl border p-4 text-left transition ${registrationType === "charity" ? "border-teal-600 bg-teal-50" : "border-slate-200 hover:border-teal-400"}`}>
                                 <h3 className="font-semibold text-slate-900">Charity Registration</h3>
@@ -948,7 +952,7 @@ function Register() {
                                 </h3>
                                 <p className="text-sm text-slate-600 mt-1">
                                     {registrationType === "individual" && "Register yourself for the marathon."}
-                                    {registrationType === "group" && "Register multiple participants together. Discounts available for 5, 10, or 25+ members."}
+                                    {registrationType === "group" && "Register multiple participants together. Discounts available for 10, or 25+ members."}
                                     {registrationType === "charity" && "Your registration includes the race fee and a fixed, non-refundable donation component."}
                                 </p>
                             </div>
@@ -1326,7 +1330,7 @@ function Register() {
                     {registrationType === "group" && (
                         <div id="group-registration-details" className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
                             <h2 className="text-xl font-semibold text-slate-900">Group Registration Details</h2>
-                            <p className="text-sm text-slate-500 mt-1">Enter details for all group members. Tiered discounts apply for 5, 10, or 25+ members.</p>
+                            <p className="text-sm text-slate-500 mt-1">Enter details for all group members. Tiered discounts apply for 10, or 25+ members.</p>
 
                             {/* NEW: Warning message for groups over limit */}
                             {memberCount > MAX_GROUP_MEMBERS && (
