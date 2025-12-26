@@ -245,9 +245,9 @@ exports.verifyPayment = async (req, res) => {
     try {
         const registration = await Registration.findById(registrationId).lean();
         if (!registration) return res.status(404).json({ success: false, message: 'Registration not found.' });
-        if (registration.registrationStatus === 'Verified') {
-            return res.status(400).json({ success: false, message: 'Payment already completed' });
-        }
+        // if (registration.registrationStatus === 'Verified') {
+        //     return res.status(400).json({ success: false, message: 'Payment already completed' });
+        // }
 
         // 1. Get Payment Method
         let paymentMethod = 'ONLINE';
