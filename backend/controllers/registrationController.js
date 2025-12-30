@@ -55,10 +55,10 @@ exports.submitRegistration = async (req, res) => {
             registrationType: data.registrationType,
             raceCategory: data.raceCategory || data.raceId,
             runnerDetails: {
-                // Spread all data from body to capture firstName, lastName, phone, etc.
                 ...data,
                 dob: new Date(rawDob), 
-                registrationFee: Number(data.registrationFee) || 0,
+                // 🟢 FIX: Map 'rawRegistrationFee' and force Number type
+                registrationFee: Number(data.rawRegistrationFee) || 0, 
                 discountAmount: Number(data.discountAmount) || 0,
                 platformFee: Number(data.platformFee) || 0,
                 pgFee: Number(data.pgFee) || 0,

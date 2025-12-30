@@ -77,18 +77,18 @@ exports.verifyPayment = async (req, res) => {
             lastName: runner.lastName || "",
             fullName: `${runner.firstName || ""} ${runner.lastName || ""}`.trim() || "Runner",
             phone: runner.phone || "N/A",
-            email: runner.email,
+            email: runner.email || regObj.email, 
             raceCategory: regObj.raceCategory,
             paymentMode: "UPI", 
             invoiceNo: `LRCP-${regObj.raceCategory}-${Date.now().toString().slice(-4)}`,
 
-            // 💰 FORCED CASTING: Ensures the PDF sees the 1.04 instead of 0.00
-            rawRegistrationFee: parseFloat(runner.registrationFee || 0),
-            discountAmount: parseFloat(runner.discountAmount || 0),
-            platformFee: parseFloat(runner.platformFee || 0),
-            pgFee: parseFloat(runner.pgFee || 0),
-            gstAmount: parseFloat(runner.gstAmount || 0),
-            amount: parseFloat(runner.amount || 0) 
+            // 💰 TRIPLE-PATH DETECTION: Search in runnerDetails AND root object
+            rawRegistrationFee: parseFloat(runner.registrationFee || regObj.registrationFee || 0),
+            discountAmount: parseFloat(runner.discountAmount || regObj.discountAmount || 0),
+            platformFee: parseFloat(runner.platformFee || regObj.platformFee || 0),
+            pgFee: parseFloat(runner.pgFee || regObj.pgFee || 0),
+            gstAmount: parseFloat(runner.gstAmount || regObj.gstAmount || 0),
+            amount: parseFloat(runner.amount || regObj.amount || 0) 
         };
 
         console.log(`[FIX-LOG] Sending Invoice for Amount: ${invoiceData.amount}`);
