@@ -86,11 +86,20 @@ const sendInvoiceEmail = async (userEmail, paymentData) => {
             const drawItem = (label, value, isRed = false) => {
                 doc.font('Helvetica').fillColor(isRed ? '#e60000' : '#333333').text(label, 50, currentY);
                 
-                // FIXED: Changed to "Rs." to prevent the ghost "1" error
-                const amountText = Number(value).toFixed(2);
+                // --- THE ULTIMATE TYPE SAFETY FIX ---
+                let cleanValue = 0;
+                if (typeof value === 'number') {
+                    cleanValue = value;
+                } else if (typeof value === 'string') {
+                    cleanValue = parseFloat(value.replace(/[^-0-9.]/g, '')) || 0;
+                } else if (value && value.toString) {
+                    // This handles MongoDB Decimal objects correctly
+                    cleanValue = parseFloat(value.toString()) || 0;
+                }
+
+                const amountText = Math.abs(cleanValue).toFixed(2);
                 doc.text(`Rs. ${amountText}`, 450, currentY, { width: 90, align: 'right' });
                 
-                // Light separator line
                 doc.moveTo(40, currentY + 12).lineTo(555, currentY + 12).strokeColor('#eeeeee').lineWidth(0.5).stroke();
                 currentY += 18;
             };
