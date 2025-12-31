@@ -1,6 +1,5 @@
-﻿﻿// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Register.jsx - FINAL STABLE VERSION
+﻿﻿// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Register.jsx 
 
-// changed getPlatformFee   raceCategories
 
 import React, { useState, useEffect } from "react";
 import { RACE_PRICING } from "./constants/racePricing";
@@ -84,7 +83,7 @@ const getPlatformFee = (raceId) => {
     switch (raceId) {
         case "5k":
             return 0; // Changed from 25 to 0 for live testing
-           // return 25; // Changed from 25 to 0 for live testing
+        // return 25; // Changed from 25 to 0 for live testing
         case "10k":
             return 30;
         case "half":
@@ -749,6 +748,15 @@ function Register() {
         // Use selected race ID for individual/charity, or first member's race ID for group
         const raceIdToSave = selectedRace?.id || groupMembers[0]?.raceId;
         formData.append('raceId', raceIdToSave);
+
+        //  CRITICAL: SEND BILLING DATA TO BACKEND 
+        formData.append("registrationFee", rawRegistrationFee);
+        formData.append("discountAmount", discountAmount);
+        formData.append("platformFee", platformFee);
+        formData.append("pgFee", pgFee);
+        formData.append("gstAmount", gstAmount);
+        formData.append("amount", totalAmountPayable);
+
 
         if (registrationType === 'individual' || registrationType === 'charity') {
             for (const key in dataToSave) {
@@ -1590,13 +1598,13 @@ function Register() {
                     </button>
                 </div> */}
                 {/* 🔒 Sticky Bottom CTA */}
-<div className="fixed bottom-0 left-0 right-0 z-50  px-4 py-3">
-    <div className="max-w-6xl mx-auto flex justify-center">
-        <button
-            type="button"
-            onClick={handleProceedToPayment}
-            disabled={buttonDisabled || isSubmitting}
-            className={`
+                <div className="fixed bottom-0 left-0 right-0 z-50  px-4 py-3">
+                    <div className="max-w-6xl mx-auto flex justify-center">
+                        <button
+                            type="button"
+                            onClick={handleProceedToPayment}
+                            disabled={buttonDisabled || isSubmitting}
+                            className={`
                 w-full md:w-auto
                 cursor-pointer
                 inline-flex items-center justify-center
@@ -1614,11 +1622,11 @@ function Register() {
                 whitespace-nowrap
                 ${buttonDisabled || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
             `}
-        >
-            {buttonText}
-        </button>
-    </div>
-</div>
+                        >
+                            {buttonText}
+                        </button>
+                    </div>
+                </div>
 
             </section>
 

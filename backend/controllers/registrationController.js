@@ -51,32 +51,36 @@ exports.submitRegistration = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Date of Birth (dob) is required.' });
         }
 
+        const finalAmount = Number(data.amount);
+
+        if (!finalAmount || finalAmount <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid registration amount'
+            });
+        }
+
         const registration = new Registration({
             user: req.user.id,
             registrationType: data.registrationType,
-            raceCategory: data.raceCategory || data.raceId,
-
-            // 🟢 CRITICAL FIX: Add these two lines at the TOP LEVEL
-            // This ensures the invoice generator finds them immediately.
-            registrationFee: Number(data.rawRegistrationFee || data.registrationFee) || 0,
-            amount: Number(data.amount) || 0,
+            raceCategory: data.raceId || data.raceCategory,
 
             runnerDetails: {
-                ...data, // Spread data first
-                dob: new Date(rawDob),
-                // Keep these here as well for redundancy
-                registrationFee: Number(data.rawRegistrationFee || data.registrationFee) || 0,
+                ...data,
+                registrationFee: Number(data.registrationFee) || finalAmount,
                 discountAmount: Number(data.discountAmount) || 0,
                 platformFee: Number(data.platformFee) || 0,
                 pgFee: Number(data.pgFee) || 0,
                 gstAmount: Number(data.gstAmount) || 0,
-                amount: Number(data.amount) || 0
+                amount: finalAmount 
             },
+
             idProof: {
                 idType: data.idType,
                 idNumber: data.idNumber,
                 path: req.file.path
             },
+
             registrationStatus: 'Pending Payment'
         });
 
