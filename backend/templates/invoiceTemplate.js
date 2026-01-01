@@ -57,7 +57,7 @@ const generateInvoiceHTML = (paymentData) => {
         </tr>
       </table>
 
-      <div style="margin-top: 10px; font-size: 11px; background: #f9f9f9; padding: 8px; border-radius: 5px;">
+      <div style="margin-top: 50px; font-size: 11px; background: #f9f9f9; padding: 8px; border-radius: 5px;">
         <p style="margin: 2px 0;">* GST is applicable only on the Payment Gateway Fee.</p>
         <p style="margin: 2px 0;">* No GST is charged on Registration or Platform Fee.</p>
         <p style="margin: 2px 0;">* This is a system-generated invoice.</p>
@@ -65,7 +65,7 @@ const generateInvoiceHTML = (paymentData) => {
 
       <div style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px; font-size: 12px;">
         <p style="margin: 1px 0;"><strong>Organiser Details:</strong></p>
-        <p style="margin: 1px 0;">Organised By: Sprints Saga India</p>
+        <p style="margin: 1px 0;">Organised By: Sprints Saga India </p>
         <p style="margin: 1px 0;">Email: info@sprintssagaindia.com | Web: www.sprintssagaindia.com</p>
       </div>
     </div>

@@ -137,7 +137,7 @@ const sendInvoiceEmail = async (userEmail, paymentData) => {
                 .lineWidth(0.5)
                 .stroke();
 
-            doc.moveDown(1); // Tightened space below line
+            doc.moveDown(2); // Tightened space below line
 
             // Organization Name (Darkest color #111111)
             doc.fillColor('#111111')
