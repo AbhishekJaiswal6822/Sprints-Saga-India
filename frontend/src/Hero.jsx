@@ -11,12 +11,15 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 // Desktop images
 import img1Desktop from "./assets/lokraja-marathon-2026-desktop.jpeg";
 import img2Desktop from "./assets/registration-website-desktop.jpeg";
-import img3Desktop from "./assets/early-bird-desktop.jpeg";
+// import img3Desktop from "./assets/early-bird-desktop.jpeg";
+import img4Desktop from "./assets/early-bird-registration.jpg";
+
 
 // Mobile images
 import img1Mobile from "./assets/lokraja-marathon-2026-mobile.jpeg";
 import img2Mobile from "./assets/registration-website-mobile.jpeg";
-import img3Mobile from "./assets/early-bird-mobile.jpeg";
+// import img3Mobile from "./assets/early-bird-mobile.jpeg";
+import img4Mobile from "./assets/early-bird-registration.jpg";
 
 export default function Hero() {
   const navigate = useNavigate();
@@ -37,7 +40,8 @@ export default function Hero() {
   const slides = [
     { desktop: img1Desktop, mobile: img1Mobile, clickable: true, type: 'register-soon' },
     { desktop: img2Desktop, mobile: img2Mobile, clickable: true, type: 'register-now' },
-    { desktop: img3Desktop, mobile: img3Mobile, clickable: false, type: 'none' },
+    // { desktop: img3Desktop, mobile: img3Mobile, clickable: false, type: 'none' },
+    { desktop: img4Desktop, mobile: img4Mobile, clickable: false, type: 'none' },
   ];
 
   const minSwipeDistance = 50;
