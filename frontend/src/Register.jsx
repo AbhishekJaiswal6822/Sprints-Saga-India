@@ -1296,6 +1296,13 @@ function Register() {
                                         </button>
                                     </label>
 
+                                    {openPopoverId === 'charity' && (
+                                        <TShirtSizePopover
+                                            isOpen={true}
+                                            onClose={() => setOpenPopoverId(null)}
+                                        />
+                                    )}
+
                                     <select
                                         value={charityParticipant.tshirtSize}
                                         onChange={(e) => handleCharityParticipantChange('tshirtSize', e.target.value)}
@@ -1629,12 +1636,6 @@ function Register() {
                 </div>
 
             </section>
-
-
-            {/* ADDED: T-Shirt Size Chart Modal/Popover outside the main section */}
-            {openPopoverId && (
-                <TShirtSizePopover isOpen={true} onClose={() => setOpenPopoverId(null)} />
-            )}
 
         </main>
     );
