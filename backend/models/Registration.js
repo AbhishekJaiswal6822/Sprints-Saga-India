@@ -8,12 +8,12 @@ const mongoose = require('mongoose');
 const RunnerDetailsSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    parentName: { type: String }, 
-    parentPhone: { type: String }, 
+    parentName: { type: String },
+    parentPhone: { type: String },
     email: { type: String, required: true },
     phone: { type: String, required: true },
     whatsapp: { type: String },
-    dob: { type: Date, required: true }, 
+    dob: { type: Date, required: true },
     gender: { type: String, required: true, enum: ['Male', 'Female', 'Other'] },
     bloodGroup: { type: String },
     nationality: { type: String, required: true },
@@ -35,19 +35,19 @@ const RunnerDetailsSchema = new mongoose.Schema({
 });
 
 const IDProofSchema = new mongoose.Schema({
-    idType: { type: String, required: true }, 
-    idNumber: { type: String, required: true }, 
-    path: { type: String, required: true } 
+    idType: { type: String, required: true },
+    idNumber: { type: String, required: true },
+    path: { type: String, required: true }
 });
 
 // 🛑 CRITICAL FIX: Define the Sub-Schema for Payment Details
 const PaymentDetailsSchema = new mongoose.Schema({
     orderId: { type: String, required: true },
-    paymentId: { type: String, required: true }, 
+    paymentId: { type: String, required: true },
     signature: { type: String }, // Razorpay signature
     status: { type: String, default: 'success' },
     paidAt: { type: Date, default: Date.now },
-}, { _id: false }); 
+}, { _id: false });
 
 
 const RegistrationSchema = new mongoose.Schema({
@@ -57,14 +57,14 @@ const RegistrationSchema = new mongoose.Schema({
         required: true,
         // unique: true 
     },
-    
+
     registrationType: {
         type: String,
         required: true,
         enum: ['individual', 'group', 'charity']
     },
-    
-    raceCategory: { 
+
+    raceCategory: {
         type: String,
         required: true,
     },
@@ -73,27 +73,32 @@ const RegistrationSchema = new mongoose.Schema({
         type: RunnerDetailsSchema,
         required: true,
     },
-    
+
     idProof: {
         type: IDProofSchema,
         required: true,
     },
-    
+
     // 🛑 CRITICAL FIX: Add the paymentDetails field to the main schema
     paymentDetails: {
         type: PaymentDetailsSchema,
-        required: false, 
+        required: false,
     },
 
     registrationStatus: {
         type: String,
-        default: 'Pending Payment', 
+        default: 'Pending Payment',
         enum: ['Pending Payment', 'Awaiting Verification', 'Verified', 'Rejected']
     },
-    
+
     registeredAt: {
         type: Date,
         default: Date.now
+    },
+     paymentStatus: {
+        type: String,
+        enum: ["pending", "paid"],
+        default: "pending",
     }
 });
 
