@@ -1,7 +1,7 @@
 ﻿﻿// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Register.jsx 
 
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { RACE_PRICING } from "./constants/racePricing";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineClose } from "react-icons/ai";
@@ -13,11 +13,13 @@ import { toast } from 'react-toastify';
 // T-shirt chart image 
 import tshirtChart from "./assets/tshirt-size.jpeg"
 
-const REGISTRATION_DATA_VERSION = "v1.0"; // Change this to "v1.1" when keys change
+const REGISTRATION_DATA_VERSION = "v1.1"; // Change this to "v1.1" when keys change
+
+
 
 // --- CONFIGURATION CONSTANTS ---
 // const PG_FEE_RATE = 0.021; // 2.1% Payment Gateway Fee
-const PG_FEE_RATE = 0.025; // 2.1% Payment Gateway Fee
+const PG_FEE_RATE = 0.025; // 2.5% Payment Gateway Fee
 const GST_RATE = 0.18;    // 18% GST (Applied only to PG Fee)
 // New Constant for Group Registration Limit
 const MAX_GROUP_MEMBERS = 35;
@@ -82,7 +84,7 @@ const getFilteredSizes = (gender) => {
 const getPlatformFee = (raceId) => {
     switch (raceId) {
         case "5k":
-            return 25; // Changed from 25 to 0 for live testing
+            return 0; // Changed from 25 to 0 for live testing
         // return 25; // Changed from 25 to 0 for live testing
         case "10k":
             return 30;
@@ -99,7 +101,7 @@ const getPlatformFee = (raceId) => {
 const raceCategories = [
     // Change charityFee from 1600 to 0.1 for live testing
     // { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 1200, prebookPrice: 1000, charityFee: 1600 },
-    { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 699, charityFee: 1600 },
+    { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 699, charityFee: 1 },
     { id: "10k", name: "10K Challenge", description: "Step up your game", regularPrice: 1199, prebookPrice: 1049, charityFee: 2500 },
     { id: "half", name: "Half Marathon (21.097K)", description: "The classic distance (21.1K)", regularPrice: 1599, prebookPrice: 1449, charityFee: 2800 },
     { id: "35k", name: "35K Ultra", description: "Push your limits", regularPrice: 2399, prebookPrice: 2249, charityFee: 3500 },
@@ -230,6 +232,7 @@ const INITIAL_GROUP_STATE = Array.from({ length: 5 }, () => ({
 }));
 
 function Register() {
+    const hasNavigatedRef = useRef(false);
     const { token, user } = useAuth();
     const navigate = useNavigate();
 
@@ -263,16 +266,16 @@ function Register() {
     });
 
     // STEP 3: Logic Hooks (Effects) AFTER variables are defined
-    React.useEffect(() => {
+    useEffect(() => {
         setSelectedRace(null);
     }, [registrationType]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const membersToSave = groupMembers.map(({ idFile, ...rest }) => rest);
         localStorage.setItem("temp_group_members", JSON.stringify(membersToSave));
     }, [groupMembers]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const { idFile, ...dataToSave } = individualRunner;
         localStorage.setItem("temp_individual_runner", JSON.stringify(dataToSave));
     }, [individualRunner]);
@@ -303,23 +306,6 @@ function Register() {
         selectedCharityId: charityOptions[0].id,
     });
 
-
-    // --- Group State (UPDATED: Added queryBox) ---
-
-    // Keep ONLY this one version
-
-
-    // State for Individual Registration fields (Unchanged)
-
-    React.useEffect(() => {
-        const { idFile, ...dataToSave } = individualRunner;
-        localStorage.setItem("temp_individual_runner", JSON.stringify(dataToSave));
-    }, [individualRunner]);
-
-    React.useEffect(() => {
-        const membersToSave = groupMembers.map(({ idFile, ...rest }) => rest);
-        localStorage.setItem("temp_group_members", JSON.stringify(membersToSave));
-    }, [groupMembers]);
 
     // --- CRITICAL FIX FOR UNCONTROLLED INPUT ERROR ---
     const handleIndividualChange = (field, value) => {
@@ -716,6 +702,8 @@ function Register() {
     // --- CRITICAL FIX: ASYNC API SUBMISSION (UPDATED TOAST) ---
     const handleProceedToPayment = async (e) => {
         e.preventDefault();
+        if (hasNavigatedRef.current) return;
+        hasNavigatedRef.current = true;
         setIsSubmitting(true);
 
         // *** START FIX 2: Dismiss all toasts before validation and submission ***
@@ -724,12 +712,14 @@ function Register() {
 
         if (!validateForm()) {
             setIsSubmitting(false);
+            hasNavigatedRef.current = false;
             return;
         }
 
         if (!token) {
             toast.error("Error: User session expired. Please log in again.");
             setIsSubmitting(false);
+            hasNavigatedRef.current = false;
             return;
         }
 
@@ -799,6 +789,7 @@ function Register() {
         }
         catch (error) {
             setIsSubmitting(false);
+            hasNavigatedRef.current = false; 
             console.error("Registration Save Error:", error.message, error);
 
             // --- 1. HANDLE EXISTING REGISTRATION (The Logged-in User Case) ---
@@ -921,7 +912,8 @@ function Register() {
                     <p className="mt-3 text-slate-600">Choose your registration type and complete your details</p>
                 </div>
 
-                <form onSubmit={handleProceedToPayment} className="space-y-8">
+                {/* <form onSubmit={handleProceedToPayment} className="space-y-8"> */}
+                <form className="space-y-8">
                     {/* Registration Type Selection (Unchanged) */}
                     <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
                         <h2 className="text-xl font-semibold text-slate-900">Registration Type</h2>
