@@ -1047,6 +1047,7 @@ function Register() {
                         </div>
                     )}
                     {/* 3. Individual Registration Full Sections */}
+                    {/* individual section */}
                     {registrationType === "individual" && (
                         <>
                             {/* Personal Information */}
@@ -1158,6 +1159,7 @@ function Register() {
                     )}
 
                     {/* Charity Participant Information (UPDATED with constraints) */}
+                    {/* charity section */}
                     {registrationType === "charity" && (
                         <div id="charity-section" className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8 space-y-6">
                             <div className="flex items-center gap-2">
@@ -1228,11 +1230,11 @@ function Register() {
                                 {/* newaddedline */}
                                 {/* Nationality */}
                                 {/* --- National Identity Card Upload Section --- */}
-                                <div className="md:col-span-2">
+                                {/* <div className="md:col-span-2">
                                     <h4 className="text-md font-semibold text-slate-800 mt-4 mb-2 border-t pt-4">
                                         National Identity Card Upload *
                                     </h4>
-                                </div>
+                                </div> */}
 
                                 {/* 1. Nationality comes first in this section */}
                                 <div id="charity-nationality-wrapper">
@@ -1340,6 +1342,7 @@ function Register() {
                     )}
 
                     {/* Group Registration Details (UPDATED with constraints & QueryBox fix) */}
+                    {/* group section */}
                     {registrationType === "group" && (
                         <div id="group-registration-details" className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
                             <h2 className="text-xl font-semibold text-slate-900">Group Registration Details</h2>
@@ -1392,9 +1395,9 @@ function Register() {
                                             <h3 className="font-semibold text-slate-900">Member {index + 1} - {raceCategories.find(r => r.id === member.raceId)?.name || 'Select Race'}</h3>
                                             {groupMembers.length > 1 && (<button type="button" onClick={() => handleRemoveMember(index)} className="text-xs text-rose-600 hover:underline" title={`Remove member ${index + 1}`}>Remove</button>)}
                                         </div>
-                                        <div className="grid md:grid-cols-4 gap-4 mb-4">
+                                        <div className="grid md:grid-cols-4 gap-4 mb-4 items-start">
                                             <div>
-                                                <label className="block text-sm font-medium text-slate-700 mb-1">Race Category *</label>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1 min-h-5">Race Category *</label>
                                                 <select
                                                     value={member.raceId}
                                                     onChange={(e) => handleMemberChange(index, "raceId", e.target.value)}
@@ -1420,7 +1423,7 @@ function Register() {
                                             <div><label className="block text-sm font-medium text-slate-700 mb-1">Gender *</label><select value={member.gender} onChange={(e) => handleMemberChange(index, "gender", e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required><option value="">Select gender</option>{genders.map((g) => (<option key={g} value={g}>{g}</option>))}</select></div>
                                             {/* T-Shirt Size */}
                                             <div className="relative">
-                                                <label className=" text-sm font-medium text-slate-700 mb-1 flex items-center gap-1">
+                                                <label className=" flex text-sm font-medium text-slate-700 mb-1 min-h-5  items-center gap-1">
                                                     T-Shirt Size *
                                                     <button
                                                         type="button"
@@ -1446,7 +1449,7 @@ function Register() {
                                                 </select>
                                             </div>
                                             {/* END T-Shirt Size Size - MODIFIED FOR GROUP MEMBERS */}
-                                            <div className="md:col-span-4 border-t border-slate-200 my-4"></div>
+                                            {/* <div className="md:col-span-4 border-t border-slate-200 my-4"></div> */}
                                             <div>{index === 0 && (<div id="group-nationality-wrapper"><label className="block text-sm font-medium text-slate-700 mb-1">Nationality *</label><select value={member.nationality} onChange={(e) => handleMemberChange(index, "nationality", e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required id="group-nationality"><option value="">Select nationality</option>{nationalitiesISO.map((country) => (<option key={country} value={country}>{country}</option>))}</select></div>)}</div>
                                         </div>
 
