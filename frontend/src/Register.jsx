@@ -164,6 +164,10 @@ const TShirtSizePopover = ({ isOpen, onClose }) => {
 // --- END T-Shirt Size Chart Popover Component ---
 
 // --- ID Upload Block Component (Reusable - Unchanged) ---
+const formatIdNumber = (value) => {
+    // Remove everything except A-Z and 0-9
+    return value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+};
 const IdUploadBlock = ({ idType, idNumber, idFile, handleTypeChange, handleNumberChange, handleFileChange, sectionId }) => (
     <>
         <div className="md:col-span-2">
@@ -189,9 +193,11 @@ const IdUploadBlock = ({ idType, idNumber, idFile, handleTypeChange, handleNumbe
             <input
                 type="text"
                 value={idNumber}
-                onChange={(e) => handleNumberChange('idNumber', e.target.value)}
+                onChange={(e) =>
+                    handleNumberChange('idNumber', formatIdNumber(e.target.value))
+                }
                 placeholder="Enter your national identity number"
-                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm"
                 required
                 id={`${sectionId}-idNumber`} // ID added for scrolling
             />
@@ -789,7 +795,7 @@ function Register() {
         }
         catch (error) {
             setIsSubmitting(false);
-            hasNavigatedRef.current = false; 
+            hasNavigatedRef.current = false;
             console.error("Registration Save Error:", error.message, error);
 
             // --- 1. HANDLE EXISTING REGISTRATION (The Logged-in User Case) ---
@@ -1071,7 +1077,8 @@ function Register() {
                                                 <option key={country} value={country}>{country}</option>
                                             ))}
                                         </select>
-                                    </div></div>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Address Information */}
