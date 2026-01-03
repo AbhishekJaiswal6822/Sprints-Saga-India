@@ -42,11 +42,11 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    //  STEP 2: BLOCK DOUBLE PAYMENT
-    if (registration.paymentStatus === 'paid') {
+    //  BLOCK DOUBLE PAYMENT 
+    if (registration.paymentStatus === "paid") {
       return res.status(409).json({
         success: false,
-        message: 'Payment already completed',
+        message: "Payment already completed for this registration",
       });
     }
     const options = {
@@ -97,11 +97,11 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
-    //  BLOCK DOUBLE PAYMENT
-    if (registration.paymentStatus === 'paid') {
-      return res.status(409).json({
-        success: false,
-        message: 'Payment already completed'
+    //  ABSOLUTE PROTECTION
+    if (registration.paymentStatus === "paid") {
+      return res.status(200).json({
+        success: true,
+        message: "Payment already verified",
       });
     }
 
@@ -114,10 +114,7 @@ exports.verifyPayment = async (req, res) => {
       paidAt: new Date()
     };
 
-    // 3️ UPDATE REGISTRATION STATUS
-    registration.paymentStatus = 'paid';
-    registration.registrationStatus = 'Verified';
-
+    // 3️ UPDATE REGISTRATION STATUS.
     // 4️ SAVE TO DATABASE
     await registration.save();
 
