@@ -1,5 +1,3 @@
-
-
 // C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\backend\models\Registration.js
 
 const mongoose = require('mongoose');
@@ -21,18 +19,22 @@ const RunnerDetailsSchema = new mongoose.Schema({
     city: { type: String, required: true },
     state: { type: String, required: true },
     pincode: { type: String, required: true },
-    country: { type: String, default: 'Indian' },
+    country: { type: String, default: 'India' },
     experience: { type: String },
     finishTime: { type: String },
     dietary: { type: String },
     tshirtSize: { type: String, required: true },
     registrationFee: { type: Number, default: 0 },
+    couponCode: { type: String, default: null },
+    discountPercent: { type: Number, default: 0 },
     discountAmount: { type: Number, default: 0 },
     platformFee: { type: Number, default: 0 },
     pgFee: { type: Number, default: 0 },
     gstAmount: { type: Number, default: 0 },
-    amount: { type: Number, required: true }, // Total paid
-});
+    amount: { type: Number, required: true }, //  Amount payable (before payment)
+
+},
+    { strict: true });
 
 const IDProofSchema = new mongoose.Schema({
     idType: { type: String, required: true },
@@ -69,17 +71,24 @@ const RegistrationSchema = new mongoose.Schema({
         required: true,
     },
 
+    // runnerDetails: {
+    //     type: RunnerDetailsSchema,
+    //     required: true,
+    // },
     runnerDetails: {
         type: RunnerDetailsSchema,
-        required: true,
+        required: function () {
+            return this.registrationType !== 'group';
+        }
     },
-
     idProof: {
         type: IDProofSchema,
-        required: true,
+        required: function () {
+            return this.registrationType !== 'group';
+        }
     },
 
-    // 🛑 CRITICAL FIX: Add the paymentDetails field to the main schema
+    //  CRITICAL FIX: Add the paymentDetails field to the main schema
     paymentDetails: {
         type: PaymentDetailsSchema,
         required: false,
@@ -95,11 +104,11 @@ const RegistrationSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-     paymentStatus: {
+    paymentStatus: {
         type: String,
         enum: ["pending", "paid"],
         default: "pending",
     }
 });
-
+RegistrationSchema.index({ user: 1, registrationStatus: 1 });
 module.exports = mongoose.model('Registration', RegistrationSchema);
