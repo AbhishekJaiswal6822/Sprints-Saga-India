@@ -55,6 +55,14 @@ const sendInvoiceEmail = async (userEmail, paymentData) => {
             doc.moveTo(40, doc.y + 10).lineTo(555, doc.y + 10).strokeColor('#008080').lineWidth(1).stroke();
             doc.moveDown(2);
 
+            // Registration Type (Readable Label)
+            const registrationTypeLabel =
+                paymentData.registrationType === 'individual'
+                    ? 'Individual'
+                    : paymentData.registrationType === 'group'
+                        ? 'Group'
+                        : 'Charity';
+
             // --- RUNNER & EVENT INFO GRID ---
             const gridY = doc.y;
             doc.fillColor('#000000').fontSize(8.5);
@@ -66,11 +74,11 @@ const sendInvoiceEmail = async (userEmail, paymentData) => {
             doc.font('Helvetica-Bold').text('Email:', 50, gridY + 36).font('Helvetica').text(paymentData.email, 105, gridY + 36);
 
             // Right Column
-            doc.font('Helvetica-Bold').text('Category:', 370, gridY).font('Helvetica').text(paymentData.raceCategory, 435, gridY);
-            doc.font('Helvetica-Bold').text('Invoice:', 370, gridY + 12).font('Helvetica').text(paymentData.invoiceNo, 435, gridY + 12);
-            doc.font('Helvetica-Bold').text('Mode:', 370, gridY + 24).font('Helvetica').text(paymentData.paymentMode || 'UPI', 435, gridY + 24);
-            doc.font('Helvetica-Bold').text('Date:', 370, gridY + 36).font('Helvetica').text(new Date().toLocaleDateString(), 435, gridY + 36);
-
+            doc.font('Helvetica-Bold').text('Registration Type:', 370, gridY).font('Helvetica').text(registrationTypeLabel, 465, gridY);
+            doc.font('Helvetica-Bold').text('Race Category:', 370, gridY + 12).font('Helvetica').text(paymentData.raceCategory, 465, gridY + 12);
+            doc.font('Helvetica-Bold').text('Invoice:', 370, gridY + 24).font('Helvetica').text(paymentData.invoiceNo, 465, gridY + 24);
+            doc.font('Helvetica-Bold').text('Mode:', 370, gridY + 36).font('Helvetica').text(paymentData.paymentMode || 'UPI', 465, gridY + 36);
+            doc.font('Helvetica-Bold').text('Date:', 370, gridY + 48).font('Helvetica').text(new Date().toLocaleDateString(), 465, gridY + 48);
             // --- PAYMENT BREAKUP TABLE ---
             doc.moveDown(4);
             const tableTop = doc.y;
@@ -103,7 +111,7 @@ const sendInvoiceEmail = async (userEmail, paymentData) => {
             };
 
             // Table Content Rows
-            drawItem('Registration Fee', paymentData.rawRegistrationFee);
+            drawItem('Registration Fee', paymentData.rawRegistrationFee ?? paymentData.registrationFee);
             drawItem('Discount', `-${paymentData.discountAmount}`, true);
             drawItem('Platform Fee', paymentData.platformFee);
             drawItem('Payment Gateway Fee', paymentData.pgFee);
