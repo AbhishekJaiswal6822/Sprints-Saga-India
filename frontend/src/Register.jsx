@@ -798,39 +798,51 @@ function Register() {
             }
             formData.append('idProofFile', dataToSave.idFile);
 
-        } else if (registrationType === 'group') {
-            formData.append('groupName', groupName);
+        /* ... earlier formData appends ... */
 
-            //  Step A: satisfy top-level backend validation using Member 1's data
-            const leader = groupMembers[0];
-            if (leader) {
-                formData.append('dob', leader.dob || "");
-                formData.append('city', leader.city || "N/A"); // Use a default or leader's city
-                formData.append('state', leader.state || "Maharashtra"); // Default to event state
-                formData.append('pincode', leader.pincode || "000000");
-                formData.append('tshirtSize', leader.tshirtSize || "");
-            }
+} else if (registrationType === 'group') {
+    const leader = groupMembers[0];
+    formData.append('groupName', groupName); 
 
-            //  Step B: satisfy database validation for EVERY member in the array
-            const membersWithAddress = groupMembers.map((member, index) => {
-                const { idFile, ...rest } = member;
-                return {
-                    ...rest,
-                    address: member.address || leader.address || "Group Address",
-                    city: member.city || "N/A",
-                    state: member.state || "Maharashtra",
-                    pincode: member.pincode || "000000"
-                };
-            });
-
-            // Map members to exclude the large File object before JSON stringification
-            formData.append('groupMembers', JSON.stringify(groupMembers.map(({ idFile, ...rest }) => rest)));
-            // Append the leader's file
-            if (leader && leader.idFile) {
-                formData.append('idProofFile', leader.idFile);
-            }
+    // 1. ADD THIS PART: Borrow leader data for Member 1's top-level details
+    if (leader) {
+        formData.append('idType', leader.idType || "");
+        formData.append('idNumber', leader.idNumber || "");
+        formData.append('dob', leader.dob || "");
+        formData.append('firstName', leader.firstName || "");
+        formData.append('lastName', leader.lastName || "");
+        formData.append('email', leader.email || "");
+        formData.append('phone', leader.phone || "");
+        formData.append('gender', leader.gender || "");
+        formData.append('nationality', leader.nationality || "Indian");
+        formData.append('address', leader.address || "");
+        formData.append('city', leader.city || "N/A");
+        formData.append('state', leader.state || "Maharashtra");
+        formData.append('pincode', leader.pincode || "000000");
+        formData.append('tshirtSize', leader.tshirtSize || "");
+        
+        if (leader.idFile) {
+            formData.append('idProofFile', leader.idFile);
+        }
     }
 
+    // 2. ADD THIS PART: Prepare the enriched members list for the database
+    const membersWithRequiredFields = groupMembers.map((member) => {
+        const { idFile, ...rest } = member;
+        return {
+            ...rest,
+            // Borrow leader's info for fields not present in Member 2+ UI
+            nationality: member.nationality || (leader ? leader.nationality : "Indian"),
+            address: member.address || (leader ? leader.address : "Group Address"),
+            city: member.city || (leader ? leader.city : "N/A"),
+            state: member.state || (leader ? leader.state : "Maharashtra"),
+            pincode: member.pincode || (leader ? leader.pincode : "000000")
+        };
+    });
+
+    // 3. CRITICAL: Use the NEW variable 'membersWithRequiredFields' here
+    formData.append('groupMembers', JSON.stringify(membersWithRequiredFields));
+}
     let currentRegistrationId = null;
 
     try {
@@ -884,7 +896,7 @@ function Register() {
                     gstAmount
                 }
             });
-            return; // ⛔ STOP execution here (Successful redirect)
+            return; //  STOP execution here (Successful redirect)
         }
 
         // --- 2. HANDLE AUTH/GENERIC ERRORS ---

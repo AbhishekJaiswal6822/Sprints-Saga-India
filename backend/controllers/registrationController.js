@@ -44,15 +44,18 @@ exports.uploadIDProof = multer({
 exports.submitRegistration = async (req, res) => {
     try {
         // --- NECESSARY CHANGE 1: CHECK FILE FIRST ---
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: "ID proof document is required" });
+        if (req.body.registrationType !== "group" && !req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "ID proof document is required"
+            });
         }
 
         let data = req.body;
         if (data.runnerDetails && typeof data.runnerDetails === 'string') {
             try {
                 const nestedData = JSON.parse(data.runnerDetails);
-                data = { ...data, ...nestedData }; 
+                data = { ...data, ...nestedData };
             } catch (e) {
                 console.log("runnerDetails was not a JSON string, using raw body.");
             }
@@ -69,11 +72,19 @@ exports.submitRegistration = async (req, res) => {
         }
 
         const finalAmount = Number(data.amount);
-        const rawDob = data.dob || parsedRunnerDetails?.dob;
+        // const rawDob = data.dob || parsedRunnerDetails?.dob;
 
-        if (!rawDob) {
-            if (req.file) fs.unlinkSync(req.file.path);
-            return res.status(400).json({ success: false, message: 'Date of Birth (dob) is required.' });
+        // if (!rawDob) {
+        //     if (req.file) fs.unlinkSync(req.file.path);
+        //     return res.status(400).json({ success: false, message: 'Date of Birth (dob) is required.' });
+        // }
+
+        if (data.registrationType !== "group") {
+            const rawDob = data.dob || parsedRunnerDetails?.dob;
+            if (!rawDob) {
+                if (req.file) fs.unlinkSync(req.file.path);
+                return res.status(400).json({ success: false, message: 'Date of Birth (dob) is required.' });
+            }
         }
 
         // --- NECESSARY CHANGE 2: CALCULATE VARIABLES BEFORE USING THEM IN OBJECTS ---
@@ -92,38 +103,21 @@ exports.submitRegistration = async (req, res) => {
         let parsedGroupMembers = [];
         if (data.registrationType === "group") {
             try {
-                parsedGroupMembers = JSON.parse(data.groupMembers);
+                const rawMembers = JSON.parse(data.groupMembers);
+
+                parsedGroupMembers = rawMembers.map(member => ({
+                    ...member,
+
+                    
+                    raceCategory: member.raceCategory || member.raceId || null
+                }));
+
             } catch {
                 if (req.file) fs.unlinkSync(req.file.path);
                 return res.status(400).json({ success: false, message: "Invalid group members data" });
             }
         }
 
-        const registrationData = {
-            user: req.user.id,
-            registrationType: data.registrationType,
-            raceCategory: data.raceId || data.raceCategory,
-            groupName: data.registrationType === "group" ? data.groupName : undefined,
-            groupMembers: data.registrationType === "group" ? parsedGroupMembers : undefined,
-            runnerDetails: {
-                ...data,
-                ...parsedRunnerDetails,
-                registrationFee: Number(data.registrationFee) || finalAmount,
-                couponCode,
-                discountPercent,
-                discountAmount,
-                platformFee: Number(data.platformFee) || 0,
-                pgFee: Number(data.pgFee) || 0,
-                gstAmount: Number(data.gstAmount) || 0,
-                amount: finalAmount
-            },
-            idProof: {
-                idType: data.idType,
-                idNumber: data.idNumber,
-                path: req.file.path
-            },
-            registrationStatus: "Pending Payment"
-        };
 
         if (!finalAmount || finalAmount <= 0) {
             if (req.file) fs.unlinkSync(req.file.path);
@@ -134,7 +128,11 @@ exports.submitRegistration = async (req, res) => {
             user: req.user.id,
             registrationType: data.registrationType,
             raceCategory: data.raceId || data.raceCategory,
-            runnerDetails: {
+
+            //   FOR GROUP REGISTRATION
+            groupName: data.registrationType === "group" ? data.groupName : undefined,
+            groupMembers: data.registrationType === "group" ? parsedGroupMembers : undefined,
+            runnerDetails: data.registrationType !== "group" ? {
                 ...data,
                 registrationFee: Number(data.registrationFee) || finalAmount,
                 couponCode: couponCode || null,
@@ -144,12 +142,12 @@ exports.submitRegistration = async (req, res) => {
                 pgFee: Number(data.pgFee) || 0,
                 gstAmount: Number(data.gstAmount) || 0,
                 amount: finalAmount
-            },
-            idProof: {
+            } : undefined,
+            idProof: req.file ? {
                 idType: data.idType,
                 idNumber: data.idNumber,
                 path: req.file.path
-            },
+            } : undefined,
             registrationStatus: 'Pending Payment'
         });
 

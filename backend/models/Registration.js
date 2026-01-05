@@ -42,7 +42,7 @@ const IDProofSchema = new mongoose.Schema({
     path: { type: String, required: true }
 });
 
-// 🛑 CRITICAL FIX: Define the Sub-Schema for Payment Details
+//  CRITICAL FIX: Define the Sub-Schema for Payment Details
 const PaymentDetailsSchema = new mongoose.Schema({
     orderId: { type: String, required: true },
     paymentId: { type: String, required: true },
@@ -86,6 +86,25 @@ const RegistrationSchema = new mongoose.Schema({
         required: function () {
             return this.registrationType !== 'group';
         }
+    },
+
+    groupName: {
+        type: String,
+        required: function () { return this.registrationType === 'group'; }
+    },
+    groupMembers: {
+        type: [new mongoose.Schema({
+            firstName: { type: String, required: true },
+            lastName: { type: String, required: true },
+            email: { type: String, required: true },
+            phone: { type: String, required: true },
+            dob: { type: Date, required: true },
+            gender: { type: String, required: true },
+            tshirtSize: { type: String, required: true },
+            nationality: { type: String, required: true },
+            raceCategory: { type: String, required: true }
+        }, { _id: false })],
+        required: function () { return this.registrationType === 'group'; }
     },
 
     //  CRITICAL FIX: Add the paymentDetails field to the main schema
