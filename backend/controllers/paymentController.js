@@ -116,6 +116,8 @@ exports.verifyPayment = async (req, res) => {
 
     // 3️ UPDATE REGISTRATION STATUS.
     // 4️ SAVE TO DATABASE
+    registration.paymentStatus = "paid";
+    registration.registrationStatus = "Verified";
     await registration.save();
 
     // 5️ PREPARE INVOICE DATA (FROM DB, NOT FRONTEND)
@@ -128,7 +130,10 @@ exports.verifyPayment = async (req, res) => {
       fullName: `${runner.firstName} ${runner.lastName}`,
       phone: runner.phone,
       email: runner.email,
+
+      registrationType: regObj.registrationType, 
       raceCategory: regObj.raceCategory,
+      
       paymentMode: 'Razorpay',
       invoiceNo: `LRCP-${Date.now()}`,
 

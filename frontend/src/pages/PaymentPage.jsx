@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../AuthProvider";
@@ -47,7 +47,7 @@ function PaymentPage() {
 
   const verifyPayment = async (paymentDetails) => {
     if (paymentDoneRef.current) return; //  BLOCK DOUBLE CALL
-  paymentDoneRef.current = true;       //  LOCK IMMEDIATELY
+    paymentDoneRef.current = true;       //  LOCK IMMEDIATELY
     try {
       const response = await api("/api/payment/verify", {
         method: "POST",
@@ -132,6 +132,28 @@ function PaymentPage() {
     }
   };
 
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const res = await api(`/api/registration/${registrationId}`, {
+          method: "GET",
+          token,
+        });
+
+        if (res.paymentStatus === "paid") {
+          navigate("/payment-success", {
+            replace: true,
+            state: { registrationId },
+          });
+        }
+      } catch (e) {
+        console.error("Payment status check failed");
+      }
+    };
+
+    if (registrationId) checkStatus();
+  }, [registrationId]);
+
   return (
     <main className="min-h-screen bg-slate-50 flex justify-center items-center px-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-lg border border-slate-100 p-8">
@@ -165,8 +187,8 @@ function PaymentPage() {
 
         <button
           className={`mt-8 w-full rounded-full py-3 text-white font-semibold transition ${loading
-              ? "bg-slate-400 cursor-not-allowed"
-              : "bg-teal-600 hover:bg-teal-700"
+            ? "bg-slate-400 cursor-not-allowed"
+            : "bg-teal-600 hover:bg-teal-700"
             }`}
           onClick={handlePayment}
           disabled={loading}
@@ -177,7 +199,8 @@ function PaymentPage() {
         <button
           className="mt-3 w-full text-sm text-slate-500 hover:underline"
           onClick={() => navigate(-1)}
-          disabled={loading}
+          // disabled={loading}
+          disabled={loading || paymentDoneRef.current}
         >
           Go Back
         </button>

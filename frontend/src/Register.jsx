@@ -857,7 +857,10 @@ function Register() {
         formData.append("pgFee", pgFee);
         formData.append("gstAmount", gstAmount);
         formData.append("amount", totalAmountPayable);
-        formData.append("referralCode", individualRunner.referralCode);
+        // formData.append("referralCode", individualRunner.referralCode);
+        if (registrationType === "individual") {
+            formData.append("referralCode", individualRunner.referralCode);
+        }
 
 
         if (registrationType === 'individual' || registrationType === 'charity') {
