@@ -147,7 +147,9 @@ function PaymentPage() {
           });
         }
       } catch (e) {
-        console.error("Payment status check failed");
+        if (e?.status !== 404) {
+          console.warn("Payment not completed yet");
+        }
       }
     };
 
