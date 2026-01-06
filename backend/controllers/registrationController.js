@@ -1,167 +1,261 @@
-// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\backend\controllers\registrationController.js
-
 const Registration = require('../models/Registration');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+const AWS = require('aws-sdk');
 
-// --- 1. Multer Storage Setup ---
-const uploadDir = 'uploads/';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+/* =====================================================
+   AWS S3 CONFIG
+===================================================== */
+const s3 = new AWS.S3({
+    region: process.env.AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => { cb(null, uploadDir); },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+/* =====================================================
+   MULTER (MEMORY STORAGE)
+===================================================== */
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: (req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+        if (allowed.includes(file.mimetype)) cb(null, true);
+        else cb(new Error('Invalid file type'), false);
     }
 });
 
-// --- COUPON CONFIG ---
+exports.uploadIDProof = upload.single('idProofFile');
+
+/* =====================================================
+   COUPON CONFIG
+===================================================== */
 const COUPONS = {
     LOKRAJA10: {
         percent: 10,
-        registrationType: "individual"
+        registrationType: 'individual'
     }
 };
 
-// --- 2. Middleware Configuration ---
-exports.uploadIDProof = multer({
-    storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-        if (allowedTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Invalid file type. Only JPEG, PNG, or PDF are allowed.'), false);
-        }
-    }
-}).single('idProofFile');
-
-// --- 3. Unified Registration Logic ---
+/* =====================================================
+   SUBMIT REGISTRATION
+===================================================== */
 exports.submitRegistration = async (req, res) => {
     try {
-        // --- NECESSARY CHANGE 1: CHECK FILE FIRST ---
-        if (req.body.registrationType !== "group" && !req.file) {
+        const data = req.body;
+
+        /* ----------------------------------
+           FILE REQUIRED FOR NON-GROUP
+        ---------------------------------- */
+        if (
+            (data.registrationType !== 'group' && !req.file) ||
+            (data.registrationType === 'group' && !req.file)
+        ) {
             return res.status(400).json({
                 success: false,
-                message: "ID proof document is required"
+                message: 'ID proof document is required'
             });
         }
 
-        let data = req.body;
+
+        /* ----------------------------------
+           PARSE runnerDetails (SAFE)
+        ---------------------------------- */
+        let runnerDetailsParsed = {};
         if (data.runnerDetails && typeof data.runnerDetails === 'string') {
             try {
-                const nestedData = JSON.parse(data.runnerDetails);
-                data = { ...data, ...nestedData };
-            } catch (e) {
-                console.log("runnerDetails was not a JSON string, using raw body.");
-            }
-        }
-
-        let parsedRunnerDetails = null;
-        if (data.runnerDetails && typeof data.runnerDetails === "string") {
-            try {
-                parsedRunnerDetails = JSON.parse(data.runnerDetails);
+                runnerDetailsParsed = JSON.parse(data.runnerDetails);
             } catch {
-                if (req.file) fs.unlinkSync(req.file.path);
-                return res.status(400).json({ success: false, message: "Invalid runner details format" });
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid runnerDetails format'
+                });
             }
         }
 
-        const finalAmount = Number(data.amount);
-        // const rawDob = data.dob || parsedRunnerDetails?.dob;
+        const mergedData = { ...data, ...runnerDetailsParsed };
 
-        // if (!rawDob) {
-        //     if (req.file) fs.unlinkSync(req.file.path);
-        //     return res.status(400).json({ success: false, message: 'Date of Birth (dob) is required.' });
-        // }
-
-        if (data.registrationType !== "group") {
-            const rawDob = data.dob || parsedRunnerDetails?.dob;
-            if (!rawDob) {
-                if (req.file) fs.unlinkSync(req.file.path);
-                return res.status(400).json({ success: false, message: 'Date of Birth (dob) is required.' });
-            }
+        /* ----------------------------------
+           DOB VALIDATION (NON-GROUP)
+        ---------------------------------- */
+        if (mergedData.registrationType !== 'group' && !mergedData.dob) {
+            return res.status(400).json({
+                success: false,
+                message: 'Date of Birth (dob) is required'
+            });
         }
 
-        // --- NECESSARY CHANGE 2: CALCULATE VARIABLES BEFORE USING THEM IN OBJECTS ---
-        let discountAmount = 0;
+        /* ----------------------------------
+           AMOUNT VALIDATION
+        ---------------------------------- */
+        const finalAmount = Number(mergedData.amount);
+        if (!finalAmount || finalAmount <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid registration amount'
+            });
+        }
+
+        /* ----------------------------------
+           COUPON CALCULATION
+        ---------------------------------- */
         let discountPercent = 0;
-        const couponCode = typeof data.referralCode === "string" ? data.referralCode.trim().toUpperCase() : "";
+        let discountAmount = 0;
 
-        if (couponCode && COUPONS[couponCode] && data.registrationType === COUPONS[couponCode].registrationType) {
+        const couponCode =
+            typeof mergedData.referralCode === 'string'
+                ? mergedData.referralCode.trim().toUpperCase()
+                : null;
+
+        if (
+            couponCode &&
+            COUPONS[couponCode] &&
+            mergedData.registrationType === COUPONS[couponCode].registrationType
+        ) {
             discountPercent = COUPONS[couponCode].percent;
-            const baseFee = Number(data.registrationFee) || 0;
+            const baseFee = Number(mergedData.registrationFee) || 0;
             if (baseFee > 0) {
                 discountAmount = Math.round(baseFee * (discountPercent / 100));
             }
         }
 
-        let parsedGroupMembers = [];
-        if (data.registrationType === "group") {
+        /* ----------------------------------
+           GROUP MEMBERS PARSE + NORMALIZE
+        ---------------------------------- */
+        let groupMembers = [];
+        if (mergedData.registrationType === 'group') {
             try {
-                const rawMembers = JSON.parse(data.groupMembers);
-
-                parsedGroupMembers = rawMembers.map(member => ({
-                    ...member,
-
-                    
-                    raceCategory: member.raceCategory || member.raceId || null
+                const rawMembers = JSON.parse(mergedData.groupMembers || '[]');
+                groupMembers = rawMembers.map(m => ({
+                    firstName: m.firstName,
+                    lastName: m.lastName,
+                    email: m.email,
+                    phone: m.phone,
+                    dob: new Date(m.dob),
+                    gender: m.gender,
+                    tshirtSize: m.tshirtSize,
+                    nationality: m.nationality,
+                    raceCategory: m.raceCategory || m.raceId
                 }));
-
             } catch {
-                if (req.file) fs.unlinkSync(req.file.path);
-                return res.status(400).json({ success: false, message: "Invalid group members data" });
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid group members data'
+                });
             }
         }
 
+        /* ----------------------------------
+           UPLOAD ID PROOF TO S3
+        ---------------------------------- */
+        let idProofData;
 
-        if (!finalAmount || finalAmount <= 0) {
-            if (req.file) fs.unlinkSync(req.file.path);
-            return res.status(400).json({ success: false, message: 'Invalid registration amount' });
+        if (req.file) {
+            const ext = req.file.originalname.split('.').pop();
+
+            const uploadResult = await s3.upload({
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
+                Key: `id-proofs/${req.user.id}-${Date.now()}.${ext}`,
+                Body: req.file.buffer,
+                ContentType: req.file.mimetype,
+                ACL: 'private'
+            }).promise();
+
+            idProofData = {
+                idType: mergedData.idType,
+                idNumber: mergedData.idNumber,
+                path: uploadResult.Location
+            };
         }
 
+        // ----------------------------------
+        // PREVENT DUPLICATE PENDING REGISTRATION
+        // ----------------------------------
+        const existingRegistration = await Registration.findOne({
+            user: req.user.id,
+            paymentStatus: 'pending'
+        });
+
+        if (existingRegistration) {
+            return res.status(409).json({
+                success: false,
+                errorCode: 'REGISTRATION_EXISTS',
+                message: 'You already have a pending registration.',
+                registrationId: existingRegistration._id
+            });
+        }
+
+        /* ----------------------------------
+           CREATE REGISTRATION DOCUMENT
+        ---------------------------------- */
         const registration = new Registration({
             user: req.user.id,
-            registrationType: data.registrationType,
-            raceCategory: data.raceId || data.raceCategory,
+            registrationType: mergedData.registrationType,
+            raceCategory: mergedData.raceId || mergedData.raceCategory,
 
-            //   FOR GROUP REGISTRATION
-            groupName: data.registrationType === "group" ? data.groupName : undefined,
-            groupMembers: data.registrationType === "group" ? parsedGroupMembers : undefined,
-            runnerDetails: data.registrationType !== "group" ? {
-                ...data,
-                registrationFee: Number(data.registrationFee) || finalAmount,
-                couponCode: couponCode || null,
-                discountPercent: discountPercent,
-                discountAmount: discountAmount,
-                platformFee: Number(data.platformFee) || 0,
-                pgFee: Number(data.pgFee) || 0,
-                gstAmount: Number(data.gstAmount) || 0,
-                amount: finalAmount
-            } : undefined,
-            idProof: req.file ? {
-                idType: data.idType,
-                idNumber: data.idNumber,
-                path: req.file.path
-            } : undefined,
-            registrationStatus: 'Pending Payment'
+            runnerDetails:
+                mergedData.registrationType !== 'group'
+                    ? {
+                        firstName: mergedData.firstName,
+                        lastName: mergedData.lastName,
+                        parentName: mergedData.parentName,
+                        parentPhone: mergedData.parentPhone,
+                        email: mergedData.email,
+                        phone: mergedData.phone,
+                        whatsapp: mergedData.whatsapp,
+                        dob: mergedData.dob,
+                        gender: mergedData.gender,
+                        bloodGroup: mergedData.bloodGroup,
+                        nationality: mergedData.nationality,
+                        address: mergedData.address,
+                        city: mergedData.city,
+                        state: mergedData.state,
+                        pincode: mergedData.pincode,
+                        country: mergedData.country,
+                        experience: mergedData.experience,
+                        finishTime: mergedData.finishTime,
+                        dietary: mergedData.dietary,
+                        tshirtSize: mergedData.tshirtSize,
+                        registrationFee: Number(mergedData.registrationFee) || finalAmount,
+                        couponCode,
+                        discountPercent,
+                        discountAmount,
+                        platformFee: Number(mergedData.platformFee) || 0,
+                        pgFee: Number(mergedData.pgFee) || 0,
+                        gstAmount: Number(mergedData.gstAmount) || 0,
+                        amount: finalAmount
+                    }
+                    : undefined,
+
+            idProof: idProofData,
+
+            groupName:
+                mergedData.registrationType === 'group'
+                    ? mergedData.groupName
+                    : undefined,
+
+            groupMembers:
+                mergedData.registrationType === 'group'
+                    ? groupMembers
+                    : undefined,
+
+            registrationStatus: 'Pending Payment',
+            paymentStatus: 'pending'
         });
 
         const savedRegistration = await registration.save();
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: 'Registration saved! Proceed to payment.',
             registrationId: savedRegistration._id
         });
 
     } catch (error) {
-        if (req.file) { fs.unlinkSync(req.file.path); }
-        console.error('Registration Error:', error.message);
-        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+        console.error('Registration Error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error',
+            error: error.message
+        });
     }
 };
