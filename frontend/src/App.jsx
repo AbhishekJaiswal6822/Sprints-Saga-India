@@ -25,6 +25,9 @@ import UnderMaintenance from "./UnderMaintenance";
 import Faqs from "./Faqs";
 import PrivacyPolicy from "./PrivacyPolicy";
 
+// UserDashboard
+import UserDashboard from "./pages/UserDashboard";
+
 // Utilities
 import ScrollToTop from "./ScrollToTop";
 import Register from "./Register";
@@ -82,7 +85,7 @@ function App() {
                             <Route path="/community" element={<UnderMaintenance />} />
                             <Route path="/expo" element={<UnderMaintenance />} />
                             <Route path="/raceday" element={<UnderMaintenance />} />
-                            <Route path="/dashboard" element={<UnderMaintenance />} />
+                            <Route path="/dashboard"element={<ProtectedRoute><UserDashboard /></ProtectedRoute>}/>
                             <Route path="/faqs" element={<Faqs />} />
                             <Route path="/privacy&policies" element={<PrivacyPolicy />} />
                             <Route
