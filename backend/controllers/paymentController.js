@@ -12,10 +12,10 @@ const razorpayInstance = new Razorpay({
 });
 
 // Optional: Temporary log to verify keys are loading in the terminal
-console.log("Razorpay Keys Initialized:", {
-  key_id: !!process.env.RAZORPAY_KEY_ID,
-  key_secret: !!process.env.RAZORPAY_KEY_SECRET
-});
+// console.log("Razorpay Keys Initialized:", {
+//   key_id: !!process.env.RAZORPAY_KEY_ID,
+//   key_secret: !!process.env.RAZORPAY_KEY_SECRET
+// });
 
 // --------------------------------------------------
 // 1️ Create Razorpay Order
@@ -120,32 +120,27 @@ exports.verifyPayment = async (req, res) => {
     registration.registrationStatus = "Verified";
     await registration.save();
 
-    // 5️ PREPARE INVOICE DATA (FROM DB, NOT FRONTEND)
-    const regObj = registration.toJSON();
-    const runner = regObj.runnerDetails;
+    // 5️  HANDLE GROUP VS INDIVIDUAL FOR EMAIL
+    const isGroup = registration.registrationType === 'group';
+    const primary = isGroup ? registration.groupMembers[0] : registration.runnerDetails;
 
     const invoiceData = {
-      firstName: runner.firstName,
-      lastName: runner.lastName,
-      fullName: `${runner.firstName} ${runner.lastName}`,
-      phone: runner.phone,
-      email: runner.email,
-
-      registrationType: regObj.registrationType, 
-      raceCategory: regObj.raceCategory,
-      
+      firstName: primary.firstName,
+      lastName: primary.lastName,
+      fullName: `${primary.firstName} ${primary.lastName}`,
+      phone: primary.phone,
+      email: primary.email,
+      registrationType: registration.registrationType,
+      raceCategory: registration.raceCategory,
       paymentMode: 'Razorpay',
       invoiceNo: `LRCP-${Date.now()}`,
-
-      rawRegistrationFee: runner.registrationFee,
-      discountAmount: runner.discountAmount,
-      platformFee: runner.platformFee,
-      pgFee: runner.pgFee,
-      gstAmount: runner.gstAmount,
-      amount: runner.amount //  FINAL FIX FOR ₹0 INVOICE
+      rawRegistrationFee: isGroup ? (registration.amount || 0) : (registration.runnerDetails.registrationFee || 0),
+      discountAmount: isGroup ? 0 : (registration.runnerDetails.discountAmount || 0),
+      platformFee: isGroup ? 0 : (registration.runnerDetails.platformFee || 0),
+      pgFee: isGroup ? 0 : (registration.runnerDetails.pgFee || 0),
+      gstAmount: isGroup ? 0 : (registration.runnerDetails.gstAmount || 0),
+      amount: registration.runnerDetails?.amount || registration.amount
     };
-
-    console.log(' INVOICE AMOUNT SENT:', invoiceData.amount);
 
     // 6️ SEND INVOICE EMAIL
     await sendInvoiceEmail(invoiceData.email, invoiceData);
@@ -165,4 +160,42 @@ exports.verifyPayment = async (req, res) => {
   }
 };
 
+
+exports.downloadInvoice = async (req, res) => {
+  try {
+    const registration = await Registration.findById(req.params.registrationId);
+
+    if (!registration || registration.paymentStatus !== 'paid') {
+      return res.status(404).send("Invoice not available.");
+    }
+
+    // Fix #3: Handle both Individual and Group naming
+    const isGroup = registration.registrationType === 'group';
+    const primary = isGroup ? registration.groupMembers[0] : registration.runnerDetails;
+
+    const paymentData = {
+      invoiceNo: registration.paymentDetails.paymentId.slice(-8).toUpperCase(),
+      firstName: primary?.firstName || "Participant",
+      fullName: `${primary?.firstName} ${primary?.lastName}`,
+      phone: primary?.phone,
+      email: primary?.email,
+      raceCategory: registration.raceCategory,
+      registrationType: registration.registrationType,
+      amount: registration.runnerDetails?.amount || registration.amount,
+      rawRegistrationFee: registration.runnerDetails?.registrationFee || registration.amount,
+      discountAmount: registration.runnerDetails?.discountAmount || 0,
+      platformFee: registration.runnerDetails?.platformFee || 0,
+      pgFee: registration.runnerDetails?.pgFee || 0,
+      gstAmount: registration.runnerDetails?.gstAmount || 0,
+      paymentMode: 'Razorpay'
+    };
+
+    // Service handles headers and piping
+    await sendInvoiceEmail(paymentData.email, paymentData, res);
+
+  } catch (error) {
+    console.error("Invoice Download Error:", error);
+    res.status(500).send("Error generating invoice");
+  }
+};
 
