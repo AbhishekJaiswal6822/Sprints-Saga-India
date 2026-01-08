@@ -11,16 +11,6 @@ router.post('/register', (req, res, next) => {
 }, registerUser);
 
 // Login route
-router.post(
-  '/signin',
-  (req, res, next) => {
-    // console.log('[BACKEND RECEIVING]: POST /api/auth/signin hit successfully');
-    // console.log('Request body:', req.body);
-    router.post('/signin', loginUser);
-
-    next();
-  },
-  loginUser
-);
+router.post('/signin', loginUser);
 
 module.exports = router;
