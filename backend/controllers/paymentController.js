@@ -105,6 +105,20 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
+    // --- NEW: FETCH DYNAMIC PAYMENT METHOD FROM RAZORPAY ---
+    let dynamicMethod = 'Razorpay';
+    try {
+      const paymentDetails = await razorpayInstance.payments.fetch(razorpay_payment_id);
+      const method = paymentDetails.method;
+      if (method === 'upi') {
+        dynamicMethod = 'UPI';
+      } else {
+        dynamicMethod = method.charAt(0).toUpperCase() + method.slice(1);
+      }
+    } catch (razorpayError) {
+      console.error("Could not fetch Razorpay method in verifyPayment:", razorpayError);
+    }
+
     // 2️ SAVE PAYMENT DETAILS (CRITICAL)
     registration.paymentDetails = {
       orderId: razorpay_order_id,
@@ -132,9 +146,9 @@ exports.verifyPayment = async (req, res) => {
       email: primary.email,
       registrationType: registration.registrationType,
       raceCategory: registration.raceCategory,
-      paymentMode: 'Razorpay',
+      paymentMode: dynamicMethod,
       invoiceNo: `LRCP-${Date.now()}`,
-      // ✅ FIX: Use the root fields that you are now saving in registrationController
+      //  FIX: Use the root fields that you are now saving in registrationController
       rawRegistrationFee: registration.registrationFee || registration.runnerDetails?.registrationFee || 0,
       discountAmount: registration.discountAmount || registration.runnerDetails?.discountAmount || 0,
       platformFee: registration.platformFee || registration.runnerDetails?.platformFee || 0,
@@ -170,6 +184,21 @@ exports.downloadInvoice = async (req, res) => {
       return res.status(404).send("Invoice not available.");
     }
 
+    // --- NEW: FETCH DYNAMIC PAYMENT METHOD FROM RAZORPAY ---
+    let dynamicMethod = 'Razorpay'; 
+    try {
+      const paymentId = registration.paymentDetails.paymentId;
+      const paymentDetails = await razorpayInstance.payments.fetch(paymentId);
+      const method = paymentDetails.method; 
+      if (method === 'upi') {
+          dynamicMethod = 'UPI'; // Keep UPI all caps
+      } else {
+          dynamicMethod = method.charAt(0).toUpperCase() + method.slice(1); // 'Card', 'Wallet'
+      }
+    } catch (razorpayError) {
+      console.error("Could not fetch Razorpay method, defaulting to Razorpay");
+    }
+
     // Fix #3: Handle both Individual and Group naming
     const isGroup = registration.registrationType === 'group';
     const primary = isGroup ? registration.groupMembers[0] : registration.runnerDetails;
@@ -188,7 +217,7 @@ exports.downloadInvoice = async (req, res) => {
       platformFee: registration.platformFee || registration.runnerDetails?.platformFee || 0,
       pgFee: registration.pgFee || registration.runnerDetails?.pgFee || 0,
       gstAmount: registration.gstAmount || registration.runnerDetails?.gstAmount || 0,
-      paymentMode: 'Razorpay'
+      paymentMode: dynamicMethod || "Razor Pay"
     };
 
     // Service handles headers and piping
