@@ -3,6 +3,12 @@ import { useAuth } from "../AuthProvider";
 import { api } from "../api";
 import { toast } from "react-toastify";
 
+const typeLabels = {
+        individual: "Individual Registration",
+        group: "Group Registration",
+        charity: "Charity Registration"
+    };
+
 const UserDashboard = () => {
     const { token, user } = useAuth();
     const [registrations, setRegistrations] = useState([]); // Changed: State is now an array
@@ -64,7 +70,7 @@ const UserDashboard = () => {
                                 </div>
                                 <div>
                                     <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Type</p>
-                                    <p className="font-semibold capitalize">{reg.registrationType}</p>
+                                    <p className="font-semibold">{typeLabels[reg.registrationType] || reg.registrationType}</p>
                                 </div>
                                 <div>
                                     <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Date</p>
