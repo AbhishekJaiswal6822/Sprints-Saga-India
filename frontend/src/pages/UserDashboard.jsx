@@ -71,7 +71,7 @@ const UserDashboard = () => {
                     <div key={reg._id} className="grid md:grid-cols-3 gap-8 bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-6">
                         {/* --- REGISTRATION SUMMARY --- */}
                         <div className="md:col-span-2">
-                            <h2 className="text-xl font-bold mb-6">📋 {categoryLabels[reg.raceCategory?.toLowerCase()] || reg.raceCategory} Details Details Details</h2>
+                            <h2 className="text-xl font-bold mb-6"> {categoryLabels[reg.raceCategory?.toLowerCase()] || reg.raceCategory} Details</h2>
                             <div className="grid grid-cols-2 gap-8 text-sm">
                                 <div>
                                     <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Payment Status</p>
