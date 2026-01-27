@@ -1,7 +1,7 @@
 // backend/middleware/authMiddleware.js
 
 const jwt = require('jsonwebtoken');
-
+const User = require('../models/User'); // the User model to verify data
 // Middleware to verify JWT and attach user data to the request object (req.user)
 const authMiddleware = (req, res, next) => {
     // 1. Check for the token in the headers
@@ -40,4 +40,25 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-module.exports = authMiddleware;
+// --- NEW ADMIN LOCK ---
+const adminMiddleware = async (req, res, next) => {
+    try {
+        // Find the user in the database using the ID from the decoded token
+        const user = await User.findById(req.user.id);
+        const ADMIN_EMAIL = "admin@sprintssagaindia.com";
+
+        if (!user || user.email !== ADMIN_EMAIL) {
+            return res.status(403).json({ 
+                message: "Access Denied: You do not have admin privileges." 
+            });
+        }
+
+        // If it matches, proceed to the actual data logic
+        next();
+    } catch (error) {
+        console.error("Admin Verification Error:", error);
+        res.status(500).json({ message: "Server error during admin verification." });
+    }
+};
+
+module.exports = { authMiddleware, adminMiddleware };
