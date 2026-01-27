@@ -23,10 +23,9 @@ const MONGO_URI = process.env.MONGO_URI;
 const allowedOrigins = [
   'http://localhost:5173', 
   'http://127.0.0.1:5173',
-  'https://ssi-testing-frontend-phase-1.onrender.com', // Add your Render URL here
-  'http://localhost:5173', 
   'https://sprintssagaindia.com',       // Your main domain
   'https://www.sprintssagaindia.com',   // Your www subdomain
+  'https://backend.sprintssagaindia.com', // Backend Domain
   /\.amplifyapp\.com$/                 // Allows all AWS Amplify preview URLs
 ];
 
