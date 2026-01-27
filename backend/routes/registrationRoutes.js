@@ -3,20 +3,33 @@
 const express = require('express');
 const router = express.Router();
 const registrationController = require('../controllers/registrationController');
-const authMiddleware = require('../middleware/authMiddleware'); 
 
-// GET current user's registration for the dashboard
+
+// Import BOTH middlewares
+const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware');
+
+// 1. ADMIN ONLY: Get all registrations
+// We use BOTH middlewares here to keep the master list secret.
+router.get(
+  '/all', 
+  authMiddleware, 
+  adminMiddleware, 
+  registrationController.getAllRegistrations
+);
+
+// 2. USER DASHBOARD: Get only the logged-in user's data
+// We only use authMiddleware here so any logged-in runner can see their own info.
 router.get(
   '/my-registration', 
   authMiddleware, 
   registrationController.getUserRegistration
 );
 
-// Route to handle registration submission (POST request)
-// The URL will now be: /api/register + / = /api/register
+// 3. PUBLIC REGISTRATION: Allow anyone logged in to register
+// Remove adminMiddleware from here so regular users can sign up!
 router.post(
-  '/',               // ✅ correct
-  authMiddleware,
+  '/', 
+  authMiddleware, 
   registrationController.uploadIDProof,
   registrationController.submitRegistration
 );
