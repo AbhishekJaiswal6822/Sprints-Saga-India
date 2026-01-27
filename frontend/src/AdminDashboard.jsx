@@ -13,17 +13,23 @@ function AdminDashboard() {
     const fetchDashboardData = async () => {
       try {
         // Get the token from localStorage
-        const token = localStorage.getItem("token"); 
-        
+        const token = localStorage.getItem("token");
+
         if (!token) {
-            console.error("No token found! Redirecting to login...");
-            return;
+          console.error("No token found! Redirecting to login...");
+          return;
         }
 
-        const res = await axios.get("http://localhost:8000/api/admin/dashboard-data", {
-          headers: { 
-            // Ensure 'Bearer ' prefix is included
-            Authorization: `Bearer ${token}` 
+        const PROD_BACKEND_URL = "https://backend.sprintssagaindia.com";
+
+        // Dynamic base URL logic
+        const API_BASE_URL = window.location.hostname === "localhost"
+          ? "http://localhost:8000"
+          : PROD_BACKEND_URL;
+
+        const res = await axios.get(`${API_BASE_URL}/api/admin/dashboard-data`, {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
         });
 
@@ -47,8 +53,8 @@ function AdminDashboard() {
     const firstName = r.runnerDetails?.firstName || "";
     const lastName = r.runnerDetails?.lastName || "";
     const groupName = r.groupName || "";
-    
-    const searchableName = r.registrationType === 'individual' 
+
+    const searchableName = r.registrationType === 'individual'
       ? `${firstName} ${lastName}`.toLowerCase()
       : groupName.toLowerCase();
 
@@ -92,11 +98,11 @@ function AdminDashboard() {
   return (
     <main className="min-h-screen bg-slate-50 pb-16 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10">
-        
+
         {/* HEADER */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 mt-16">
           <div>
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight">Admin <span className="text-teal-600 underline decoration-teal-200 underline-offset-8">Panel</span></h1>
+            <h1 className="text-3xl font-black text-slate-800 tracking-tight ">Admin <span className="text-teal-600 underline decoration-teal-200 underline-offset-8">Panel</span></h1>
             <p className="mt-2 text-slate-400 text-sm font-medium">Sprints Saga India Event Management System</p>
           </div>
           <button className="flex items-center justify-center gap-2 rounded-xl bg-slate-800 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-700 transition shadow-lg">
@@ -120,11 +126,11 @@ function AdminDashboard() {
             <button className={tabClasses("users")} onClick={() => setActiveTab("users")}>Users</button>
             <button className={tabClasses("registrations")} onClick={() => setActiveTab("registrations")}>Registrations</button>
           </div>
-          
+
           <div className="flex-1 relative">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder={`Search by ${activeTab === 'users' ? 'name or email' : 'participant or team name'}...`}
               className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-teal-500/10 transition bg-white text-sm"
               value={searchTerm}
@@ -172,7 +178,7 @@ function AdminDashboard() {
                     <tr key={r._id} className="hover:bg-slate-50 transition">
                       <td className="p-5">
                         <div className="font-bold text-slate-800">
-                           {r.registrationType === 'individual' ? `${r.runnerDetails?.firstName} ${r.runnerDetails?.lastName}` : r.groupName}
+                          {r.registrationType === 'individual' ? `${r.runnerDetails?.firstName} ${r.runnerDetails?.lastName}` : r.groupName}
                         </div>
                         <span className="text-[9px] uppercase font-black text-slate-300 px-1.5 py-0.5 border rounded-md">{r.registrationType}</span>
                       </td>
@@ -180,7 +186,7 @@ function AdminDashboard() {
                       <td className="p-5">{renderStatusBadge(r.paymentStatus)}</td>
                       <td className="p-5 font-mono text-[11px] text-slate-400">{r.paymentDetails?.paymentId || "Pending"}</td>
                       <td className="p-5 font-bold text-slate-600 uppercase">
-                         {r.registrationType === 'individual' ? r.runnerDetails?.tshirtSize : `${r.groupMembers?.length} Tees`}
+                        {r.registrationType === 'individual' ? r.runnerDetails?.tshirtSize : `${r.groupMembers?.length} Tees`}
                       </td>
                     </tr>
                   ))
