@@ -22,7 +22,7 @@ function Footer() {
               Sprints Saga India
             </h1>
             <p className="text-slate-400 leading-relaxed">
-              The premier marathon event bringing together runners from around the world.
+              The premium marathon event bringing together runners from around the world.
             </p>
           </div>
 
