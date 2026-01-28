@@ -89,10 +89,10 @@ function Footer() {
                 <h5 className="text-white font-medium mb-2">Contact Number</h5>
 
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-3">
+                  {/* <div className="flex items-center gap-3">
                     <FaPhoneAlt size={14} />
                     <span> +91 8850943813</span>
-                  </div>
+                  </div> */}
 
                   <div className="flex items-center gap-3">
                     <FaPhoneAlt size={14} />
