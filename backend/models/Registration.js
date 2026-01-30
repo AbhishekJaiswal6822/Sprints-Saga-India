@@ -96,7 +96,14 @@ const RegistrationSchema = new mongoose.Schema({
             gender: { type: String, required: true },
             tshirtSize: { type: String, required: true },
             nationality: { type: String, required: true },
-            raceCategory: { type: String, required: true }
+            raceCategory: { type: String, required: true },
+            address: { type: String, required: true },
+            city: { type: String, required: true },
+            state: { type: String, required: true },
+            pincode: { type: String, required: true },
+            country: { type: String, required: true },
+            parentName: { type: String },
+            parentPhone: { type: String },
         }, { _id: false })],
         required: function () { return this.registrationType === 'group'; }
     },
