@@ -17,7 +17,6 @@ function Sponsors() {
                 <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-20 tracking-tight">
                     Our Official Partners
                 </h2>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl mx-auto items-start">
                     {sponsors.map((sponsor) => (
                         <div key={sponsor.id} className="group flex flex-col items-center">
