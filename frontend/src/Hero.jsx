@@ -1,6 +1,4 @@
-
-
-
+// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Hero.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RxDotFilled } from 'react-icons/rx';
@@ -9,14 +7,14 @@ import { RxDotFilled } from 'react-icons/rx';
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 // Desktop images
-import img1Desktop from "./assets/lokraja-marathon-2026-desktop.jpeg";
+// import img1Desktop from "./assets/lokraja-marathon-2026-desktop.jpeg";
 import img2Desktop from "./assets/registration-website-desktop.jpeg";
 // import img3Desktop from "./assets/early-bird-desktop.jpeg";
 import img4Desktop from "./assets/early-bird-registration.jpg";
 
 
 // Mobile images
-import img1Mobile from "./assets/lokraja-marathon-2026-mobile.jpeg";
+// import img1Mobile from "./assets/lokraja-marathon-2026-mobile.jpeg";
 import img2Mobile from "./assets/registration-website-mobile.jpeg";
 // import img3Mobile from "./assets/early-bird-mobile.jpeg";
 import img4Mobile from "./assets/early-bird-registration.jpg";
@@ -38,7 +36,7 @@ export default function Hero() {
   }, []);
 
   const slides = [
-    { desktop: img1Desktop, mobile: img1Mobile, clickable: true, type: 'register-soon' },
+    // { desktop: img1Desktop, mobile: img1Mobile, clickable: true, type: 'register-soon' },
     { desktop: img2Desktop, mobile: img2Mobile, clickable: true, type: 'register-now' },
     // { desktop: img3Desktop, mobile: img3Mobile, clickable: false, type: 'none' },
     { desktop: img4Desktop, mobile: img4Mobile, clickable: false, type: 'none' },
@@ -90,7 +88,7 @@ export default function Hero() {
           <img
             // Explicitly choose the source based on JavaScript state
             src={isMobile ? slides[currentIndex].mobile : slides[currentIndex].desktop}
-            alt="LokRaja Marathon Hero"
+            // alt="LokRaja Marathon Hero"
             // Use object-cover to prevent shrinking/stretching on mobile
             className="w-full h-full object-fill transition-opacity duration-500 ea se-in-out"
             // The key is critical: it forces a complete re-render when switching devices
