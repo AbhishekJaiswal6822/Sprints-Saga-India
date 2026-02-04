@@ -1,22 +1,22 @@
-// // // C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\AdminDashboard.jsx
+// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\AdminDashboard.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx"; // Import for Excel support
-import { 
-  FiUsers, FiDownload, FiSearch, FiActivity, FiHeart, FiAward, 
-  FiTrendingUp, FiGrid, FiClock, FiXCircle, FiCheckCircle, 
+import {
+  FiUsers, FiDownload, FiSearch, FiActivity, FiHeart, FiAward,
+  FiTrendingUp, FiGrid, FiClock, FiXCircle, FiCheckCircle,
   FiAlertCircle, FiX, FiEye, FiInfo, FiExternalLink, FiMapPin, FiCreditCard, FiRotateCcw
 } from "react-icons/fi";
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users");
-  const [regFilter, setRegFilter] = useState("all"); 
-  const [catFilter, setCatFilter] = useState("all"); 
+  const [regFilter, setRegFilter] = useState("all");
+  const [catFilter, setCatFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [data, setData] = useState({ users: [], registrations: [], stats: {} });
-  
+
   const [selectedReg, setSelectedReg] = useState(null);
 
   useEffect(() => {
@@ -42,10 +42,33 @@ function AdminDashboard() {
     fetchDashboardData();
   }, []);
 
+  // const formatDate = (dateObj) => {
+  //   if (!dateObj) return "N/A";
+  //   const dateStr = dateObj.$date || dateObj;
+  //   const d = new Date(dateStr);
+  //   if (isNaN(d.getTime())) return "N/A";
+
+  //   const day = String(d.getDate()).padStart(2, '0');
+  //   const month = String(d.getMonth() + 1).padStart(2, '0');
+  //   const year = d.getFullYear();
+  //   return `${day}/${month}/${year}`; // Forced DD/MM/YYYY
+  // };
+
   const formatDate = (dateObj) => {
     if (!dateObj) return "N/A";
-    const dateStr = dateObj.$date || dateObj;
-    return new Date(dateStr).toLocaleDateString();
+
+    // Extract raw date string
+    const raw = dateObj.$date || dateObj;
+    const d = new Date(raw);
+
+    if (isNaN(d.getTime())) return "N/A";
+
+    // Manually pull components to FORCE Indian order DD/MM/YYYY
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
   };
 
   const resetFilters = () => {
@@ -60,7 +83,7 @@ function AdminDashboard() {
     const s = searchTerm.toLowerCase();
     const joinDate = new Date(u.createdAt).toLocaleDateString().toLowerCase();
     return (
-      u.name?.toLowerCase().includes(s) || 
+      u.name?.toLowerCase().includes(s) ||
       u.email?.toLowerCase().includes(s) ||
       u._id?.toLowerCase().includes(s) ||
       u.phone?.toLowerCase().includes(s) ||
@@ -107,7 +130,7 @@ function AdminDashboard() {
       r.displayDetails?.dietary, r.displayDetails?.tshirtSize, r.displayDetails?.parentName,
       r.displayDetails?.parentPhone, r.registrationType, r.raceCategory, r.groupName,
       r.paymentStatus, r.paymentDetails?.paymentId, r.paymentDetails?.orderId,
-      r.idProof?.idNumber, r.idProof?.idType, r.amount?.toString(), formatDate(r.displayDetails?.dob)
+      r.idProof?.idNumber, r.idProof?.idType, r.amount?.toString(), (r.displayDetails?.dob ? formatDate(r.displayDetails.dob) : "")
     ].join(" ").toLowerCase();
 
     return matchesType && matchesCategory && matchesStatus && searchBlob.includes(s);
@@ -144,7 +167,9 @@ function AdminDashboard() {
         "Email": u.email || "N/A",
         "User ID": u._id || "N/A",
         "Phone": u.phone || "N/A",
-        "Joined At": new Date(u.createdAt).toLocaleDateString()
+        "Joined At": new Date(u.createdAt).toLocaleDateString(),
+        "DOB": (r.displayDetails?.dob ? formatDate(r.displayDetails.dob) : "N/A"), // For Registrations
+        "Paid Date": (r.paymentDetails?.paidAt ? formatDate(r.paymentDetails.paidAt) : "N/A")
       }));
     } else {
       fileName = `SSI_Registrations_${new Date().toLocaleDateString()}`;
@@ -169,10 +194,10 @@ function AdminDashboard() {
         "T-Shirt Size": r.displayDetails?.tshirtSize || "N/A",
         "Parent Name": r.displayDetails?.parentName || "N/A",
         "Parent Phone": r.displayDetails?.parentPhone || "N/A",
-        "Registration Fee": r.registrationFee || 0,
+        "Registration Fee": (!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.registrationFee || 0) : "—",
         "Coupon": r.couponCode || "N/A",
         "Discount %": r.discountPercent || 0,
-        "Total Amount Paid": r.amount || 0,
+        "Total Amount Paid": (!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.amount || 0) : "—",
         "Order ID": r.paymentDetails?.orderId || "N/A",
         "Payment ID": r.paymentDetails?.paymentId || "N/A",
         "Payment Status": r.paymentStatus || "N/A",
@@ -186,9 +211,9 @@ function AdminDashboard() {
     XLSX.writeFile(wb, `${fileName}.xlsx`);
   };
 
-  const subTabClasses = (isActive) => 
-    `px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider border transition flex items-center gap-2 ${isActive 
-      ? "bg-teal-600 border-teal-600 text-white shadow-md" 
+  const subTabClasses = (isActive) =>
+    `px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider border transition flex items-center gap-2 ${isActive
+      ? "bg-teal-600 border-teal-600 text-white shadow-md"
       : "bg-white border-slate-200 text-slate-500 hover:border-teal-500"}`;
 
   if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-slate-500 tracking-widest animate-pulse">SYNCING SSI DATABASE...</div>;
@@ -202,7 +227,7 @@ function AdminDashboard() {
             <h1 className="text-3xl font-black text-slate-800 tracking-tight">Admin <span className="text-teal-600 underline decoration-teal-200 underline-offset-8">Panel</span></h1>
             <p className="mt-2 text-slate-400 text-sm font-medium italic">Official Sprints Saga India Event Management</p>
           </div>
-          <button 
+          <button
             onClick={handleExportExcel}
             className="flex items-center gap-2 rounded-xl bg-slate-800 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-700 transition shadow-lg active:scale-95"
           >
@@ -215,7 +240,6 @@ function AdminDashboard() {
           {Object.entries(dynamicStats).map(([key, val]) => (
             <div key={key} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 transition hover:shadow-md">
               <p className="text-[9px] uppercase font-black text-slate-400 mb-1 tracking-widest">{key}</p>
-              {/* <p className="text-lg font-bold text-slate-900">{key === 'revenue' ? `₹${Math.round(val)}` : val}</p> */}
               <p className="text-lg font-bold text-slate-900">{key === 'revenue' ? `₹${val.toFixed(2)}` : val}</p>
             </div>
           ))}
@@ -230,12 +254,12 @@ function AdminDashboard() {
           {activeTab === "registrations" && (
             <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
               <div className="flex items-center justify-between border-b border-slate-50 pb-2">
-                 <span className="text-xs font-black uppercase text-slate-900 tracking-widest flex items-center gap-2">
-                   <FiGrid className="text-teal-600" /> Active Filters
-                 </span>
-                 <button onClick={resetFilters} className="text-[10px] font-bold text-rose-500 flex items-center gap-1 hover:underline">
-                   <FiRotateCcw size={12}/> Reset All
-                 </button>
+                <span className="text-xs font-black uppercase text-slate-900 tracking-widest flex items-center gap-2">
+                  <FiGrid className="text-teal-600" /> Active Filters
+                </span>
+                <button onClick={resetFilters} className="text-[10px] font-bold text-rose-500 flex items-center gap-1 hover:underline">
+                  <FiRotateCcw size={12} /> Reset All
+                </button>
               </div>
 
               <div className="flex flex-col gap-3">
@@ -340,7 +364,8 @@ function AdminDashboard() {
                           <td className="p-5 text-slate-700 font-medium lowercase">{r.email}</td>
                           <td className="p-5 text-slate-900 font-mono text-[12px] font-bold tracking-tight">{r._id}</td>
                           <td className="p-5 text-slate-900 font-bold font-mono">{r.phone || "N/A"}</td>
-                          <td className="p-5 text-slate-900 font-bold">{new Date(r.createdAt).toLocaleDateString()}</td>
+                          {/* <td className="p-5 text-slate-900 font-bold">{new Date(r.createdAt).toLocaleDateString()}</td> */}
+                          <td className="p-5 text-slate-900 font-bold">{formatDate(r.createdAt)}</td>
                         </>
                       ) : (
                         <>
@@ -353,6 +378,9 @@ function AdminDashboard() {
                           <td className="p-5 font-mono">{r.displayDetails?.phone || "N/A"}</td>
                           <td className="p-5 font-mono">{r.displayDetails?.whatsapp || "N/A"}</td>
                           <td className="p-5">{formatDate(r.displayDetails?.dob)}</td>
+                          {/* <td className="p-5">
+                            {r.displayDetails?.dob ? formatDate(r.displayDetails.dob) : "N/A"}
+                          </td> */}
                           <td className="p-5">{r.displayDetails?.gender || "N/A"}</td>
                           <td className="p-5 text-rose-600">{r.displayDetails?.bloodGroup || "N/A"}</td>
                           <td className="p-5">{r.displayDetails?.nationality || "N/A"}</td>
@@ -367,13 +395,24 @@ function AdminDashboard() {
                           <td className="p-5 font-black">{r.displayDetails?.tshirtSize || "N/A"}</td>
                           <td className="p-5">{r.displayDetails?.parentName || "N/A"}</td>
                           <td className="p-5">{r.displayDetails?.parentPhone || "N/A"}</td>
-                          <td className="p-5">₹{r.registrationFee || r.displayDetails?.registrationFee || 0}</td>
+                          {/* Scenario 1: Financial data only for Leader or Individual */}
+                          <td className="p-5">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.registrationFee || r.displayDetails?.registrationFee || 0}` : "—"}
+                          </td>
                           <td className="p-5 italic text-slate-400">{r.couponCode || "N/A"}</td>
                           <td className="p-5 text-slate-400">{r.discountPercent || 0}%</td>
-                          <td className="p-5 text-slate-500">₹{r.platformFee || 0}</td>
-                          <td className="p-5 text-slate-500">₹{r.pgFee || 0}</td>
-                          <td className="p-5 text-slate-500">₹{r.gstAmount || 0}</td>
-                          <td className="p-5 font-black bg-slate-50 border-x">₹{r.amount || r.runnerDetails?.amount || 0}</td>
+                          <td className="p-5 text-slate-500">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.platformFee || 0}` : "—"}
+                          </td>
+                          <td className="p-5 text-slate-500">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.pgFee || 0}` : "—"}
+                          </td>
+                          <td className="p-5 text-slate-500">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.gstAmount || 0}` : "—"}
+                          </td>
+                          <td className="p-5 font-black bg-slate-50 border-x">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${(r.amount || r.runnerDetails?.amount || 0).toFixed(2)}` : "—"}
+                          </td>
                           <td className="p-5 text-slate-500">{r.idProof?.idType || "N/A"}</td>
                           <td className="p-5 font-mono tracking-tighter">{r.idProof?.idNumber || "N/A"}</td>
                           <td className="p-5"><a href={r.idProof?.path} target="_blank" rel="noreferrer" className="text-teal-600 hover:underline flex items-center gap-1"><FiExternalLink /> VIEW FILE</a></td>
