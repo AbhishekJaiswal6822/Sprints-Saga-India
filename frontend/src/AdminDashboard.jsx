@@ -133,9 +133,12 @@ function AdminDashboard() {
     individual: filteredRegistrations.filter(r => r.registrationType === 'individual').length,
     group: [...new Set(filteredRegistrations.filter(r => r.registrationType === 'group').map(r => r._id))].length,
     charity: filteredRegistrations.filter(r => r.registrationType === 'charity').length,
-    paid: filteredRegistrations.filter(r => r.paymentStatus === 'paid').length,
-    pending: filteredRegistrations.filter(r => r.paymentStatus === 'pending' || r.paymentStatus === 'Pending Payment').length,
-    rejected: filteredRegistrations.filter(r => r.paymentStatus === 'rejected').length,
+    // paid: filteredRegistrations.filter(r => r.paymentStatus === 'paid').length,
+    // pending: filteredRegistrations.filter(r => r.paymentStatus === 'pending' || r.paymentStatus === 'Pending Payment').length,
+    // rejected: filteredRegistrations.filter(r => r.paymentStatus === 'rejected').length,
+    paid: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'paid').map(r => r._id))].length,
+    pending: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'pending' || r.paymentStatus === 'Pending Payment').map(r => r._id))].length,
+    rejected: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'rejected').map(r => r._id))].length,
     revenue: filteredRegistrations.filter(r => r.paymentStatus === 'paid')
       .reduce((acc, curr) => {
         const isFirstMember = !curr.isGroupMember || curr.memberPosLabel === "Member 1";
