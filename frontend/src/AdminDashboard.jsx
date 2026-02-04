@@ -42,18 +42,6 @@ function AdminDashboard() {
     fetchDashboardData();
   }, []);
 
-  // const formatDate = (dateObj) => {
-  //   if (!dateObj) return "N/A";
-  //   const dateStr = dateObj.$date || dateObj;
-  //   const d = new Date(dateStr);
-  //   if (isNaN(d.getTime())) return "N/A";
-
-  //   const day = String(d.getDate()).padStart(2, '0');
-  //   const month = String(d.getMonth() + 1).padStart(2, '0');
-  //   const year = d.getFullYear();
-  //   return `${day}/${month}/${year}`; // Forced DD/MM/YYYY
-  // };
-
   const formatDate = (dateObj) => {
     if (!dateObj) return "N/A";
 
@@ -364,7 +352,6 @@ function AdminDashboard() {
                           <td className="p-5 text-slate-700 font-medium lowercase">{r.email}</td>
                           <td className="p-5 text-slate-900 font-mono text-[12px] font-bold tracking-tight">{r._id}</td>
                           <td className="p-5 text-slate-900 font-bold font-mono">{r.phone || "N/A"}</td>
-                          {/* <td className="p-5 text-slate-900 font-bold">{new Date(r.createdAt).toLocaleDateString()}</td> */}
                           <td className="p-5 text-slate-900 font-bold">{formatDate(r.createdAt)}</td>
                         </>
                       ) : (
@@ -378,9 +365,6 @@ function AdminDashboard() {
                           <td className="p-5 font-mono">{r.displayDetails?.phone || "N/A"}</td>
                           <td className="p-5 font-mono">{r.displayDetails?.whatsapp || "N/A"}</td>
                           <td className="p-5">{formatDate(r.displayDetails?.dob)}</td>
-                          {/* <td className="p-5">
-                            {r.displayDetails?.dob ? formatDate(r.displayDetails.dob) : "N/A"}
-                          </td> */}
                           <td className="p-5">{r.displayDetails?.gender || "N/A"}</td>
                           <td className="p-5 text-rose-600">{r.displayDetails?.bloodGroup || "N/A"}</td>
                           <td className="p-5">{r.displayDetails?.nationality || "N/A"}</td>
@@ -399,8 +383,12 @@ function AdminDashboard() {
                           <td className="p-5">
                             {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.registrationFee || r.displayDetails?.registrationFee || 0}` : "—"}
                           </td>
-                          <td className="p-5 italic text-slate-400">{r.couponCode || "N/A"}</td>
-                          <td className="p-5 text-slate-400">{r.discountPercent || 0}%</td>
+                          <td className="p-5 italic text-slate-400">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.couponCode || "N/A") : "—"}
+                          </td>
+                          <td className="p-5 text-slate-400">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `${r.discountPercent || 0}%` : "—"}
+                          </td>
                           <td className="p-5 text-slate-500">
                             {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.platformFee || 0}` : "—"}
                           </td>
@@ -413,13 +401,36 @@ function AdminDashboard() {
                           <td className="p-5 font-black bg-slate-50 border-x">
                             {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${(r.amount || r.runnerDetails?.amount || 0).toFixed(2)}` : "—"}
                           </td>
-                          <td className="p-5 text-slate-500">{r.idProof?.idType || "N/A"}</td>
-                          <td className="p-5 font-mono tracking-tighter">{r.idProof?.idNumber || "N/A"}</td>
-                          <td className="p-5"><a href={r.idProof?.path} target="_blank" rel="noreferrer" className="text-teal-600 hover:underline flex items-center gap-1"><FiExternalLink /> VIEW FILE</a></td>
-                          <td className="p-5 font-mono text-[10px] text-slate-400">{r.paymentDetails?.orderId || "N/A"}</td>
-                          <td className="p-5 font-mono text-teal-700">{r.paymentDetails?.paymentId || "N/A"}</td>
-                          <td className="p-5 text-center"><span className={`px-3 py-1 rounded-full text-[10px] font-black text-white ${r.paymentStatus === 'paid' ? 'bg-teal-600' : 'bg-amber-500'}`}>{r.paymentStatus || "N/A"}</span></td>
-                          <td className="p-5 text-slate-400">{formatDate(r.paymentDetails?.paidAt)}</td>
+                          <td className="p-5 text-slate-500">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.idProof?.idType || "N/A") : "—"}
+                          </td>
+                          <td className="p-5 font-mono tracking-tighter">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.idProof?.idNumber || "N/A") : "—"}
+                          </td>
+                          <td className="p-5">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
+                              <a href={r.idProof?.path} target="_blank" rel="noreferrer"
+                                className="text-teal-600 hover:underline flex items-center gap-1">
+                                <FiExternalLink /> VIEW FILE
+                              </a>
+                            ) : "—"}
+                          </td>
+                          <td className="p-5 font-mono text-[10px] text-slate-400">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.paymentDetails?.orderId || "N/A") : "—"}
+                          </td>
+                          <td className="p-5 font-mono text-teal-700">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.paymentDetails?.paymentId || "N/A") : "—"}
+                          </td>
+                          <td className="p-5 text-center">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-black text-white ${r.paymentStatus === 'paid' ? 'bg-teal-600' : 'bg-amber-500'}`}>
+                                {r.paymentStatus || "N/A"}
+                              </span>
+                            ) : "—"}
+                          </td>
+                          <td className="p-5 text-slate-400">
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? formatDate(r.paymentDetails?.paidAt) : "—"}
+                          </td>
                         </>
                       )}
                     </tr>
