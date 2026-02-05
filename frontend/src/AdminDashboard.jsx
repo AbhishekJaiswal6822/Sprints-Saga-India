@@ -169,7 +169,8 @@ function AdminDashboard() {
         "Last Name": r.displayDetails?.lastName || "N/A",
         "Group Name/Individual Account": r.groupName ? `${r.groupName} (${r.memberPosLabel})` : "Individual Account",
         "Registration Type": r.registrationType || "N/A",
-        "Race Category": r.raceCategory || "N/A",
+        // "Race Category": r.raceCategory || "N/A",
+        "Race Category": r.displayDetails?.raceCategory || r.raceCategory || "N/A",
         "Email": r.displayDetails?.email || "N/A",
         "Phone": r.displayDetails?.phone || "N/A",
         "WhatsApp": r.displayDetails?.whatsapp || "N/A",
@@ -363,7 +364,10 @@ function AdminDashboard() {
                           <td className="p-5 sticky left-48 bg-white z-10 border-r" style={{ width: '192px', minWidth: '192px' }}>{r.displayDetails?.lastName || "N/A"}</td>
                           <td className="p-5 text-teal-700 font-black">{r.groupName ? `${r.groupName} (${r.memberPosLabel})` : "Individual Account"}</td>
                           <td className="p-5 text-slate-400 font-black">{r.registrationType || "N/A"}</td>
-                          <td className="p-5 text-teal-600 font-black">{r.raceCategory || "N/A"}</td>
+                          {/* <td className="p-5 text-teal-600 font-black">{r.raceCategory || "N/A"}</td> */}
+                          <td className="p-5 text-teal-600 font-black">
+                            {r.displayDetails?.raceCategory || r.raceCategory || "N/A"}
+                          </td>
                           <td className="p-5 lowercase font-medium">{r.displayDetails?.email || "N/A"}</td>
                           <td className="p-5 font-mono">{r.displayDetails?.phone || "N/A"}</td>
                           <td className="p-5 font-mono">{r.displayDetails?.whatsapp || "N/A"}</td>
