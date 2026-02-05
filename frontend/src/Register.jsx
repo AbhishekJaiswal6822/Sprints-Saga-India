@@ -1,5 +1,5 @@
 ﻿﻿// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Register.jsx 
-
+// grp  add wsap no in grp, blood grp all members, Experience	Finish Time	Dietary
 import React, { useState, useEffect, useRef } from "react";
 import { RACE_PRICING } from "./constants/racePricing";
 import { useNavigate } from "react-router-dom";
@@ -826,34 +826,54 @@ function Register() {
                 formData.append('idNumber', leader.idNumber || "0000");
                 if (leader.idFile) formData.append('idProofFile', leader.idFile);
             }
-
             const membersToFinalize = groupMembers.map((member, index) => {
                 const raceObj = raceCategories.find(r => r.id === member.raceId) || raceCategories[0];
-                return {
-                    ...member,
+
+                // Base object for all members
+                const finalizedMember = {
                     firstName: member.firstName || `Member ${index + 1}`,
                     lastName: member.lastName || "N/A",
-                    email: member.email || leader?.email || "N/A",
-                    phone: member.phone || leader?.phone || "0000000000",
-                    dob: member.dob || leader?.dob || today, 
+                    email: member.email || "N/A",
+                    phone: member.phone || "0000000000",
+                    dob: member.dob || today,
                     gender: member.gender || "Male",
                     tshirtSize: member.tshirtSize || "M",
-                    nationality: member.nationality || leader?.nationality || "Indian",
-                    raceCategory: raceObj.name, // Must match Model raceCategory key
-                    address: member.address || leader?.address || "N/A",
-                    city: member.city || leader?.city || "N/A",
-                    state: member.state || leader?.state || "N/A",
-                    pincode: member.pincode || leader?.pincode || "N/A",
-                    country: member.country || leader?.country || "India",
-                    parentName: member.parentName || leader?.parentName || "N/A",
-                    parentPhone: member.parentPhone || leader?.parentPhone || "N/A"
+                    raceCategory: raceObj.name,
                 };
-            });
 
+                if (index === 0) {
+                    // ONLY Member 1 (Leader) gets these full details
+                    return {
+                        ...finalizedMember,
+                        nationality: member.nationality || "Indian",
+                        address: member.address || "N/A",
+                        city: member.city || "N/A",
+                        state: member.state || "N/A",
+                        pincode: member.pincode || "N/A",
+                        country: member.country || "India",
+                        parentName: member.parentName || "N/A",
+                        parentPhone: member.parentPhone || "N/A"
+                    };
+                } else {
+                    // Members 2+ DO NOT get address/parent info copied from leader
+                    // They save as "N/A" to match the fact that UI didn't ask for them
+                    return {
+                        ...finalizedMember,
+                        nationality: "N/A",
+                        address: "N/A",
+                        city: "N/A",
+                        state: "N/A",
+                        pincode: "N/A",
+                        country: "N/A",
+                        parentName: "N/A",
+                        parentPhone: "N/A"
+                    };
+                }
+            });
             // FIXED: Send 'membersToFinalize'
             formData.append('groupMembers', JSON.stringify(membersToFinalize));
         }
-        
+
         let currentRegistrationId = null;
 
         try {
@@ -1513,6 +1533,7 @@ function Register() {
                                                 <input type="date" value={member.dob} onChange={(e) => handleMemberChange(index, "dob", e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required max={today} />
                                             </div>
                                             {/* Phone (Enforced numbers) */}
+                                            <div><label className="block text-sm font-medium text-slate-700 mb-1">Blood Group *</label><select value={individualRunner.bloodGroup} onChange={e => handleIndividualChange('bloodGroup', e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white" required><option value="">Select blood group</option>{bloodGroups.map(bg => <option key={bg} value={bg}>{bg}</option>)}</select></div>
                                             <div><label className="block text-sm font-medium text-slate-700 mb-1">Phone *</label><input minLength="10" maxLength="10" type="tel" pattern="[0-9]{6,}" value={member.phone} onChange={(e) => handleMemberChange(index, "phone", e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required /></div>
                                             <div><label className="block text-sm font-medium text-slate-700 mb-1">Gender *</label><select value={member.gender} onChange={(e) => handleMemberChange(index, "gender", e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required><option value="">Select gender</option>{genders.map((g) => (<option key={g} value={g}>{g}</option>))}</select></div>
                                             {/* T-Shirt Size */}
@@ -1549,6 +1570,7 @@ function Register() {
                                         {/* Member 1 Specific Fields: Parent, City, State, Country, Pincode */}
                                         {index === 0 && (
                                             <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                                <div><label className="block text-sm font-medium text-slate-700">WhatsApp Number *</label><input maxLength="10" type="tel" placeholder="If different from phone" value={individualRunner.whatsapp} onChange={e => handleIndividualChange('whatsapp', e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required /></div>
                                                 <div>
                                                     <label className="block text-sm font-medium text-slate-700 mb-1">Parent / Emergency Name *</label>
                                                     <input
