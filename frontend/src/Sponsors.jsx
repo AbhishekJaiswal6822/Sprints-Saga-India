@@ -1,33 +1,37 @@
 // C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Sponsors.jsx
 import React from "react";
 import SportsRhinosLogo from "./assets/sponsor1.jpeg";
-import IFinishXTiming from "./assets/ifinishxtiming.png";
+import TimingPartner from "./assets/timing-partner.jpeg"
+import IFinish from "./assets/Ifinish-partner.webp"
+// import IFinishXTiming from "./assets/ifinishxtiming.png";
 import Fitistan from "./assets/fitistan.png";
 
 const sponsors = [
     { id: 1, src: SportsRhinosLogo, name: "Execute Partner", scale: "scale-100", hoverScale: "group-hover:scale-110" },
     // I increased the base scale to 150 for a real "foreground" zoom
-    { id: 2, src: IFinishXTiming, name: "Registration & Timing Partner", scale: "scale-125", hoverScale: "group-hover:scale-[1.5]" }, 
+    // { id: 2, src: IFinishXTiming, name: "Registration & Timing Partner", scale: "scale-125", hoverScale: "group-hover:scale-[1.5]" }, 
+    { id: 2, src: TimingPartner, name: "Timing Partner", scale: "scale-120", hoverScale: "group-hover:scale-[1.4]" },
     { id: 3, src: Fitistan, name: "Community & Technology Partner", scale: "scale-110", hoverScale: "group-hover:scale-125" },
+    { id: 4, src: IFinish, name: "Registration Partner", scale: "scale-130", hoverScale: "group-hover:scale-[1.5]" }
 ];
 
 function Sponsors() {
     return (
         <section className="py-16 md:py-24 bg-[#fcfcfc] overflow-hidden">
-            <div className="max-w-5xl mx-auto px-4 text-center">
+            <div className="max-w-7xl mx-auto px-4 text-center">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-12 md:mb-20 tracking-tight">
                     Our Official Partners
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 max-w-4xl mx-auto items-start">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 max-w-7xl mx-auto items-start">
                     {sponsors.map((sponsor) => (
                         <div key={sponsor.id} className="group flex flex-col items-center select-none">
-                            
+
                             <div className="relative p-0.5 rounded-4xl transition-all duration-500 
                                             group-hover:bg-linear-to-br group-hover:from-emerald-400 group-hover:to-cyan-400 
                                             group-active:bg-linear-to-br group-active:from-emerald-400 group-active:to-cyan-400 
                                             group-hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]">
-                                
+
                                 <div
                                     className="relative w-40 h-40 sm:w-44 sm:h-44 md:w-48 md:h-48 bg-white rounded-[1.9rem] 
                                                flex items-center justify-center p-4 md:p-6 z-10
@@ -52,7 +56,7 @@ function Sponsors() {
                                               group-hover:text-emerald-600 group-active:text-emerald-600 transition-colors duration-300">
                                     {sponsor.name}
                                 </p>
-                                
+
                                 <div className="h-1.5 w-0 bg-emerald-500 mt-2 rounded-full 
                                                 group-hover:w-12 md:group-hover:w-16 
                                                 group-active:w-12 shadow-[0_2px_8px_rgba(16,185,129,0.4)]
