@@ -30,9 +30,16 @@ exports.uploadIDProof = upload.single('idProofFile');
 /* =====================================================
    COUPON CONFIG
 ===================================================== */
+// const COUPONS = {
+//     LOKRAJA10: {
+//         percent: 10,
+//         registrationType: 'individual'
+//     }
+// };
+
 const COUPONS = {
-    LOKRAJA10: {
-        percent: 10,
+    FITISTAN100: {      
+        amount: 100,    // Flat discount value
         registrationType: 'individual'
     }
 };
@@ -99,20 +106,27 @@ exports.submitRegistration = async (req, res) => {
         let discountPercent = 0;
         let discountAmount = 0;
 
-        const couponCode =
-            typeof mergedData.referralCode === 'string'
-                ? mergedData.referralCode.trim().toUpperCase()
-                : null;
+        const couponCode = mergedData.couponCode ? mergedData.couponCode.trim().toUpperCase() : null;
 
-        if (
-            couponCode &&
-            COUPONS[couponCode] &&
-            mergedData.registrationType === COUPONS[couponCode].registrationType
-        ) {
-            discountPercent = COUPONS[couponCode].percent;
+        // if (
+        //     couponCode &&
+        //     COUPONS[couponCode] &&
+        //     mergedData.registrationType === COUPONS[couponCode].registrationType
+        // ) {
+        //     discountPercent = COUPONS[couponCode].percent;
+        //     const baseFee = Number(mergedData.registrationFee) || 0;
+        //     if (baseFee > 0) {
+        //         discountAmount = Math.round(baseFee * (discountPercent / 100));
+        //     }
+        // }
+        if (couponCode && COUPONS[couponCode] && mergedData.registrationType === COUPONS[couponCode].registrationType) {
+            // Apply the flat discount from our config above
+            discountAmount = COUPONS[couponCode].amount;
+            
+            // Calculate a percentage purely for database reporting/UI
             const baseFee = Number(mergedData.registrationFee) || 0;
             if (baseFee > 0) {
-                discountAmount = Math.round(baseFee * (discountPercent / 100));
+                discountPercent = Math.round((discountAmount / baseFee) * 100);
             }
         }
 
