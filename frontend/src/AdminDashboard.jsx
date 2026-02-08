@@ -188,7 +188,9 @@ function AdminDashboard() {
         "Parent Phone": r.displayDetails?.parentPhone || "N/A",
         "Registration Fee": (!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.registrationFee || 0) : "—",
         "Coupon": r.couponCode || "N/A",
-        "Discount %": r.discountPercent || 0,
+        "Discount": (!r.isGroupMember || r.memberPosLabel === "Member 1")
+          ? (r.registrationType === "individual" ? `₹${r.discountAmount || 0}` : `${r.discountPercent || 0}%`)
+          : "—",
         "Total Amount Paid": (!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.amount || 0) : "—",
         "Order ID": r.paymentDetails?.orderId || "N/A",
         "Payment ID": r.paymentDetails?.paymentId || "N/A",
@@ -331,7 +333,8 @@ function AdminDashboard() {
                         <th className="p-5 w-64">Parent Phone Number</th>
                         <th className="p-5 w-48">Registration Fee</th>
                         <th className="p-5 w-48 text-slate-400">Coupon Code</th>
-                        <th className="p-5 w-48 text-slate-400">Discount Percent</th>
+                        {/* <th className="p-5 w-48 text-slate-400">Discount Percent</th> */}
+                        <th className="p-5 w-48 text-slate-400">Discount</th>
                         <th className="p-5 w-48 text-slate-400">Platform Fee</th>
                         <th className="p-5 w-48 text-slate-400">PG Fee</th>
                         <th className="p-5 w-48 text-slate-400">GST Amount</th>
@@ -394,7 +397,14 @@ function AdminDashboard() {
                             {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.couponCode || "N/A") : "—"}
                           </td>
                           <td className="p-5 text-slate-400">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `${r.discountPercent || 0}%` : "—"}
+                            {/* {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `${r.discountPercent || 0}%` : "—"} */}
+                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
+                              r.registrationType === "individual"
+                                ? `₹${r.discountAmount || 0}` // Show amount for individual
+                                : `${r.discountPercent || 0}%`  // Show percentage for group
+                            ) : (
+                              "—"
+                            )}
                           </td>
                           <td className="p-5 text-slate-500">
                             {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.platformFee || 0}` : "—"}
