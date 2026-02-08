@@ -18,7 +18,7 @@ const REGISTRATION_DATA_VERSION = "v1.1"; // Change this to "v1.1" when keys cha
 
 // --- CONFIGURATION CONSTANTS ---
 // --- COUPON cODE INDIVIDUAL    ---
-const COUPON_CODE = "FITISTAN";
+const COUPON_CODE = "FITISTAN100";
 const COUPON_DISCOUNT_AMOUNT = 100; // Flat discount in Rupees
 
 // const PG_FEE_RATE = 0.021; // 2.1% Payment Gateway Fee
@@ -1235,24 +1235,70 @@ function Register() {
                                 </div>
 
                                 {/* Referral Code Box */}
-                                <div className="mt-4 p-6 bg-teal-50/30 rounded-2xl border border-teal-100">
-                                    <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">🎁 Referral/Coupon Code</h3>
-                                    <p className="text-xs text-slate-500 mt-1">Have a referral code? Enter it here to earn bonus points!</p>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter referral/coupon code"
-                                        // Ensure this is 'referralCode' (two 'r's)
-                                        value={individualRunner.referralCode}
-                                        // Ensure this string matches exactly
-                                        onChange={e =>
-                                            handleIndividualChange(
-                                                'referralCode',
-                                                e.target.value.toUpperCase().trim()
-                                            )
-                                        }
+                                {/* Modern Ticket-Style Coupon Section */}
+                                <div className="mt-8 relative overflow-hidden rounded-3xl border-2 border-dashed border-teal-200 bg-linear-to-br from-white to-teal-50/40 p-6 transition-all duration-300 hover:border-teal-400 hover:shadow-lg">
+                                    {/* Decorative Ticket Circles */}
+                                    <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-50 rounded-full border-r-2 border-dashed border-teal-200 hidden md:block"></div>
+                                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-50 rounded-full border-l-2 border-dashed border-teal-200 hidden md:block"></div>
 
-                                        className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                                    />
+                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
+                                        <div className="text-center md:text-left flex-1">
+                                            <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                                                <span className="text-2xl">🎁</span>
+                                                <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">
+                                                    Exclusive Discount
+                                                </h3>
+                                            </div>
+                                            <p className="text-slate-600 text-xs font-medium">
+                                                Apply the coupon code for a <span className="text-teal-600 font-bold underline decoration-teal-200 underline-offset-4">FLAT ₹100 OFF</span> on your individual registration fee!
+                                            </p>
+                                        </div>
+
+                                        <div className="w-full md:w-auto flex flex-col items-center gap-3">
+                                            {/* COMPACT TOGGLE BUTTON */}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newCode = individualRunner.referralCode === 'FITISTAN100' ? '' : 'FITISTAN100';
+                                                    handleIndividualChange('referralCode', newCode);
+                                                }}
+                                                className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 active:scale-95 px-6 py-2.5 min-w-40
+                    ${individualRunner.referralCode === "FITISTAN100"
+                                                        ? "bg-teal-600 border-teal-600 shadow-md shadow-teal-200"
+                                                        : "bg-white border-teal-500 hover:bg-teal-50 shadow-sm"}
+                `}
+                                            >
+                                                <div className="flex flex-col items-center">
+                                                    <span className={`text-[9px] font-black uppercase tracking-tighter mb-0.5 transition-colors
+                        ${individualRunner.referralCode === "FITISTAN100" ? "text-teal-100" : "text-teal-600"}
+                    `}>
+                                                        {individualRunner.referralCode === "FITISTAN100" ? "Applied Successfully" : "Click to Apply"}
+                                                    </span>
+                                                    <span className={`text-lg font-black tracking-widest font-mono transition-colors
+                        ${individualRunner.referralCode === "FITISTAN100" ? "text-white" : "text-slate-900"}
+                    `}>
+                                                        FITISTAN100
+                                                    </span>
+                                                </div>
+
+                                                {/* Animated checkmark that appears on selection */}
+                                                {individualRunner.referralCode === "FITISTAN100" && (
+                                                    <span className="absolute right-2 top-1 text-white text-xs animate-bounce">✓</span>
+                                                )}
+                                            </button>
+
+                                            {/* Manual Input Fallback (Small & Discreet) */}
+                                            <div className="w-full md:w-48 relative group">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Enter code"
+                                                    value={individualRunner.referralCode}
+                                                    onChange={e => handleIndividualChange('referralCode', e.target.value.toUpperCase().trim())}
+                                                    className="w-full rounded-xl border border-slate-200 py-1.5 px-3 text-[10px] font-bold text-center transition-all focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20 outline-none bg-white/60"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
