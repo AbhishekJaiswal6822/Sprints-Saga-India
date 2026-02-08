@@ -18,8 +18,8 @@ const REGISTRATION_DATA_VERSION = "v1.1"; // Change this to "v1.1" when keys cha
 
 // --- CONFIGURATION CONSTANTS ---
 // --- COUPON cODE INDIVIDUAL    ---
-const COUPON_CODE = "LOKRAJA10";
-const COUPON_DISCOUNT_PERCENT = 10;
+const COUPON_CODE = "FITISTAN";
+const COUPON_DISCOUNT_AMOUNT = 100; // Flat discount in Rupees
 
 // const PG_FEE_RATE = 0.021; // 2.1% Payment Gateway Fee
 const PG_FEE_RATE = 0.025; // 2.5% Payment Gateway Fee
@@ -485,14 +485,24 @@ function Register() {
                         : selectedRace.charityFee;
 
                 // Coupon ONLY for individual
+                // if (
+                //     registrationType === "individual" &&
+                //     individualRunner.referralCode === COUPON_CODE
+                // ) {
+                //     discountPercent = COUPON_DISCOUNT_PERCENT;
+                //     discountAmount = Math.round(
+                //         rawRegistrationFee * (discountPercent / 100)
+                //     );
+                // }
                 if (
                     registrationType === "individual" &&
                     individualRunner.referralCode === COUPON_CODE
                 ) {
-                    discountPercent = COUPON_DISCOUNT_PERCENT;
-                    discountAmount = Math.round(
-                        rawRegistrationFee * (discountPercent / 100)
-                    );
+                    // Set discountAmount directly to 100
+                    discountAmount = COUPON_DISCOUNT_AMOUNT;
+
+                    // We calculate the effective percentage for display purposes in the summary
+                    discountPercent = Math.round((discountAmount / rawRegistrationFee) * 100);
                 }
             }
         }
@@ -1746,12 +1756,24 @@ function Register() {
                                         </div>
                                     )} */}
 
-                                    {discountAmount > 0 && (
+                                    {/* {discountAmount > 0 && (
                                         <div className="flex justify-between text-green-600">
                                             <span className="font-semibold pl-4">
                                                 {registrationType === "individual"
                                                     ? `Coupon Code Discount (${discountPercent}%)`
                                                     : `Discount (${discountPercent}%)`}
+                                                :
+                                            </span>
+                                            <span className="font-semibold">–₹{discountAmount.toFixed(2)}</span>
+                                        </div>
+                                    )} */}
+
+                                    {discountAmount > 0 && (
+                                        <div className="flex justify-between text-green-600">
+                                            <span className="font-semibold pl-4">
+                                                {registrationType === "individual"
+                                                    ? `Coupon Code Discount`
+                                                    : `Group Discount`}
                                                 :
                                             </span>
                                             <span className="font-semibold">–₹{discountAmount.toFixed(2)}</span>
