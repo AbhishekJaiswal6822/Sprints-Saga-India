@@ -1,5 +1,4 @@
 ﻿﻿// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Register.jsx 
-// grp  add wsap no in grp, blood grp all members, Experience	Finish Time	Dietary
 import React, { useState, useEffect, useRef } from "react";
 import { RACE_PRICING } from "./constants/racePricing";
 import { useNavigate } from "react-router-dom";
@@ -485,15 +484,6 @@ function Register() {
                         : selectedRace.charityFee;
 
                 // Coupon ONLY for individual
-                // if (
-                //     registrationType === "individual" &&
-                //     individualRunner.referralCode === COUPON_CODE
-                // ) {
-                //     discountPercent = COUPON_DISCOUNT_PERCENT;
-                //     discountAmount = Math.round(
-                //         rawRegistrationFee * (discountPercent / 100)
-                //     );
-                // }
                 if (
                     registrationType === "individual" &&
                     individualRunner.referralCode === COUPON_CODE
@@ -797,9 +787,8 @@ function Register() {
         formData.append("pgFee", pgFee);
         formData.append("gstAmount", gstAmount);
         formData.append("amount", totalAmountPayable);
-        // formData.append("referralCode", individualRunner.referralCode);
         if (registrationType === "individual") {
-            formData.append("referralCode", individualRunner.referralCode);
+            formData.append("couponCode", individualRunner.referralCode);
         }
 
 
@@ -1794,20 +1783,13 @@ function Register() {
                                     )}
 
                                     {/* 2. Discount (UPDATED with Percentage) */}
-                                    {/* {discountAmount > 0 && (
-                                        <div className="flex justify-between text-green-600">
-                                            Display discount percentage
-                                            <span className="font-semibold pl-4">Discount {discountPercent > 0 ? `(${discountPercent}%)` : ''}:</span>
-                                            <span className="font-semibold">–₹{discountAmount.toFixed(2)}</span>
-                                        </div>
-                                    )} */}
 
                                     {/* {discountAmount > 0 && (
                                         <div className="flex justify-between text-green-600">
                                             <span className="font-semibold pl-4">
                                                 {registrationType === "individual"
-                                                    ? `Coupon Code Discount (${discountPercent}%)`
-                                                    : `Discount (${discountPercent}%)`}
+                                                    ? `Coupon Code Discount`
+                                                    : `Group Discount`}
                                                 :
                                             </span>
                                             <span className="font-semibold">–₹{discountAmount.toFixed(2)}</span>
@@ -1819,7 +1801,7 @@ function Register() {
                                             <span className="font-semibold pl-4">
                                                 {registrationType === "individual"
                                                     ? `Coupon Code Discount`
-                                                    : `Group Discount`}
+                                                    : `Discount (${discountPercent}%)`}
                                                 :
                                             </span>
                                             <span className="font-semibold">–₹{discountAmount.toFixed(2)}</span>
