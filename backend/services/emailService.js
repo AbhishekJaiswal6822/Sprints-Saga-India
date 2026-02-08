@@ -61,7 +61,8 @@ const generateInvoicePDF = (doc, paymentData) => {
         else if (typeof value === 'string') cleanValue = parseFloat(value.replace(/[^-0-9.]/g, '')) || 0;
         else if (value && value.toString) cleanValue = parseFloat(value.toString()) || 0;
 
-        doc.text(`Rs. ${Math.abs(cleanValue).toFixed(2)}`, 450, currentY, { width: 90, align: 'right' });
+        // doc.text(`Rs. ${Math.abs(cleanValue).toFixed(2)}`, 450, currentY, { width: 90, align: 'right' });
+        doc.text(`${isRed ? '–' : ''} Rs. ${Math.abs(cleanValue).toFixed(2)}`, 450, currentY, { width: 90, align: 'right' });
         doc.moveTo(40, currentY + 12).lineTo(555, currentY + 12).strokeColor('#eeeeee').lineWidth(0.5).stroke();
         currentY += 18;
     };
