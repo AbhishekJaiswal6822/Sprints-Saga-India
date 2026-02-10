@@ -8,6 +8,10 @@ exports.getAdminDashboardData = async (req, res) => {
         const users = await User.find().select('-password').sort({ createdAt: -1 });
         const registrations = await Registration.find().sort({ registeredAt: -1 });
 
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
         // 2. Calculate Live Stats from your real Atlas fields
         const stats = {
             total: registrations.length,
