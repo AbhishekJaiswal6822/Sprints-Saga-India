@@ -17,8 +17,11 @@ const REGISTRATION_DATA_VERSION = "v1.1"; // Change this to "v1.1" when keys cha
 
 // --- CONFIGURATION CONSTANTS ---
 // --- COUPON cODE INDIVIDUAL    ---
-const COUPON_CODE = "FITISTAN100";
-const COUPON_DISCOUNT_AMOUNT = 100; // Flat discount in Rupees
+const COUPON_CODE_FLAT = "FITISTAN100"; // Added _FLAT
+const COUPON_DISCOUNT_FLAT = 100;
+
+const PERCENT_COUPONS = ["VIJAY10", "KINNARI10", "RUNMADHU10", "DEEPAKSHI10", "DRROHAN10"];
+const COUPON_DISCOUNT_PERCENT = 10;
 
 // const PG_FEE_RATE = 0.021; // 2.1% Payment Gateway Fee
 const PG_FEE_RATE = 0.025; // 2.5% Payment Gateway Fee
@@ -484,15 +487,17 @@ function Register() {
                         : selectedRace.charityFee;
 
                 // Coupon ONLY for individual
-                if (
-                    registrationType === "individual" &&
-                    individualRunner.referralCode === COUPON_CODE
-                ) {
-                    // Set discountAmount directly to 100
-                    discountAmount = COUPON_DISCOUNT_AMOUNT;
+                if (registrationType === "individual" && selectedRace) {
+                    const code = individualRunner.referralCode;
 
-                    // We calculate the effective percentage for display purposes in the summary
-                    discountPercent = Math.round((discountAmount / rawRegistrationFee) * 100);
+                    if (code === COUPON_CODE_FLAT) {
+                        discountAmount = COUPON_DISCOUNT_FLAT;
+                        discountPercent = (discountAmount / rawRegistrationFee) * 100;
+                    }
+                    else if (PERCENT_COUPONS.includes(code)) {
+                        discountPercent = COUPON_DISCOUNT_PERCENT;
+                        discountAmount = rawRegistrationFee * (discountPercent / 100);
+                    }
                 }
             }
         }
@@ -1226,7 +1231,6 @@ function Register() {
                                 {/* Referral Code Box */}
                                 {/* Modern Ticket-Style Coupon Section */}
                                 <div className="mt-8 relative overflow-hidden rounded-3xl border-2 border-dashed border-slate-200 bg-linear-to-br from-white to-slate-50/40 p-6 transition-all duration-300 hover:border-teal-400">
-                                    {/* Decorative Ticket Circles */}
                                     <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-50 rounded-full border-r-2 border-dashed border-slate-200 hidden md:block"></div>
                                     <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-50 rounded-full border-l-2 border-dashed border-slate-200 hidden md:block"></div>
 
@@ -1238,9 +1242,6 @@ function Register() {
                                                     Coupon Code Discount
                                                 </h3>
                                             </div>
-                                            {/* <p className="text-slate-500 text-xs font-medium">
-                                                Have a coupon code from our social media? Enter it below to apply your discount.
-                                            </p> */}
                                         </div>
 
                                         <div className="w-full md:w-auto">
@@ -1249,29 +1250,42 @@ function Register() {
                                                     Enter Code Here
                                                 </label>
                                                 <div className="relative">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="e.g. SAVE10"
-                                                        value={individualRunner.referralCode}
-                                                        onChange={(e) => handleIndividualChange('referralCode', e.target.value.toUpperCase().trim())}
-                                                        className={`w-full rounded-2xl border-2 py-3 px-4 text-sm font-black tracking-widest transition-all outline-none uppercase
-              ${individualRunner.referralCode === "FITISTAN100"
-                                                                ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
-                                                                : "border-slate-200 focus:border-teal-500 bg-white"
-                                                            }`}
-                                                    />
-                                                    {/* Success Checkmark */}
-                                                    {individualRunner.referralCode === "FITISTAN100" && (
-                                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-600 font-bold animate-bounce">
-                                                            ✓
-                                                        </span>
-                                                    )}
+                                                    {(() => {
+                                                        const isFlat = individualRunner.referralCode === COUPON_CODE_FLAT;
+                                                        const isPercent = PERCENT_COUPONS.includes(individualRunner.referralCode);
+                                                        const isCouponValid = isFlat || isPercent;
+
+                                                        return (
+                                                            <>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="e.g. SAVE10"
+                                                                    value={individualRunner.referralCode}
+                                                                    onChange={(e) => handleIndividualChange('referralCode', e.target.value.toUpperCase().trim())}
+                                                                    className={`w-full rounded-2xl border-2 py-3 px-4 text-sm font-black tracking-widest transition-all outline-none uppercase ${isCouponValid
+                                                                            ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
+                                                                            : "border-slate-200 focus:border-teal-500 bg-white"
+                                                                        }`}
+                                                                />
+                                                                {isCouponValid && (
+                                                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-600 font-bold animate-bounce">
+                                                                        ✓
+                                                                    </span>
+                                                                )}
+                                                                {isFlat && (
+                                                                    <p className="text-[10px] text-teal-600 font-bold mt-1.5 ml-1 text-left">
+                                                                        Flat ₹100 Discount Applied!
+                                                                    </p>
+                                                                )}
+                                                                {isPercent && (
+                                                                    <p className="text-[10px] text-teal-600 font-bold mt-1.5 ml-1 text-left">
+                                                                        10% Discount Applied!
+                                                                    </p>
+                                                                )}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </div>
-                                                {individualRunner.referralCode === "FITISTAN100" && (
-                                                    <p className="text-[10px] text-teal-600 font-bold mt-1.5 ml-1">
-                                                        Flat ₹100 Discount Applied!
-                                                    </p>
-                                                )}
                                             </div>
                                         </div>
                                     </div>
