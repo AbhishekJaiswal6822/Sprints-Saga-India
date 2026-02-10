@@ -23,8 +23,17 @@ function AdminDashboard() {
     const fetchDashboardData = async () => {
       try {
         const token = localStorage.getItem("token");
+
+        // If there is no token, don't even try to fetch; redirect to login
+        if (!token) {
+          window.location.href = "/signin";
+          return;
+        }
+
         const PROD_BACKEND_URL = "https://backend.sprintssagaindia.com";
-        const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:8000" : PROD_BACKEND_URL;
+        const API_BASE_URL = window.location.hostname === "localhost"
+          ? "http://localhost:8000"
+          : PROD_BACKEND_URL;
 
         const res = await axios.get(`${API_BASE_URL}/api/admin/dashboard-data`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -35,13 +44,17 @@ function AdminDashboard() {
         }
       } catch (err) {
         console.error("Fetch Error:", err.message);
+        // If the server says 401, the token is expired/invalid. Redirect to login.
+        if (err.response && err.response.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/signin";
+        }
       } finally {
         setLoading(false);
       }
     };
     fetchDashboardData();
   }, []);
-
   const formatDate = (dateObj) => {
     if (!dateObj) return "N/A";
 
