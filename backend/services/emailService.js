@@ -35,16 +35,37 @@ const generateInvoicePDF = (doc, paymentData) => {
     // --- INFO GRID ---
     const gridY = doc.y;
     doc.fillColor('#000000').fontSize(8.5);
-    doc.font('Helvetica-Bold').text('Event:', 50, gridY).font('Helvetica').text('LokRaja Marathon - Chapter Pune', 105, gridY);
-    doc.font('Helvetica-Bold').text('Full Name:', 50, gridY + 12).font('Helvetica').text(paymentData.fullName, 105, gridY + 12);
-    doc.font('Helvetica-Bold').text('Mobile:', 50, gridY + 24).font('Helvetica').text(paymentData.phone, 105, gridY + 24);
-    doc.font('Helvetica-Bold').text('Email:', 50, gridY + 36).font('Helvetica').text(paymentData.email, 105, gridY + 36);
 
-    doc.font('Helvetica-Bold').text('Registration Type:', 370, gridY).font('Helvetica').text(registrationTypeLabel, 465, gridY);
-    doc.font('Helvetica-Bold').text('Race Category:', 370, gridY + 12).font('Helvetica').text(paymentData.raceCategory, 465, gridY + 12);
-    doc.font('Helvetica-Bold').text('Invoice:', 370, gridY + 24).font('Helvetica').text(paymentData.invoiceNo, 465, gridY + 24);
-    doc.font('Helvetica-Bold').text('Mode:', 370, gridY + 36).font('Helvetica').text(paymentData.paymentMode || 'UPI', 465, gridY + 36);
-    doc.font('Helvetica-Bold').text('Date:', 370, gridY + 48).font('Helvetica').text(new Date().toLocaleDateString(), 465, gridY + 48);
+    // Left Column
+    doc.font('Helvetica-Bold').text('Event: ', 50, gridY, { continued: true })
+        .font('Helvetica').text('LokRaja Marathon - Chapter Pune');
+
+    doc.font('Helvetica-Bold').text('Full Name: ', 50, gridY + 12, { continued: true })
+        .font('Helvetica').text(paymentData.fullName);
+
+    doc.font('Helvetica-Bold').text('Mobile: ', 50, gridY + 24, { continued: true })
+        .font('Helvetica').text(paymentData.phone);
+
+    doc.font('Helvetica-Bold').text('Email: ', 50, gridY + 36, { continued: true })
+        .font('Helvetica').text(paymentData.email);
+
+    // Right Column
+    const rightX = 350; // Using 350 for better alignment
+
+    doc.font('Helvetica-Bold').text('Registration Type: ', rightX, gridY, { continued: true })
+        .font('Helvetica').text(registrationTypeLabel);
+
+    doc.font('Helvetica-Bold').text('Race Category: ', rightX, gridY + 14, { continued: true })
+        .font('Helvetica').text(paymentData.raceCategory);
+
+    doc.font('Helvetica-Bold').text('Invoice Id: ', rightX, gridY + 28, { continued: true })
+        .font('Helvetica').fontSize(7.5).text(paymentData.invoiceNo).fontSize(8.5);
+
+    doc.font('Helvetica-Bold').text('Payment Mode: ', rightX, gridY + 42, { continued: true })
+        .font('Helvetica').text(paymentData.paymentMode || 'Offline/Manual');
+
+    doc.font('Helvetica-Bold').text('Date: ', rightX, gridY + 56, { continued: true })
+        .font('Helvetica').text(new Date().toLocaleDateString());
 
     // --- TABLE ---
     doc.moveDown(4);
@@ -98,7 +119,7 @@ const generateInvoicePDF = (doc, paymentData) => {
     doc.fontSize(7).font('Helvetica-Bold').text('About this app:', 112, qrSectionY + 12);
     doc.fontSize(7).font('Helvetica').text('Track your steps, conquer exciting challenges, and achieve your fitness goals!', 112, qrSectionY + 20, { width: 350 });
     doc.fontSize(6.5).font('Helvetica-Bold').fillColor('#008080').text('Scan QR code to download Fitistan-Community Fitness App', 112, qrSectionY + 38);
-    
+
     // Reduced the gap below the QR section
     doc.y = qrSectionY + 60;
 
@@ -132,9 +153,41 @@ const sendInvoiceEmail = async (userEmail, paymentData, res = null) => {
                     const mailOptions = {
                         from: '"Sprints Saga India" <sprintssagaindia@gmail.com>',
                         to: userEmail,
-                        subject: `Invoice - ${paymentData.invoiceNo}`,
-                        text: `Hello ${paymentData.firstName}, attached is your invoice.`,
-                        attachments: [{ filename: `Invoice_${paymentData.invoiceNo}.pdf`, content: pdfBuffer }]
+                        subject: `Registration Confirmed: LokRaja Marathon - Invoice #${paymentData.invoiceNo}`,
+                  html: `
+        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+            <div style="background-color: #008080; padding: 20px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Registration Confirmed!</h1>
+            </div>
+            <div style="padding: 30px; color: #333333; line-height: 1.6;">
+                <p style="font-size: 18px;">Hello <strong>${paymentData.firstName}</strong>,</p>
+                <p>Thank you for registering for the <strong>LokRaja Marathon - Chapter Pune</strong>. We are thrilled to have you join our community of runners!</p>
+                
+                <p>Please find your official payment receipt attached to this email. We recommend keeping a copy for your records and for bib collection.</p>
+                
+                <p>Get ready to hit the pavement! Follow us on our social handles for training tips and event updates.</p>
+                
+                <hr style="border: 0; border-top: 1px solid #eeeeee; margin: 30px 0;">
+                
+                <p style="font-size: 12px; color: #888888; text-align: center;">
+                    This is an automated receipt. For any queries, please reach out to <a href="mailto:info@sprintssagaindia.com" style="color: #008080;">info@sprintssagaindia.com</a>.
+                </p>
+            </div>
+            <div style="background-color: #f0f0f0; padding: 15px; text-align: center; font-size: 12px; color: #666666;">
+                <strong>Sprints Saga India</strong><br>
+                <a href="http://www.sprintssagaindia.com" style="color: #666666; text-decoration: none;">www.sprintssagaindia.com</a>
+                
+                <div style="background-color: #ffffff; padding: 15px; border: 1px solid #e0e0e0; border-radius: 6px; margin: 15px auto 0 auto; max-width: 80%; text-align: left;">
+                    <p style="margin: 0; color: #333333;"><strong>Race Category:</strong> ${paymentData.raceCategory}</p>
+                    <p style="margin: 5px 0 0 0; color: #333333;"><strong>Invoice ID:</strong> ${paymentData.invoiceNo}</p>
+                </div>
+            </div>
+        </div>
+    `,
+                        attachments: [{
+                            filename: `Invoice_${paymentData.invoiceNo}.pdf`,
+                            content: pdfBuffer
+                        }]
                     };
                     await transporter.sendMail(mailOptions);
                     resolve(true);
