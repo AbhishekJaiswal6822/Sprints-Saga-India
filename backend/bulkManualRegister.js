@@ -123,41 +123,40 @@ const convertAndRegister = async () => {
 
                 // Move all the Email/Invoice logic INSIDE this try block
                 // ... (Your existing try/catch for sendInvoiceEmail)
+                // 7. Send Invoice
+                try {
+                    const regObj = savedReg.toObject();
+
+                    // Prepare the data structure your emailService.js needs for the PDF
+                    const paymentDataForEmail = {
+                        firstName: regObj.runnerDetails.firstName,
+                        fullName: `${regObj.runnerDetails.firstName} ${regObj.runnerDetails.lastName}`,
+                        phone: regObj.runnerDetails.phone,
+                        email: regObj.runnerDetails.email,
+                        registrationType: regObj.registrationType,
+                        raceCategory: regObj.raceCategory,
+                        invoiceNo: regObj.paymentDetails.paymentId, // Using paymentId as the invoice number
+                        paymentMode: 'Offline/Manual',
+                        amount: regObj.amount || 0,
+                        registrationFee: regObj.registrationFee || 0,
+                        discountAmount: regObj.discountAmount || 0,
+                        platformFee: regObj.platformFee || 0,
+                        pgFee: regObj.pgFee || 0,
+                        gstAmount: regObj.gstAmount || 0
+                    };
+
+                    // CRITICAL FIX: Send email and data as TWO separate arguments
+                    await sendInvoiceEmail(regObj.runnerDetails.email, paymentDataForEmail);
+
+                    console.log(`   📧 Invoice sent successfully to ${regObj.runnerDetails.email}`);
+                } catch (mErr) {
+                    console.log(`   ⚠️ Email failed: ${mErr.message}`);
+                }
+
 
             } catch (dbErr) {
                 console.error(`❌ FAILED at [${index + 1}]: ${email}. Error: ${dbErr.message}`);
-                // Optional: Log failed records to a separate file so it can fix later
                 fs.appendFileSync("failed_imports.txt", `${email}: ${dbErr.message}\n`);
-            }
-
-            // 7. Send Invoice
-            try {
-                const regObj = savedReg.toObject();
-
-                // Prepare the data structure your emailService.js needs for the PDF
-                const paymentDataForEmail = {
-                    firstName: regObj.runnerDetails.firstName,
-                    fullName: `${regObj.runnerDetails.firstName} ${regObj.runnerDetails.lastName}`,
-                    phone: regObj.runnerDetails.phone,
-                    email: regObj.runnerDetails.email,
-                    registrationType: regObj.registrationType,
-                    raceCategory: regObj.raceCategory,
-                    invoiceNo: regObj.paymentDetails.paymentId, // Using paymentId as the invoice number
-                    paymentMode: 'Offline/Manual',
-                    amount: regObj.amount || 0,
-                    registrationFee: regObj.registrationFee || 0,
-                    discountAmount: regObj.discountAmount || 0,
-                    platformFee: regObj.platformFee || 0,
-                    pgFee: regObj.pgFee || 0,
-                    gstAmount: regObj.gstAmount || 0
-                };
-
-                // CRITICAL FIX: Send email and data as TWO separate arguments
-                await sendInvoiceEmail(regObj.runnerDetails.email, paymentDataForEmail);
-
-                console.log(`   📧 Invoice sent successfully to ${regObj.runnerDetails.email}`);
-            } catch (mErr) {
-                console.log(`   ⚠️ Email failed: ${mErr.message}`);
             }
 
             // 1 second delay to avoid rate limiting
