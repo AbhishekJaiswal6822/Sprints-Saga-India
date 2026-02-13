@@ -58,16 +58,23 @@ function AdminDashboard() {
   const formatDate = (dateObj) => {
     if (!dateObj) return "N/A";
 
-    // Extract raw date string
+    // 1. Extract the raw date value
+    // Handle MongoDB JSON objects {$date: ...} or standard date strings
     const raw = dateObj.$date || dateObj;
     const d = new Date(raw);
 
+    // 2. Check for "Invalid Date"
     if (isNaN(d.getTime())) return "N/A";
 
-    // Manually pull components to FORCE Indian order DD/MM/YYYY
+    // 3. STRICT COMPONENT EXTRACTION
+    // We pull Day, Month, and Year individually to ensure no regional flipping
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
+
+    // 4. THE ULTIMATE FORMAT
+    // If it's the 1900 fallback, you might want to show "N/A" or "Check Excel"
+    if (year === 1900) return "Check Excel";
 
     return `${day}/${month}/${year}`;
   };
@@ -82,7 +89,7 @@ function AdminDashboard() {
   // --- FILTERED USERS ---
   const filteredUsers = (data.users || []).filter(u => {
     const s = searchTerm.toLowerCase();
-    const joinDate = new Date(u.createdAt).toLocaleDateString().toLowerCase();
+    const joinDate = formatDate(u.createdAt).toLowerCase();
     return (
       u.name?.toLowerCase().includes(s) ||
       u.email?.toLowerCase().includes(s) ||
