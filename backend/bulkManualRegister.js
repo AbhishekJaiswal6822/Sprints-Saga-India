@@ -39,7 +39,7 @@ const convertAndRegister = async () => {
                     // Convert Excel serial date to JS Date
                     return new Date((val - 25569) * 86400 * 1000);
                 }
-                return val ? new Date(val) : null;
+                return val ? new Date(val) : new Date("1900-01-01");
             };
 
             // --- PRICING LOGIC ---
