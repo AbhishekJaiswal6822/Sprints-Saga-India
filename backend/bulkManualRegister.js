@@ -59,7 +59,7 @@ const convertAndRegister = async () => {
                 else if (category.includes("35")) regAmount = 650;
                 else if (category.includes("21")) regAmount = 500;
                 else if (category.includes("10")) regAmount = 300;
-                else regAmount = 250; 
+                else regAmount = 250;
             }
 
             const fullName = getVal('Name') || "Unknown User";
@@ -69,7 +69,7 @@ const convertAndRegister = async () => {
             const registrationData = {
                 user: "679cc7a522a440cc9115f216",
                 registrationType: 'individual',
-                raceCategory: category, 
+                raceCategory: category,
                 amount: regAmount,
                 paymentStatus: 'paid',
                 registrationStatus: 'Verified',
@@ -117,8 +117,18 @@ const convertAndRegister = async () => {
             finalJsonData.push(registrationData);
 
             // 6. Save to Database
-            const savedReg = await Registration.create(registrationData);
-            console.log(`[${index + 1}/${rawData.length}] Registered: ${email} | ${category} | Rs.${regAmount}`);
+            try {
+                const savedReg = await Registration.create(registrationData);
+                console.log(`[${index + 1}/${rawData.length}] Registered: ${email} | ${category} | Rs.${regAmount}`);
+
+                // Move all the Email/Invoice logic INSIDE this try block
+                // ... (Your existing try/catch for sendInvoiceEmail)
+
+            } catch (dbErr) {
+                console.error(`❌ FAILED at [${index + 1}]: ${email}. Error: ${dbErr.message}`);
+                // Optional: Log failed records to a separate file so it can fix later
+                fs.appendFileSync("failed_imports.txt", `${email}: ${dbErr.message}\n`);
+            }
 
             // 7. Send Invoice
             try {
