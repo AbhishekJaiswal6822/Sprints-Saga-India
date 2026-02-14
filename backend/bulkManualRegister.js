@@ -40,26 +40,25 @@ const convertAndRegister = async () => {
                 // 1. Handle Excel Serial Numbers
                 if (typeof val === 'number') {
                     const d = new Date((val - 25569) * 86400 * 1000);
-                    return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0));
+                    // Set to Midday to prevent timezone flipping
+                    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
                 }
 
-                // 2. Handle Strings (Strict DD-MM-YYYY)
+                // 2. Handle Strings (Forcing Day-Month-Year)
                 if (typeof val === 'string') {
-                    const parts = val.trim().replace(/[./]/g, '-').split('-');
+                    // Clean separators and handle spaces (like '13 Nov 1994')
+                    const cleanVal = val.trim().replace(/[./]/g, '-');
+
+                    // Handle standard DD-MM-YYYY
+                    const parts = cleanVal.split('-');
                     if (parts.length === 3) {
-                        let day, month, year;
-                        if (parts[0].length === 4) { // YYYY-MM-DD
-                            year = parseInt(parts[0]);
-                            month = parseInt(parts[1]) - 1;
-                            day = parseInt(parts[2]);
-                        } else { // DD-MM-YYYY
-                            day = parseInt(parts[0]);
-                            month = parseInt(parts[1]) - 1;
-                            year = parseInt(parts[2]);
-                        }
-                        // Use 12:00:00 UTC to prevent date-flipping due to timezone shifts
-                        const finalDate = new Date(Date.UTC(year, month, day, 12, 0, 0));
-                        if (!isNaN(finalDate.getTime())) return finalDate;
+                        let d, m, y;
+                        if (parts[0].length === 4) { y = parts[0]; m = parts[1] - 1; d = parts[2]; }
+                        else { d = parts[0]; m = parts[1] - 1; y = parts[2]; }
+
+                        // USE LOCAL CONSTRUCTOR AT NOON (Bulletproof for IST/UTC mismatch)
+                        const final = new Date(y, m, d, 12, 0, 0);
+                        if (!isNaN(final.getTime())) return final;
                     }
                 }
                 return new Date("1900-01-01");

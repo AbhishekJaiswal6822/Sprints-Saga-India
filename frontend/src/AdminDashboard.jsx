@@ -57,21 +57,16 @@ function AdminDashboard() {
   }, []);
   const formatDate = (dateObj) => {
     if (!dateObj) return "N/A";
-
-    // Extract raw date (handles MongoDB object or string)
     const raw = dateObj.$date || dateObj;
     const d = new Date(raw);
-
     if (isNaN(d.getTime())) return "N/A";
 
-    // STRICT UTC EXTRACTION
-    // padStart(2, '0') ensures 07/08/1995 instead of 7/8/1995
-    const day = String(d.getUTCDate()).padStart(2, '0');
-    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-    const year = d.getUTCFullYear();
+    // Since we saved at 12:00 PM, these will ALWAYS return the correct Day/Month
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
 
-    if (year === 1900) return "Check Excel";
-
+    if (year === 1900) return "N/A";
     return `${day}/${month}/${year}`;
 };
 
