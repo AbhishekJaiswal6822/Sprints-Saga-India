@@ -59,25 +59,23 @@ function AdminDashboard() {
     if (!dateObj) return "N/A";
 
     // 1. Extract the raw date value
-    // Handle MongoDB JSON objects {$date: ...} or standard date strings
     const raw = dateObj.$date || dateObj;
     const d = new Date(raw);
 
     // 2. Check for "Invalid Date"
     if (isNaN(d.getTime())) return "N/A";
 
-    // 3. STRICT COMPONENT EXTRACTION
-    // We pull Day, Month, and Year individually to ensure no regional flipping
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
+    // 3. STRICT UTC COMPONENT EXTRACTION
+    // We use getUTC... to ensure the browser doesn't shift the date based on local time
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const year = d.getUTCFullYear();
 
     // 4. THE ULTIMATE FORMAT
-    // If it's the 1900 fallback, you might want to show "N/A" or "Check Excel"
     if (year === 1900) return "Check Excel";
 
     return `${day}/${month}/${year}`;
-  };
+};
 
   const resetFilters = () => {
     setRegFilter("all");
