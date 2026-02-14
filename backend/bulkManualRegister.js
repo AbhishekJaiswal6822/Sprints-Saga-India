@@ -19,7 +19,7 @@ mongoose.connect(process.env.MONGO_URI)
 const convertAndRegister = async () => {
     try {
         // 4. Read the Excel File
-        const workbook = XLSX.readFile("./demo-data.xlsx");
+        const workbook = XLSX.readFile("./LokrajaApr12Finallist.xlsx");
         const sheetName = workbook.SheetNames[0];
         const rawData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
@@ -35,13 +35,35 @@ const convertAndRegister = async () => {
             };
 
             const formatDob = (val) => {
-                if (typeof val === 'number') {
-                    // Convert Excel serial date to JS Date
-                    return new Date((val - 25569) * 86400 * 1000);
-                }
-                return val ? new Date(val) : new Date("1900-01-01");
-            };
+                if (!val) return new Date("1900-01-01");
 
+                // 1. Handle Excel Serial Numbers
+                if (typeof val === 'number') {
+                    const d = new Date((val - 25569) * 86400 * 1000);
+                    return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0));
+                }
+
+                // 2. Handle Strings (Strict DD-MM-YYYY)
+                if (typeof val === 'string') {
+                    const parts = val.trim().replace(/[./]/g, '-').split('-');
+                    if (parts.length === 3) {
+                        let day, month, year;
+                        if (parts[0].length === 4) { // YYYY-MM-DD
+                            year = parseInt(parts[0]);
+                            month = parseInt(parts[1]) - 1;
+                            day = parseInt(parts[2]);
+                        } else { // DD-MM-YYYY
+                            day = parseInt(parts[0]);
+                            month = parseInt(parts[1]) - 1;
+                            year = parseInt(parts[2]);
+                        }
+                        // Use 12:00:00 UTC to prevent date-flipping due to timezone shifts
+                        const finalDate = new Date(Date.UTC(year, month, day, 12, 0, 0));
+                        if (!isNaN(finalDate.getTime())) return finalDate;
+                    }
+                }
+                return new Date("1900-01-01");
+            };
             // --- PRICING LOGIC ---
             const rawCategory = getVal('Race Category') || (getVal('10 Km') ? "10K" : "5K");
             const category = rawCategory.toString().toUpperCase().trim();
@@ -146,7 +168,7 @@ const convertAndRegister = async () => {
                     };
 
                     // CRITICAL FIX: Send email and data as TWO separate arguments
-                    await sendInvoiceEmail(regObj.runnerDetails.email, paymentDataForEmail);
+                    // await sendInvoiceEmail(regObj.runnerDetails.email, paymentDataForEmail);
 
                     console.log(`   📧 Invoice sent successfully to ${regObj.runnerDetails.email}`);
                 } catch (mErr) {
@@ -167,7 +189,8 @@ const convertAndRegister = async () => {
         fs.writeFileSync("final_registrations.json", JSON.stringify(finalJsonData, null, 2));
         console.log("📂 File Created: final_registrations.json");
 
-        console.log("🏁 All 108 records processed!");
+        // console.log("🏁 All 108 records processed!");
+        console.log(`🏁 All ${rawData.length} records processed!`);
         process.exit(0);
 
     } catch (error) {

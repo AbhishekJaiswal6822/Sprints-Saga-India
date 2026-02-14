@@ -58,20 +58,18 @@ function AdminDashboard() {
   const formatDate = (dateObj) => {
     if (!dateObj) return "N/A";
 
-    // 1. Extract the raw date value
+    // Extract raw date (handles MongoDB object or string)
     const raw = dateObj.$date || dateObj;
     const d = new Date(raw);
 
-    // 2. Check for "Invalid Date"
     if (isNaN(d.getTime())) return "N/A";
 
-    // 3. STRICT UTC COMPONENT EXTRACTION
-    // We use getUTC... to ensure the browser doesn't shift the date based on local time
+    // STRICT UTC EXTRACTION
+    // padStart(2, '0') ensures 07/08/1995 instead of 7/8/1995
     const day = String(d.getUTCDate()).padStart(2, '0');
     const month = String(d.getUTCMonth() + 1).padStart(2, '0');
     const year = d.getUTCFullYear();
 
-    // 4. THE ULTIMATE FORMAT
     if (year === 1900) return "Check Excel";
 
     return `${day}/${month}/${year}`;
