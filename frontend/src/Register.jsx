@@ -20,7 +20,7 @@ const REGISTRATION_DATA_VERSION = "v1.1"; // Change this to "v1.1" when keys cha
 const COUPON_CODE_FLAT = "FITISTAN100"; // Added _FLAT
 const COUPON_DISCOUNT_FLAT = 100;
 
-const PERCENT_COUPONS = ["VIJAY10", "KINNARI10", "RUNMADHU10", "DEEPAKSHI10", "DRROHAN10","GANESH10", "DADASAHEB10", "HARIPRIYA10", "JAANTARAJA15"];
+const PERCENT_COUPONS = ["VIJAY10", "KINNARI10", "RUNMADHU10", "DEEPAKSHI10", "DRROHAN10", "GANESH10", "DADASAHEB10", "HARIPRIYA10", "JAANTARAJA15"];
 const COUPON_DISCOUNT_PERCENT = 10;
 
 // const PG_FEE_RATE = 0.021; // 2.1% Payment Gateway Fee
@@ -495,7 +495,13 @@ function Register() {
                         discountPercent = (discountAmount / rawRegistrationFee) * 100;
                     }
                     else if (PERCENT_COUPONS.includes(code)) {
-                        discountPercent = COUPON_DISCOUNT_PERCENT;
+                        // NEW LOGIC: Check for specific 15% code, else default to 10%
+                        if (code === "JAANTARAJA15") {
+                            discountPercent = 15;
+                        } else {
+                            discountPercent = 10;
+                        }
+
                         discountAmount = rawRegistrationFee * (discountPercent / 100);
                     }
                 }
@@ -1263,8 +1269,8 @@ function Register() {
                                                                     value={individualRunner.referralCode}
                                                                     onChange={(e) => handleIndividualChange('referralCode', e.target.value.toUpperCase().trim())}
                                                                     className={`w-full rounded-2xl border-2 py-3 px-4 text-sm font-black tracking-widest transition-all outline-none uppercase ${isCouponValid
-                                                                            ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
-                                                                            : "border-slate-200 focus:border-teal-500 bg-white"
+                                                                        ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
+                                                                        : "border-slate-200 focus:border-teal-500 bg-white"
                                                                         }`}
                                                                 />
                                                                 {isCouponValid && (
@@ -1279,7 +1285,7 @@ function Register() {
                                                                 )}
                                                                 {isPercent && (
                                                                     <p className="text-[10px] text-teal-600 font-bold mt-1.5 ml-1 text-left">
-                                                                        10% Discount Applied!
+                                                                        {Math.round(discountPercent)}% Discount Applied!
                                                                     </p>
                                                                 )}
                                                             </>
@@ -1785,23 +1791,11 @@ function Register() {
 
                                     {/* 2. Discount (UPDATED with Percentage) */}
 
-                                    {/* {discountAmount > 0 && (
-                                        <div className="flex justify-between text-green-600">
-                                            <span className="font-semibold pl-4">
-                                                {registrationType === "individual"
-                                                    ? `Coupon Code Discount`
-                                                    : `Group Discount`}
-                                                :
-                                            </span>
-                                            <span className="font-semibold">–₹{discountAmount.toFixed(2)}</span>
-                                        </div>
-                                    )} */}
-
                                     {discountAmount > 0 && (
                                         <div className="flex justify-between text-green-600">
                                             <span className="font-semibold pl-4">
                                                 {registrationType === "individual"
-                                                    ? `Coupon Code Discount`
+                                                    ? `Coupon Code Discount (${Math.round(discountPercent)}%)` 
                                                     : `Discount (${discountPercent}%)`}
                                                 :
                                             </span>
