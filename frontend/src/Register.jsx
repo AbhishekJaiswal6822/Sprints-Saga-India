@@ -20,7 +20,7 @@ const REGISTRATION_DATA_VERSION = "v1.1"; // Change this to "v1.1" when keys cha
 const COUPON_CODE_FLAT = "FITISTAN100"; // Added _FLAT
 const COUPON_DISCOUNT_FLAT = 100;
 
-const PERCENT_COUPONS = ["VIJAY10", "KINNARI10", "RUNMADHU10", "DEEPAKSHI10", "DRROHAN10", "GANESH10", "DADASAHEB10", "HARIPRIYA10", "JAANTARAJA15"];
+const PERCENT_COUPONS = ["VIJAY10", "KINNARI10", "RUNMADHU10", "DEEPAKSHI10", "DRROHAN10", "GANESH10", "DADASAHEB10", "JAANTARAJA15"];
 const COUPON_DISCOUNT_PERCENT = 10;
 
 // const PG_FEE_RATE = 0.021; // 2.1% Payment Gateway Fee
@@ -794,6 +794,7 @@ function Register() {
         //  CRITICAL: SEND BILLING DATA TO BACKEND 
         formData.append("registrationFee", rawRegistrationFee);
         formData.append("discountAmount", discountAmount);
+        formData.append("discountPercent", discountPercent);
         formData.append("platformFee", platformFee);
         formData.append("pgFee", pgFee);
         formData.append("gstAmount", gstAmount);
