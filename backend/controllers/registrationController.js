@@ -38,7 +38,7 @@ exports.uploadIDProof = upload.single('idProofFile');
 // };
 
 const COUPONS = {
-    FITISTAN100: {      
+    FITISTAN100: {
         amount: 100,    // Flat discount value
         registrationType: 'individual'
     }
@@ -101,28 +101,18 @@ exports.submitRegistration = async (req, res) => {
         }
 
         /* ----------------------------------
-           COUPON CALCULATION
-        ---------------------------------- */
-        let discountPercent = 0;
-        let discountAmount = 0;
+    BILLING DATA EXTRACTION
+---------------------------------- */
+        // Trust the amounts sent by the frontend calculations
+        const discountPercent = Number(mergedData.discountPercent) || 0;
+        const discountAmount = Number(mergedData.discountAmount) || 0;
+        const couponCode = mergedData.couponCode ? mergedData.couponCode.trim().toUpperCase() : "N/A";
 
-        const couponCode = mergedData.couponCode ? mergedData.couponCode.trim().toUpperCase() : null;
 
-        // if (
-        //     couponCode &&
-        //     COUPONS[couponCode] &&
-        //     mergedData.registrationType === COUPONS[couponCode].registrationType
-        // ) {
-        //     discountPercent = COUPONS[couponCode].percent;
-        //     const baseFee = Number(mergedData.registrationFee) || 0;
-        //     if (baseFee > 0) {
-        //         discountAmount = Math.round(baseFee * (discountPercent / 100));
-        //     }
-        // }
         if (couponCode && COUPONS[couponCode] && mergedData.registrationType === COUPONS[couponCode].registrationType) {
             // Apply the flat discount from our config above
             discountAmount = COUPONS[couponCode].amount;
-            
+
             // Calculate a percentage purely for database reporting/UI
             const baseFee = Number(mergedData.registrationFee) || 0;
             if (baseFee > 0) {
