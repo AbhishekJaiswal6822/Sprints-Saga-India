@@ -1817,20 +1817,29 @@ function Register() {
                                         </div>
                                     )}
 
-                                    {/* 2. Discount (UPDATED with Percentage) */}
-
+                                    {/* 2. Discount Line */}
                                     {discountAmount > 0 && (
-                                        <div className="flex justify-between text-green-600">
-                                            <span className="font-semibold pl-4">
-                                                {registrationType === "individual"
-                                                    ? `Coupon Code Discount (${Math.round(discountPercent)}%)`
-                                                    : `Discount (${discountPercent}%)`}
-                                                :
-                                            </span>
-                                            <span className="font-semibold">–₹{discountAmount.toFixed(2)}</span>
-                                        </div>
-                                    )}
+                                        <>
+                                            <div className="flex justify-between text-green-600 italic">
+                                                <span className="pl-4">
+                                                    {registrationType === "individual"
+                                                        ? `Coupon Discount (${Math.round(discountPercent)}%)`
+                                                        : `Group Discount (${discountPercent}%)`}
+                                                    :
+                                                </span>
+                                                <span className="font-semibold">–₹{discountAmount.toFixed(2)}</span>
+                                            </div>
 
+                                            {/* NEW: Discounted Registration Fee Subtotal */}
+                                            <div className="flex justify-between text-slate-900 font-bold bg-slate-100/50 px-1 py-2 rounded-xl border border-slate-200/50">
+                                                <span className="flex items-center gap-1">
+                                                    <span className="text-teal-600 text-xs">●</span>
+                                                    Net Registration Fee
+                                                </span>
+                                                <span className="pr-0">₹{(rawRegistrationFee - discountAmount).toFixed(2)}</span>
+                                            </div>
+                                        </>
+                                    )}
 
                                     {/* 3. Platform Fee (Non-taxable) */}
                                     {platformFee > 0 && (
