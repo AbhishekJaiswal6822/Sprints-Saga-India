@@ -1258,20 +1258,29 @@ function Register() {
                                                 </label>
                                                 <div className="relative">
                                                     {(() => {
-                                                        const isFlat = individualRunner.referralCode === COUPON_CODE_FLAT;
-                                                        const isPercent = PERCENT_COUPONS.includes(individualRunner.referralCode);
+                                                        const enteredCode = individualRunner.referralCode;
+                                                        const isFlat = enteredCode === COUPON_CODE_FLAT;
+                                                        const isPercent = PERCENT_COUPONS.includes(enteredCode);
                                                         const isCouponValid = isFlat || isPercent;
+
+                                                        // Minimal check: Error if typed text doesn't match the start of any valid code
+                                                        const allValid = [COUPON_CODE_FLAT, ...PERCENT_COUPONS];
+                                                        const isIncorrect = enteredCode.length > 0 &&
+                                                            !isCouponValid &&
+                                                            !allValid.some(c => c.startsWith(enteredCode));
 
                                                         return (
                                                             <>
                                                                 <input
                                                                     type="text"
                                                                     placeholder="e.g. SAVE10"
-                                                                    value={individualRunner.referralCode}
+                                                                    value={enteredCode}
                                                                     onChange={(e) => handleIndividualChange('referralCode', e.target.value.toUpperCase().trim())}
                                                                     className={`w-full rounded-2xl border-2 py-3 px-4 text-sm font-black tracking-widest transition-all outline-none uppercase ${isCouponValid
                                                                         ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
-                                                                        : "border-slate-200 focus:border-teal-500 bg-white"
+                                                                        : isIncorrect
+                                                                            ? "border-rose-400 bg-rose-50 text-rose-700"
+                                                                            : "border-slate-200 focus:border-teal-500 bg-white"
                                                                         }`}
                                                                 />
                                                                 {isCouponValid && (
@@ -1287,6 +1296,13 @@ function Register() {
                                                                 {isPercent && (
                                                                     <p className="text-[10px] text-teal-600 font-bold mt-1.5 ml-1 text-left">
                                                                         {Math.round(discountPercent)}% Discount Applied!
+                                                                    </p>
+                                                                )}
+
+                                                                {/* Error message for incorrect entry/typo */}
+                                                                {isIncorrect && (
+                                                                    <p className="text-[10px] text-rose-600 font-bold mt-1.5 ml-1 text-left">
+                                                                        ⚠️ Please enter a correct coupon code.
                                                                     </p>
                                                                 )}
                                                             </>
@@ -1586,7 +1602,18 @@ function Register() {
                                                 <input type="date" value={member.dob} onChange={(e) => handleMemberChange(index, "dob", e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required max={today} />
                                             </div>
                                             {/* Phone (Enforced numbers) */}
-                                            <div><label className="block text-sm font-medium text-slate-700 mb-1">Blood Group *</label><select value={individualRunner.bloodGroup} onChange={e => handleIndividualChange('bloodGroup', e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white" required><option value="">Select blood group</option>{bloodGroups.map(bg => <option key={bg} value={bg}>{bg}</option>)}</select></div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1">Blood Group *</label>
+                                                <select
+                                                    value={member.bloodGroup || ""}
+                                                    onChange={(e) => handleMemberChange(index, "bloodGroup", e.target.value)}
+                                                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50"
+                                                    required
+                                                >
+                                                    <option value="">Select blood group</option>
+                                                    {bloodGroups.map(bg => <option key={bg} value={bg}>{bg}</option>)}
+                                                </select>
+                                            </div>
                                             <div><label className="block text-sm font-medium text-slate-700 mb-1">Phone *</label><input minLength="10" maxLength="10" type="tel" pattern="[0-9]{6,}" value={member.phone} onChange={(e) => handleMemberChange(index, "phone", e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required /></div>
                                             <div><label className="block text-sm font-medium text-slate-700 mb-1">Gender *</label><select value={member.gender} onChange={(e) => handleMemberChange(index, "gender", e.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50" required><option value="">Select gender</option>{genders.map((g) => (<option key={g} value={g}>{g}</option>))}</select></div>
                                             {/* T-Shirt Size */}
@@ -1623,7 +1650,7 @@ function Register() {
                                         {/* Member 1 Specific Fields: Parent, City, State, Country, Pincode */}
                                         {index === 0 && (
                                             <div className="grid md:grid-cols-2 gap-4 mt-4">
-                                                <div><label className="block text-sm font-medium text-slate-700">WhatsApp Number *</label><input maxLength="10" type="tel" placeholder="If different from phone" value={individualRunner.whatsapp} onChange={e => handleIndividualChange('whatsapp', e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required /></div>
+                                                <div><label className="block text-sm font-medium text-slate-700">WhatsApp Number *</label><input maxLength="10" type="tel" placeholder="If different from phone" value={member.whatsapp || ""} onChange={(e) => handleMemberChange(index, "whatsapp", e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required /></div>
                                                 <div>
                                                     <label className="block text-sm font-medium text-slate-700 mb-1">Parent / Emergency Name *</label>
                                                     <input
@@ -1796,7 +1823,7 @@ function Register() {
                                         <div className="flex justify-between text-green-600">
                                             <span className="font-semibold pl-4">
                                                 {registrationType === "individual"
-                                                    ? `Coupon Code Discount (${Math.round(discountPercent)}%)` 
+                                                    ? `Coupon Code Discount (${Math.round(discountPercent)}%)`
                                                     : `Discount (${discountPercent}%)`}
                                                 :
                                             </span>
