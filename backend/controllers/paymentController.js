@@ -3,6 +3,7 @@
 const Razorpay = require('razorpay');
 const Registration = require('../models/Registration');
 const { sendInvoiceEmail } = require('../services/emailService');
+const crypto = require('crypto');
 
 // Initialize the Razorpay instance
 const razorpayInstance = new Razorpay({
@@ -86,64 +87,72 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-
-
 exports.verifyPayment = async (req, res) => {
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-    registrationId
-  } = req.body;
-
   try {
-    // 1️ Fetch registration
+    let orderId, paymentId, signature, registrationId;
+
+    // 1. DETERMINE DATA SOURCE (Webhook vs Frontend)
+    if (req.body.event) {
+      // --- WEBHOOK FLOW ---
+      const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+      const headerSignature = req.headers['x-razorpay-signature'];
+      
+      // Verify Signature for Security
+      const shasum = crypto.createHmac('sha256', secret);
+      shasum.update(JSON.stringify(req.body));
+      const digest = shasum.digest('hex');
+
+      if (digest !== headerSignature) {
+        console.error("Invalid Webhook Signature");
+        return res.status(400).json({ message: 'Invalid signature' });
+      }
+
+      const payload = req.body.payload.payment.entity;
+      orderId = payload.order_id;
+      paymentId = payload.id;
+      registrationId = payload.notes.registrationId;
+      signature = 'webhook_verified'; 
+    } else {
+      // --- FRONTEND REDIRECT FLOW ---
+      ({ razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature, registrationId } = req.body);
+    }
+
+    // 2. FETCH REGISTRATION
     const registration = await Registration.findById(registrationId);
     if (!registration) {
-      return res.status(404).json({
-        success: false,
-        message: 'Registration not found'
-      });
+      console.error("Registration not found for ID:", registrationId);
+      return res.status(404).json({ success: false, message: 'Registration not found' });
     }
 
-    //  ABSOLUTE PROTECTION
+    // 3. PREVENT DOUBLE PROCESSING
     if (registration.paymentStatus === "paid") {
-      return res.status(200).json({
-        success: true,
-        message: "Payment already verified",
-      });
+      return res.status(200).json({ success: true, message: "Payment already verified" });
     }
 
-    // --- NEW: FETCH DYNAMIC PAYMENT METHOD FROM RAZORPAY ---
+    // 4. FETCH DYNAMIC PAYMENT METHOD
     let dynamicMethod = 'Razorpay';
     try {
-      const paymentDetails = await razorpayInstance.payments.fetch(razorpay_payment_id);
+      const paymentDetails = await razorpayInstance.payments.fetch(paymentId);
       const method = paymentDetails.method;
-      if (method === 'upi') {
-        dynamicMethod = 'UPI';
-      } else {
-        dynamicMethod = method.charAt(0).toUpperCase() + method.slice(1);
-      }
+      dynamicMethod = method === 'upi' ? 'UPI' : method.charAt(0).toUpperCase() + method.slice(1);
     } catch (razorpayError) {
-      console.error("Could not fetch Razorpay method in verifyPayment:", razorpayError);
+      console.error("Could not fetch payment method:", razorpayError.message);
     }
 
-    // 2️ SAVE PAYMENT DETAILS (CRITICAL)
+    // 5. UPDATE DATABASE (Using the variables we extracted)
     registration.paymentDetails = {
-      orderId: razorpay_order_id,
-      paymentId: razorpay_payment_id,
-      signature: razorpay_signature,
+      orderId: orderId,
+      paymentId: paymentId,
+      signature: signature,
       status: 'success',
       paidAt: new Date()
     };
 
-    // 3️ UPDATE REGISTRATION STATUS.
-    // 4️ SAVE TO DATABASE
     registration.paymentStatus = "paid";
     registration.registrationStatus = "Verified";
     await registration.save();
 
-    // 5️  HANDLE GROUP VS INDIVIDUAL FOR EMAIL
+    // 6. PREPARE EMAIL DATA
     const isGroup = registration.registrationType === 'group';
     const primary = isGroup ? registration.groupMembers[0] : registration.runnerDetails;
 
@@ -156,31 +165,26 @@ exports.verifyPayment = async (req, res) => {
       registrationType: registration.registrationType,
       raceCategory: raceLabels[registration.raceCategory] || registration.raceCategory,
       paymentMode: dynamicMethod,
-      invoiceNo: `LRCP-${Date.now()}`,
-      //  FIX: Use the root fields that you are now saving in registrationController
-      rawRegistrationFee: registration.registrationFee || registration.runnerDetails?.registrationFee || 0,
-      discountAmount: registration.discountAmount || registration.runnerDetails?.discountAmount || 0,
-      platformFee: registration.platformFee || registration.runnerDetails?.platformFee || 0,
-      pgFee: registration.pgFee || registration.runnerDetails?.pgFee || 0,
-      gstAmount: registration.gstAmount || registration.runnerDetails?.gstAmount || 0,
-      amount: Number(registration.amount || registration.runnerDetails?.amount || 0)
+      invoiceNo: `LRCP-${paymentId.slice(-6).toUpperCase()}`, // Cleaner Invoice No
+      rawRegistrationFee: registration.registrationFee || 0,
+      discountAmount: registration.discountAmount || 0,
+      platformFee: registration.platformFee || 0,
+      pgFee: registration.pgFee || 0,
+      gstAmount: registration.gstAmount || 0,
+      amount: Number(registration.amount || 0)
     };
 
-    // 6️ SEND INVOICE EMAIL
+    // 7. SEND INVOICE
     await sendInvoiceEmail(invoiceData.email, invoiceData);
 
     return res.status(200).json({
       success: true,
-      message: 'Payment verified & invoice sent',
-      amountSent: invoiceData.amount
+      message: 'Payment verified & invoice sent'
     });
 
   } catch (error) {
-    console.error(' Verify payment error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Verification failed'
-    });
+    console.error('Verify payment error:', error);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
@@ -194,15 +198,15 @@ exports.downloadInvoice = async (req, res) => {
     }
 
     // --- NEW: FETCH DYNAMIC PAYMENT METHOD FROM RAZORPAY ---
-    let dynamicMethod = 'Razorpay'; 
+    let dynamicMethod = 'Razorpay';
     try {
       const paymentId = registration.paymentDetails.paymentId;
       const paymentDetails = await razorpayInstance.payments.fetch(paymentId);
-      const method = paymentDetails.method; 
+      const method = paymentDetails.method;
       if (method === 'upi') {
-          dynamicMethod = 'UPI'; // Keep UPI all caps
+        dynamicMethod = 'UPI'; // Keep UPI all caps
       } else {
-          dynamicMethod = method.charAt(0).toUpperCase() + method.slice(1); // 'Card', 'Wallet'
+        dynamicMethod = method.charAt(0).toUpperCase() + method.slice(1); // 'Card', 'Wallet'
       }
     } catch (razorpayError) {
       console.error("Could not fetch Razorpay method, defaulting to Razorpay");
