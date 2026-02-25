@@ -88,8 +88,21 @@ const generateInvoicePDF = (doc, paymentData) => {
         currentY += 18;
     };
 
-    drawItem('Registration Fee', paymentData.rawRegistrationFee ?? paymentData.registrationFee);
-    drawItem('Discount', `-${paymentData.discountAmount}`, true);
+    const regFee = parseFloat(paymentData.rawRegistrationFee ?? paymentData.registrationFee);
+    const discAmt = parseFloat(paymentData.discountAmount || 0);
+
+    drawItem('Registration Fee', regFee);
+
+    if (discAmt > 0) {
+        drawItem('Discount', discAmt, true);
+
+        // ADDED: Net Registration Fee (Calculated directly for 100% accuracy)
+        const netFee = regFee - discAmt;
+        doc.font('Helvetica-Bold').fillColor('#333333').text('Net Registration Fee', 50, currentY);
+        doc.text(`Rs. ${netFee.toFixed(2)}`, 450, currentY, { width: 90, align: 'right' });
+        doc.moveTo(40, currentY + 12).lineTo(555, currentY + 12).strokeColor('#eeeeee').lineWidth(0.5).stroke();
+        currentY += 18;
+    }
     drawItem('Platform Fee', paymentData.platformFee);
     drawItem('Payment Gateway Fee', paymentData.pgFee);
     drawItem('GST @18% (on PG Fee only)', paymentData.gstAmount);
@@ -154,7 +167,7 @@ const sendInvoiceEmail = async (userEmail, paymentData, res = null) => {
                         from: '"Sprints Saga India" <sprintssagaindia@gmail.com>',
                         to: userEmail,
                         subject: `Registration Confirmed: LokRaja Marathon - Invoice #${paymentData.invoiceNo}`,
-                  html: `
+                        html: `
         <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
             <div style="background-color: #008080; padding: 20px; text-align: center;">
                 <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Registration Confirmed!</h1>
