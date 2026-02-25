@@ -12,7 +12,7 @@ router.get('/invoice/:registrationId', paymentController.downloadInvoice);
 router.post("/order", authMiddleware, paymentController.createOrder);
 
 // Verifying the Payment
-router.post('/verify', authMiddleware, paymentController.verifyPayment);
-// router.post('/verify', paymentController.verifyPayment);
+router.post('/verify', paymentController.verifyPayment);
+
 
 module.exports = router;
