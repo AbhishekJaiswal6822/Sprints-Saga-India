@@ -50,7 +50,7 @@ function SignUp() {
 
     return (
 
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12 mt-12">
+        <div className="min-h-screen bg-gray-transparent flex items-center justify-center px-4 py-12 mt-12 mb-12">
             <form
                 onSubmit={submit}
                 className="w-full max-w-md bg-white rounded-xl shadow-2xl p-8 border border-slate-100 relative z-10"
