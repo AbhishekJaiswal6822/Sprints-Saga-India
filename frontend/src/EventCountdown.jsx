@@ -1,8 +1,7 @@
+//C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\EventCountdown.jsx
 import React, { useEffect, useState } from "react";
 
 function EventCountdown() {
-  // 🔥 Target: New Year 2026
-  //  new target : 12th of april 2026
  const targetDate = "2026-04-12T00:00:00";
 
   // Function to calculate remaining time
@@ -56,7 +55,7 @@ function EventCountdown() {
   );
 
   return (
-    <section className="py-14 bg-gray-50  max-h-screen">
+    <section className="py-14 bg-transparent  max-h-screen">
       <div className="max-w-4xl mx-auto text-center px-4">
         {/* Heading */}
         <h2 className="text-4xl font-extrabold text-slate-800 mb-3">
