@@ -14,7 +14,7 @@ function ResultsGallery() {
   const galleryItems = Array(8).fill(null); // Empty placeholders
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-20">
+    <main className="min-h-screen bg-transparent pb-20">
       {/* Header */}
       <section className="text-center py-12 mt-10">
         <h1 className="text-4xl font-extrabold text-teal-700 mb-3">
