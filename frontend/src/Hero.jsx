@@ -82,7 +82,7 @@ export default function Hero() {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className='w-full h-full rounded-2xl overflow-hidden shadow-xl border border-slate-100 relative'
+        className='w-full h-full rounded-2xl overflow-hidden shadow-xl border border-slate-100 bg-transparent relative'
       >
         <div className="w-full h-full relative overflow-hidden rounded-2xl">
           <img
