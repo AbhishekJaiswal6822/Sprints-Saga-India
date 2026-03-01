@@ -106,11 +106,11 @@ const getPlatformFee = (raceId) => {
 const raceCategories = [
     // Change charityFee from 1600 to 0.1 for live testing
     // { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 699, charityFee: 1600 },
-    { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 699, charityFee: 1600 },
-    { id: "10k", name: "10K Challenge", description: "Step up your game", regularPrice: 1199, prebookPrice: 1049, charityFee: 2500 },
-    { id: "half", name: "Half Marathon (21.097K)", description: "The classic distance (21.1K)", regularPrice: 1599, prebookPrice: 1449, charityFee: 2800 },
-    { id: "35k", name: "35K Ultra", description: "Push your limits", regularPrice: 2399, prebookPrice: 2249, charityFee: 3500 },
-    { id: "full", name: "Full Marathon (42K)", description: "The ultimate challenge", regularPrice: 2799, prebookPrice: 2599, charityFee: 4000 }
+    { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 799, charityFee: 1600 },
+    { id: "10k", name: "10K Challenge", description: "Step up your game", regularPrice: 1199, prebookPrice: 1199, charityFee: 2500 },
+    { id: "half", name: "Half Marathon (21.097K)", description: "The classic distance (21.1K)", regularPrice: 1599, prebookPrice: 1599, charityFee: 2800 },
+    { id: "35k", name: "35K Ultra", description: "Push your limits", regularPrice: 2399, prebookPrice: 2399, charityFee: 3500 },
+    { id: "full", name: "Full Marathon (42K)", description: "The ultimate challenge", regularPrice: 2799, prebookPrice: 2799, charityFee: 4000 }
 ];
 
 const charityOptions = [
@@ -1126,9 +1126,9 @@ function Register() {
                                                 {registrationType === "individual" ? (
                                                     <div className="flex flex-col items-end">
                                                         {/* REGULAR PRICE (CUT OFF) */}
-                                                        <span className="text-sm font-medium text-slate-500 line-through opacity-70">
+                                                        {/* <span className="text-sm font-medium text-slate-500 line-through opacity-70">
                                                             ₹{race.regularPrice}
-                                                        </span>
+                                                        </span> */}
                                                         {/* PRE-BOOK PRICE (ACTUAL PRICE) */}
                                                         <span className="inline-flex items-center rounded-full px-3 py-1 text-base font-bold bg-teal-600 text-white shadow-md">
                                                             ₹{race.prebookPrice}
@@ -1586,7 +1586,7 @@ function Register() {
                                                     <option value="">Select race</option>
                                                     {raceCategories.map((race) => (
                                                         <option key={race.id} value={race.id}>
-                                                            {race.name} (Reg: ₹{race.regularPrice} / Pre-Book: ₹{race.prebookPrice})
+                                                            {race.name} (Reg: ₹{race.regularPrice})
                                                         </option>
                                                     ))}
                                                 </select>
