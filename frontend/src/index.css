@@ -1,19 +1,43 @@
+/* C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\index.css */
 @import "tailwindcss";
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+/* Global Reset & Base Styles */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html,
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
 body {
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
-  width: 100%;
-  overflow-x: hidden;
-}
 
-body {
-  overflow-y: scroll;
+  /* FULL WRAP GRADIENT: Vibrant Cyan on Top and Bottom */
+  background: linear-gradient(
+    180deg, 
+    #53d0de 0%,    /* Vibrant Top Cyan */
+    #e1f9fc 35%,   /* Soft Mint transition starts */
+    #ffffff 50%,   /* Pure white only in the middle-ish area */
+    #e1f9fc 75%,   /* Returning to soft blue */
+    #9be9f2 100%   /* Vibrant blue anchor at the bottom */
+  );
+
+  /* This keeps the color fixed to the glass of the screen */
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 }
