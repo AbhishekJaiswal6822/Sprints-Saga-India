@@ -1024,7 +1024,7 @@ function Register() {
 
 
     return (
-        <main className="min-h-screen bg-slate-50">
+        <main className="min-h-screen bg-transparent">
             <section className="max-w-6xl mx-auto px-4 py-12">
                 <div className="text-center mb-10 mt-10">
                     <h1 className="text-3xl md:text-4xl font-extrabold text-teal-700 tracking-tight">
