@@ -483,7 +483,7 @@ function Register() {
             if (selectedRace) {
                 rawRegistrationFee =
                     registrationType === "individual"
-                        ? selectedRace.prebookPrice
+                        ? selectedRace.regularPrice
                         : selectedRace.charityFee;
 
                 // Coupon ONLY for individual
@@ -512,7 +512,7 @@ function Register() {
         else if (registrationType === "group") {
             const memberPrices = groupMembers.map(member => {
                 const race = raceCategories.find(r => r.id === member.raceId);
-                return race ? race.prebookPrice : 0;
+                return race ? race.regularPrice : 0;
             });
 
             rawRegistrationFee = memberPrices.reduce(
@@ -1586,7 +1586,7 @@ function Register() {
                                                     <option value="">Select race</option>
                                                     {raceCategories.map((race) => (
                                                         <option key={race.id} value={race.id}>
-                                                            {race.name} (Reg: ₹{race.regularPrice})
+                                                            {race.name} (Fee: ₹{race.regularPrice})
                                                         </option>
                                                     ))}
                                                 </select>
