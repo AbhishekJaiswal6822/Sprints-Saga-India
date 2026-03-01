@@ -50,7 +50,7 @@ function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur shadow-sm">
+    <header className="fixed top-0 left-0 w-full z-50 bg-white/100 backdrop-blur-md shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-full">
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
@@ -151,7 +151,7 @@ function Navbar() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="lg:hidden border-t bg-white">
+        <div className="lg:hidden border-t bg-white/80 backdrop-blur-lg animate-in slide-in-from-top duration-300">
           <ul className="px-4 py-4 space-y-2">
             {links.map(({ key, label, to }) => (
               <li key={key}>
