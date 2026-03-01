@@ -4,7 +4,7 @@ import { FiTool, FiClock } from "react-icons/fi";
 
 function UnderMaintenance() {
   return (
-    <main className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-20">
+    <main className="min-h-screen bg-transparent flex items-center justify-center px-4 py-20">
       <div className="max-w-lg w-full bg-white rounded-3xl border border-slate-200 shadow-lg p-8 text-center">
 
         {/* Icon */}
