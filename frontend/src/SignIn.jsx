@@ -58,7 +58,7 @@ function SignIn() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-transparent flex items-center justify-center py-12 px-4">
       <form
         onSubmit={submit}
         className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 border border-slate-200 relative z-10"
