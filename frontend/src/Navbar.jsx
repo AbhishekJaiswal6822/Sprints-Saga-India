@@ -60,13 +60,41 @@ function Navbar() {
 
           {/* Navigation (Desktop) */}
           <div className="flex-1 flex justify-center">
-            <nav className="hidden lg:flex">
-              <ul className="flex gap-3">
+            <nav className="hidden lg:flex h-full">
+              <ul className="flex items-center gap-1">
                 {links.map(({ key, label, to }) => (
-                  <li key={key}>
-                    <Link to={to} className={`px-4 py-2 rounded-full text-sm transition ${key === activeKey ? "bg-teal-600 text-white" : "text-slate-700 hover:bg-teal-600 hover:text-white"}`}>
+                  <li key={key} className="group relative flex items-center h-16 px-1">
+                    <Link
+                      to={to}
+                      className={`
+              relative z-10 px-5 py-2 rounded-full text-[14px] font-bold tracking-tight
+              transition-all duration-300 ease-in-out
+              ${key === activeKey
+                          ? "bg-teal-600 text-white shadow-[0_10px_20px_-10px_rgba(13,148,136,1)]"
+                          : "text-slate-700 hover:text-teal-700 group-hover:-translate-y-1"
+                        }
+            `}
+                    >
                       {label}
+
+                      {/* DARKER HOVER BLOOM: Uses 20% opacity of the solid Teal-500 */}
+                      {key !== activeKey && (
+                        <span className="absolute inset-0 rounded-full bg-teal-500/20 opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10 shadow-sm border border-teal-500/10" />
+                      )}
                     </Link>
+
+                    {/* Premium Animated Underline Indicator */}
+                    <div className="absolute inset-x-0 bottom-2 flex justify-center pointer-events-none">
+                      <div
+                        className={`
+                h-[3px] rounded-full bg-teal-500 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]
+                ${key === activeKey
+                            ? "w-6 opacity-100 shadow-[0_0_10px_rgba(13,148,136,0.8)]"
+                            : "w-0 opacity-0 group-hover:w-4 group-hover:opacity-100 shadow-[0_0_8px_rgba(13,148,136,0.4)]"
+                          }
+              `}
+                      />
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -75,25 +103,46 @@ function Navbar() {
 
           {/* Right buttons (Desktop) */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="hidden sm:flex gap-3">
+            <div className="hidden sm:flex gap-3 items-center">
               {user?.isLoggedIn ? (
-                // LOGOUT BUTTON (Shown when logged in)
+                // --- LOGOUT BUTTON (Premium Hover Style) ---
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-1.5 rounded-lg border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
+                  className="group relative px-5 py-2 rounded-full border border-red-200 text-red-600 text-sm font-bold transition-all duration-300 hover:border-red-400 hover:-translate-y-0.5 active:scale-95"
                 >
-                  Logout
+                  <span className="relative z-10">Logout</span>
+                  {/* Bloom Effect */}
+                  <span className="absolute inset-0 rounded-full bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
                 </button>
-              ) : (
-                // LOGIN/SIGNUP BUTTONS (Shown when logged out)
-                <>
-                  <Link to="/signin" className="px-4 py-1.5 rounded-lg border text-sm">Login</Link>
-                  <Link to="/signup" className="px-4 py-1.5 rounded-lg text-white text-sm" style={{ background: "linear-gradient(90deg,#05c6d7,#0c9aa3)" }}>Sign Up</Link>
-                </>
-              )}
+              ) :
+                (
+                  // --- LOGIN/SIGNUP BUTTONS (Premium Modern Style) ---
+                  <>
+                    {/* Login Button */}
+                    <Link
+                      to="/signin"
+                      className="group relative px-6 py-2 rounded-full border border-slate-200 text-slate-700 text-sm font-bold transition-all duration-300 hover:border-teal-400 hover:text-teal-600 hover:-translate-y-0.5 active:scale-95"
+                    >
+                      <span className="relative z-10">Login</span>
+                      {/* Glass Bloom */}
+                      <span className="absolute inset-0 rounded-full bg-teal-50/50 scale-75 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 z-0" />
+                    </Link>
+
+                    {/* Sign Up Button (Soft Shadow + Glow) */}
+                    <Link
+                      to="/signup"
+                      className="group relative px-6 py-2 rounded-full text-white text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 active:scale-95 shadow-[0_4px_12px_rgba(5,198,215,0.3)] hover:shadow-[0_8px_20px_rgba(5,198,215,0.5)]"
+                      style={{ background: "linear-gradient(90deg,#05c6d7,#0c9aa3)" }}
+                    >
+                      <span className="relative z-10">Sign Up</span>
+                      {/* Inner Light Overlay */}
+                      <span className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </Link>
+                  </>
+                )}
             </div>
 
-            <button onClick={toggle} className="lg:hidden text-2xl p-2" aria-label="Menu">
+            <button onClick={toggle} className="lg:hidden text-2xl p-2 transition-transform active:scale-90" aria-label="Menu">
               {open ? <AiOutlineClose /> : <CiMenuBurger />}
             </button>
           </div>
