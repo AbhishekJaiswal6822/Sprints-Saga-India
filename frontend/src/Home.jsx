@@ -33,7 +33,7 @@ function Home() {
         {/* <PrizesRewards /> */}
         <ImageSlider />
         <Sponsors />
-        <CallToAction />
+        {/* <CallToAction /> */}
       </main>
     </article>
   );
