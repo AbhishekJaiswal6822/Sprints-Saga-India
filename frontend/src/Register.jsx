@@ -89,8 +89,7 @@ const getFilteredSizes = (gender) => {
 const getPlatformFee = (raceId) => {
     switch (raceId) {
         case "5k":
-            return 0; // Changed from 25 to 0 for live testing
-        // return 25; // Changed from 25 to 0 for live testing
+            return 25;
         case "10k":
             return 30;
         case "half":
@@ -106,7 +105,7 @@ const getPlatformFee = (raceId) => {
 const raceCategories = [
     // Change charityFee from 1600 to 0.1 for live testing
     // { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 699, charityFee: 1600 },
-    { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 799, charityFee: 1 },
+    { id: "5k", name: "5K Fun Run", description: "Perfect for beginners", regularPrice: 799, prebookPrice: 799, charityFee: 1600 },
     { id: "10k", name: "10K Challenge", description: "Step up your game", regularPrice: 1199, prebookPrice: 1199, charityFee: 2500 },
     { id: "half", name: "Half Marathon (21.097K)", description: "The classic distance (21.1K)", regularPrice: 1599, prebookPrice: 1599, charityFee: 2800 },
     { id: "35k", name: "35K Ultra", description: "Push your limits", regularPrice: 2399, prebookPrice: 2399, charityFee: 3500 },
