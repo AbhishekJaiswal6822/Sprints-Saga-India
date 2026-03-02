@@ -50,7 +50,7 @@ function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-white/100 backdrop-blur-md shadow-sm">
+    <header className="fixed top-0 left-0 w-full z-50 bg-white backdrop-blur-md shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-full">
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
@@ -67,30 +67,29 @@ function Navbar() {
                     <Link
                       to={to}
                       className={`
-              relative z-10 px-5 py-2 rounded-full text-[14px] font-bold tracking-tight
-              transition-all duration-300 ease-in-out
+              relative z-10 p-0.5 rounded-full transition-all duration-500 ease-out
               ${key === activeKey
                           ? "bg-teal-600 text-white shadow-[0_10px_20px_-10px_rgba(13,148,136,1)]"
-                          : "text-slate-700 hover:text-teal-700 group-hover:-translate-y-1"
+                          : "text-slate-700 bg-transparent group-hover:bg-linear-to-br group-hover:from-emerald-400 group-hover:to-cyan-400 group-hover:shadow-[0_-5px_20px_rgba(16,185,129,0.3)] hover:-translate-y-1"
                         }
             `}
                     >
-                      {label}
-
-                      {/* DARKER HOVER BLOOM: Uses 20% opacity of the solid Teal-500 */}
-                      {key !== activeKey && (
-                        <span className="absolute inset-0 rounded-full bg-teal-500/20 opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10 shadow-sm border border-teal-500/10" />
-                      )}
+                      {/* The white inner pill matches the Sponsor card's white background */}
+                      <div className={`px-5 py-1.5 rounded-full transition-colors duration-500 ${key === activeKey ? '' : 'bg-white'}`}>
+                        <span className={`relative z-20 ${key === activeKey ? 'text-white' : 'group-hover:text-emerald-600'}`}>
+                          {label}
+                        </span>
+                      </div>
                     </Link>
 
-                    {/* Premium Animated Underline Indicator */}
+                    {/* Premium Animated Underline Indicator (Updated to match Sponsor emerald) */}
                     <div className="absolute inset-x-0 bottom-2 flex justify-center pointer-events-none">
                       <div
                         className={`
-                h-[3px] rounded-full bg-teal-500 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]
+                h-[3px] rounded-full bg-emerald-500 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]
                 ${key === activeKey
                             ? "w-6 opacity-100 shadow-[0_0_10px_rgba(13,148,136,0.8)]"
-                            : "w-0 opacity-0 group-hover:w-4 group-hover:opacity-100 shadow-[0_0_8px_rgba(13,148,136,0.4)]"
+                            : "w-0 opacity-0 group-hover:w-4 group-hover:opacity-100 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
                           }
               `}
                       />
