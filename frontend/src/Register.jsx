@@ -89,7 +89,7 @@ const getFilteredSizes = (gender) => {
 const getPlatformFee = (raceId) => {
     switch (raceId) {
         case "5k":
-            return 25; // Changed from 25 to 0 for live testing
+            return 0; // Changed from 25 to 0 for live testing
         // return 25; // Changed from 25 to 0 for live testing
         case "10k":
             return 30;
