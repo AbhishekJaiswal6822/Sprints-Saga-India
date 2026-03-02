@@ -152,7 +152,9 @@ exports.verifyPayment = async (req, res) => {
     registration.registrationStatus = "Verified";
     await registration.save();
 
-    // 6. PREPARE EMAIL DATA
+    // ---------------------------------------------------------
+    // 6. PREPARE EMAIL DATA (FIXED FOR NEW INVOICE STYLE)
+    // ---------------------------------------------------------
     const isGroup = registration.registrationType === 'group';
     const primary = isGroup ? registration.groupMembers[0] : registration.runnerDetails;
 
@@ -165,8 +167,11 @@ exports.verifyPayment = async (req, res) => {
       registrationType: registration.registrationType,
       raceCategory: raceLabels[registration.raceCategory] || registration.raceCategory,
       paymentMode: dynamicMethod,
-      invoiceNo: `LRCP-${paymentId.slice(-6).toUpperCase()}`, // Cleaner Invoice No
+      invoiceNo: `LRCP-${paymentId.slice(-6).toUpperCase()}`, 
+      
+      // CRITICAL: Matches the keys used in emailService.js PDF generator
       rawRegistrationFee: registration.registrationFee || 0,
+      registrationFee: registration.registrationFee || 0,
       discountAmount: registration.discountAmount || 0,
       platformFee: registration.platformFee || 0,
       pgFee: registration.pgFee || 0,
@@ -174,45 +179,41 @@ exports.verifyPayment = async (req, res) => {
       amount: Number(registration.amount || 0)
     };
 
-    // 7. SEND INVOICE
+    // ---------------------------------------------------------
+    // 7. SEND INVOICE (Triggers the new PDF + HTML template)
+    // ---------------------------------------------------------
     await sendInvoiceEmail(invoiceData.email, invoiceData);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Payment verified & invoice sent'
-    });
-
-  } catch (error) {
-    console.error('Verify payment error:', error);
-    return res.status(500).json({ success: false, message: 'Internal Server Error' });
-  }
-};
-
-
-exports.downloadInvoice = async (req, res) => {
+        return res.status(200).json({
+          success: true,
+          message: 'Payment verified & invoice sent'
+        });
+      } catch (error) {
+        console.error('Payment Verification Error:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to verify payment.'
+        });
+      }
+    };
+  exports.downloadInvoice = async (req, res) => {
   try {
     const registration = await Registration.findById(req.params.registrationId);
-
     if (!registration || registration.paymentStatus !== 'paid') {
       return res.status(404).send("Invoice not available.");
     }
 
-    // --- NEW: FETCH DYNAMIC PAYMENT METHOD FROM RAZORPAY ---
+    // --- FETCH DYNAMIC PAYMENT METHOD FROM RAZORPAY ---
     let dynamicMethod = 'Razorpay';
     try {
       const paymentId = registration.paymentDetails.paymentId;
       const paymentDetails = await razorpayInstance.payments.fetch(paymentId);
       const method = paymentDetails.method;
-      if (method === 'upi') {
-        dynamicMethod = 'UPI'; // Keep UPI all caps
-      } else {
-        dynamicMethod = method.charAt(0).toUpperCase() + method.slice(1); // 'Card', 'Wallet'
-      }
+      dynamicMethod = method === 'upi' ? 'UPI' : method.charAt(0).toUpperCase() + method.slice(1);
     } catch (razorpayError) {
       console.error("Could not fetch Razorpay method, defaulting to Razorpay");
     }
 
-    // Fix #3: Handle both Individual and Group naming
     const isGroup = registration.registrationType === 'group';
     const primary = isGroup ? registration.groupMembers[0] : registration.runnerDetails;
 
@@ -224,21 +225,21 @@ exports.downloadInvoice = async (req, res) => {
       email: primary?.email,
       raceCategory: raceLabels[registration.raceCategory] || registration.raceCategory,
       registrationType: registration.registrationType,
-      amount: registration.amount || registration.runnerDetails?.amount || 0,
-      rawRegistrationFee: registration.registrationFee || registration.runnerDetails?.registrationFee || 0,
-      discountAmount: registration.discountAmount || registration.runnerDetails?.discountAmount || 0,
-      platformFee: registration.platformFee || registration.runnerDetails?.platformFee || 0,
-      pgFee: registration.pgFee || registration.runnerDetails?.pgFee || 0,
-      gstAmount: registration.gstAmount || registration.runnerDetails?.gstAmount || 0,
-      paymentMode: dynamicMethod || "Razor Pay"
+      
+      // SYNCED KEYS FOR NEW PDF DESIGN
+      amount: registration.amount || 0,
+      rawRegistrationFee: registration.registrationFee || 0,
+      registrationFee: registration.registrationFee || 0,
+      discountAmount: registration.discountAmount || 0,
+      platformFee: registration.platformFee || 0,
+      pgFee: registration.pgFee || 0,
+      gstAmount: registration.gstAmount || 0,
+      paymentMode: dynamicMethod // Uses the fetched method
     };
 
-    // Service handles headers and piping
     await sendInvoiceEmail(paymentData.email, paymentData, res);
-
   } catch (error) {
     console.error("Invoice Download Error:", error);
     res.status(500).send("Error generating invoice");
   }
 };
-
