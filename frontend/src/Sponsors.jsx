@@ -5,6 +5,7 @@ import TimingPartner from "./assets/timing-partner.jpeg"
 import IFinish from "./assets/Ifinish-partner.webp"
 // import IFinishXTiming from "./assets/ifinishxtiming.png";
 import Fitistan from "./assets/fitistan.png";
+import MediCulture from "./assets/MEDICULTURE-Logo.jpeg"
 
 const sponsors = [
     { id: 1, src: SportsRhinosLogo, name: "Execute Partner", scale: "scale-100", hoverScale: "group-hover:scale-110" },
@@ -12,7 +13,8 @@ const sponsors = [
     // { id: 2, src: IFinishXTiming, name: "Registration & Timing Partner", scale: "scale-125", hoverScale: "group-hover:scale-[1.5]" }, 
     { id: 2, src: TimingPartner, name: "Timing Partner", scale: "scale-120", hoverScale: "group-hover:scale-[1.4]" },
     { id: 3, src: Fitistan, name: "Community & Technology Partner", scale: "scale-110", hoverScale: "group-hover:scale-125" },
-    { id: 4, src: IFinish, name: "Registration Partner", scale: "scale-130", hoverScale: "group-hover:scale-[1.5]" }
+    { id: 4, src: IFinish, name: "Registration Partner", scale: "scale-130", hoverScale: "group-hover:scale-[1.5]" },
+    { id: 5, src: MediCulture, name: "Physiotherapy & Recovery Support Partner", scale: "scale-130", hoverScale: "group-hover:scale-[1.5]" }
 ];
 
 function Sponsors() {
@@ -23,7 +25,7 @@ function Sponsors() {
                     Our Official Partners
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 max-w-7xl mx-auto items-start">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 md:gap-12 max-w-7xl mx-auto items-start">
                     {sponsors.map((sponsor) => (
                         <div key={sponsor.id} className="group flex flex-col items-center select-none">
 
