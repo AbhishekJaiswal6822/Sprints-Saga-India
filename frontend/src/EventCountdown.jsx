@@ -44,33 +44,33 @@ function EventCountdown() {
 
   // Box Component
   const Box = ({ value, label }) => (
-    <div className="w-28 h-28 bg-white rounded-xl shadow flex flex-col items-center justify-center">
-      <div className="text-teal-700 text-3xl font-extrabold">
+    <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-xl shadow flex flex-col items-center justify-center">
+      <div className="text-teal-700 text-xl md:text-2xl font-extrabold">
         {String(value).padStart(2, "0")}
       </div>
-      <div className="text-slate-400 text-xs tracking-wider mt-1 uppercase">
+      <div className="text-slate-400 text-[10px] tracking-wider mt-0.5 uppercase">
         {label}
       </div>
     </div>
   );
 
   return (
-    <section className="py-14 bg-transparent  max-h-screen">
+    <section className="py-12 bg-transparent  max-h-screen">
       <div className="max-w-4xl mx-auto text-center px-4">
         {/* Heading */}
-        <h2 className="text-4xl font-extrabold text-slate-800 mb-3">
+        <h2 className="text-4xl font-extrabold text-slate-800 mb-1">
           {time.finished ? "Happy New Year 2026! 🎉" : "Event Starts In"}
         </h2>
 
         {!time.finished && (
           <>
-            <p className="text-slate-500 mb-8">
-              Countdown to LokRaja 2026
+            <p className="text-slate-500 text-sm mb-4">
+              Countdown to LokRaja Marathon 2026
             </p>
 
             {/* Countdown Boxes */}
             <div className="flex justify-center">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Box value={time.days} label="Days" />
                 <Box value={time.hours} label="Hours" />
                 <Box value={time.minutes} label="Minutes" />

@@ -19,7 +19,7 @@ export default function EventOverview() {
           w-full 
           flex 
           flex-col 
-          gap-10 
+          gap-6
           py-16 /* Vertical padding to separate from elements above/below */
         "
       >
