@@ -44,7 +44,7 @@ export default function EventOverview() {
           <InfoCard
             icon={<LuMapPin />}
             title="Location"
-            value="Pune, Maharashtra"
+            value="Savitribai Phule Pune University, Maharashtra"
           />
           <InfoCard
             icon={<LuUsers />}
