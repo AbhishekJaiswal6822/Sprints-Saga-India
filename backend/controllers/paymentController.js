@@ -96,7 +96,7 @@ exports.verifyPayment = async (req, res) => {
       // --- WEBHOOK FLOW ---
       const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
       const headerSignature = req.headers['x-razorpay-signature'];
-      
+
       // Verify Signature for Security
       const shasum = crypto.createHmac('sha256', secret);
       shasum.update(JSON.stringify(req.body));
@@ -111,7 +111,7 @@ exports.verifyPayment = async (req, res) => {
       orderId = payload.order_id;
       paymentId = payload.id;
       registrationId = payload.notes.registrationId;
-      signature = 'webhook_verified'; 
+      signature = 'webhook_verified';
     } else {
       // --- FRONTEND REDIRECT FLOW ---
       ({ razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature, registrationId } = req.body);
@@ -167,9 +167,9 @@ exports.verifyPayment = async (req, res) => {
       registrationType: registration.registrationType,
       raceCategory: raceLabels[registration.raceCategory] || registration.raceCategory,
       paymentMode: dynamicMethod,
-      invoiceNo: `LRCP-${paymentId.slice(-6).toUpperCase()}`, 
-      
-      // CRITICAL: Matches the keys used in emailService.js PDF generator
+      invoiceNo: `LRCP-${paymentId.slice(-6).toUpperCase()}`,
+
+      // Ensure all these pull directly from the saved registration object
       rawRegistrationFee: registration.registrationFee || 0,
       registrationFee: registration.registrationFee || 0,
       discountAmount: registration.discountAmount || 0,
@@ -184,19 +184,19 @@ exports.verifyPayment = async (req, res) => {
     // ---------------------------------------------------------
     await sendInvoiceEmail(invoiceData.email, invoiceData);
 
-        return res.status(200).json({
-          success: true,
-          message: 'Payment verified & invoice sent'
-        });
-      } catch (error) {
-        console.error('Payment Verification Error:', error);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to verify payment.'
-        });
-      }
-    };
-  exports.downloadInvoice = async (req, res) => {
+    return res.status(200).json({
+      success: true,
+      message: 'Payment verified & invoice sent'
+    });
+  } catch (error) {
+    console.error('Payment Verification Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to verify payment.'
+    });
+  }
+};
+exports.downloadInvoice = async (req, res) => {
   try {
     const registration = await Registration.findById(req.params.registrationId);
     if (!registration || registration.paymentStatus !== 'paid') {
@@ -225,7 +225,7 @@ exports.verifyPayment = async (req, res) => {
       email: primary?.email,
       raceCategory: raceLabels[registration.raceCategory] || registration.raceCategory,
       registrationType: registration.registrationType,
-      
+
       // SYNCED KEYS FOR NEW PDF DESIGN
       amount: registration.amount || 0,
       rawRegistrationFee: registration.registrationFee || 0,
