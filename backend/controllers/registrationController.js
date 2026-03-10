@@ -101,28 +101,26 @@ exports.submitRegistration = async (req, res) => {
         }
 
         /* ----------------------------------
-    BILLING DATA EXTRACTION
----------------------------------- */
-        // Trust the amounts sent by the frontend calculations
-        const discountPercent = Number(mergedData.discountPercent) || 0;
-        const discountAmount = Number(mergedData.discountAmount) || 0;
+            BILLING DATA EXTRACTION 
+        ---------------------------------- */
+        // 1. Change 'const' to 'let' so these values can actually be updated
+        let discountPercent = Number(mergedData.discountPercent) || 0;
+        let discountAmount = Number(mergedData.discountAmount) || 0;
         const couponCode = mergedData.couponCode ? mergedData.couponCode.trim().toUpperCase() : "N/A";
 
+        // 2. Server-side validation of the coupon
+        if (couponCode !== "N/A" && COUPONS[couponCode]) {
+    const coupon = COUPONS[couponCode];
+    if (mergedData.registrationType === coupon.registrationType) {
+        discountAmount = coupon.amount; // This re-assignment requires 'let' above
 
-        if (couponCode && COUPONS[couponCode] && mergedData.registrationType === COUPONS[couponCode].registrationType) {
-            // Apply the flat discount from our config above
-            discountAmount = COUPONS[couponCode].amount;
-
-            // Calculate a percentage purely for database reporting/UI
-            const baseFee = Number(mergedData.registrationFee) || 0;
-            if (baseFee > 0) {
-                discountPercent = Math.round((discountAmount / baseFee) * 100);
-            }
+        const baseFee = Number(mergedData.registrationFee) || 0;
+        if (baseFee > 0) {
+            discountPercent = Math.round((discountAmount / baseFee) * 100);
         }
+    }
+}
 
-        /* ----------------------------------
-           GROUP MEMBERS PARSE + NORMALIZE
-        ---------------------------------- */
         /* ----------------------------------
             GROUP MEMBERS PARSE + NORMALIZE
         ---------------------------------- */
