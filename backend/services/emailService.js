@@ -88,21 +88,21 @@ const generateInvoicePDF = (doc, paymentData) => {
         currentY += 18;
     };
 
-    const regFee = parseFloat(paymentData.rawRegistrationFee ?? paymentData.registrationFee);
+    const regFee = parseFloat(paymentData.rawRegistrationFee || paymentData.registrationFee || 0);
     const discAmt = parseFloat(paymentData.discountAmount || 0);
 
     drawItem('Registration Fee', regFee);
 
-    if (discAmt > 0) {
+    if (!isNaN(discAmt) && discAmt > 0) {
         drawItem('Discount', discAmt, true);
 
-        // ADDED: Net Registration Fee (Calculated directly for 100% accuracy)
         const netFee = regFee - discAmt;
         doc.font('Helvetica-Bold').fillColor('#333333').text('Net Registration Fee', 50, currentY);
         doc.text(`Rs. ${netFee.toFixed(2)}`, 450, currentY, { width: 90, align: 'right' });
         doc.moveTo(40, currentY + 12).lineTo(555, currentY + 12).strokeColor('#eeeeee').lineWidth(0.5).stroke();
         currentY += 18;
     }
+
     drawItem('Platform Fee', paymentData.platformFee);
     drawItem('Payment Gateway Fee', paymentData.pgFee);
     drawItem('GST @18% (on PG Fee only)', paymentData.gstAmount);
