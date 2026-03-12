@@ -1,4 +1,6 @@
 // // C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\Sponsors.jsx
+
+import React from "react";
 import SportsRhinosLogo from "./assets/sponsor1.jpeg";
 import TimingPartner from "./assets/timing-partner.jpeg";
 import IFinish from "./assets/Ifinish-partner.webp";
@@ -10,18 +12,18 @@ import KhavteHospital from "./assets/khavte-hospital-logo.png"
 const sponsors = [
   { id: 1, src: SportsRhinosLogo, name: "Execute \n Partner", scale: "scale-100", hoverScale: "group-hover:scale-110", span: "col-span-1" },
   { id: 2, src: TimingPartner, name: "Timing \n Partner", scale: "scale-120", hoverScale: "group-hover:scale-[1.4]", span: "col-span-1" },
-  { id: 3, src: Fitistan, name: "Community & \n Technology Partner", scale: "scale-110", hoverScale: "group-hover:scale-125", span: "col-span-1" },
-  { id: 4, src: IFinish, name: "Registration \n Partner", scale: "scale-130", hoverScale: "group-hover:scale-[1.5]", span: "col-span-1" },
-  { id: 6, src: KhavteHospital, name: "Official Hospital \n Partner", scale: "scale-[2.8]", hoverScale: "group-hover:scale-[3.2]", span: "col-span-1" },
-  { 
-    id: 5, 
-    isGroup: true, 
-    logos: [MediCulture, MedicoMarvels], 
-    name: "Physiotherapy & Recovery \n Support Partners", 
-    scale: "scale-110", 
-    hoverScale: "group-hover:scale-125", 
-    span: "md:col-span-2 col-start-1 md:col-start-2" 
-  }
+  { id: 3, src: Fitistan, name: "Community & Technology Partner", scale: "scale-110", hoverScale: "group-hover:scale-125", span: "col-span-1" },
+  { id: 4, src: IFinish, name: "Registration Partner", scale: "scale-130", hoverScale: "group-hover:scale-[1.5]", span: "col-span-1" },
+  {
+    id: 6,
+    isGroup: true,
+    logos: [MediCulture, MedicoMarvels],
+    name: "Physiotherapy & Recovery \n Support Partners",
+    scale: "scale-110",
+    hoverScale: "group-hover:scale-125",
+    span: "md:col-span-2 col-span-2"
+  },
+  { id: 5, src: KhavteHospital, name: "Official Hospital \n Partner", scale: "scale-[2.8]", hoverScale: "group-hover:scale-[3.2]", span: "col-span-1" }
 ];
 
 function Sponsors() {
@@ -32,17 +34,18 @@ function Sponsors() {
           Our Official Partners
         </h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-14 max-w-full mx-auto items-start justify-center">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-7 gap-8 md:gap-12 max-w-7xl mx-auto items-start">
           {sponsors.map((sponsor) => (
             <div key={sponsor.id} className={`group flex flex-col items-center select-none ${sponsor.span}`}>
-              
+
+              {/* Container for the Logos */}
               <div className="w-full">
                 {sponsor.isGroup ? (
+                  /* Sub-grid for Grouped Logos: Renders two separate white containers */
                   <div className="grid grid-cols-2 gap-4 md:gap-6 w-full">
                     {sponsor.logos.map((logoSrc, index) => (
                       <div key={index} className="relative p-0.5 rounded-4xl transition-all duration-500 group-hover:bg-linear-to-br group-hover:from-emerald-400 group-hover:to-cyan-400 group-hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]">
-                        {/* aspect-square ensures that as width grows, height grows too */}
-                        <div className="relative w-full aspect-square bg-white rounded-[1.9rem] flex items-center justify-center p-3 md:p-5 z-10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] transition-all duration-500 ease-out group-hover:translate-y-1 overflow-hidden"> 
+                       <div className="relative w-full aspect-square bg-white rounded-[1.9rem] flex items-center justify-center p-3 md:p-6 z-10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] transition-all duration-500 ease-out group-hover:translate-y-1 overflow-hidden"> 
                           <img
                             src={logoSrc}
                             alt={sponsor.name}
@@ -53,8 +56,9 @@ function Sponsors() {
                     ))}
                   </div>
                 ) : (
+                  /* Single Logo Container */
                   <div className="relative p-0.5 rounded-4xl transition-all duration-500 group-hover:bg-linear-to-br group-hover:from-emerald-400 group-hover:to-cyan-400 group-hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]">
-                    <div className="relative w-full aspect-square bg-white rounded-[1.9rem] flex items-center justify-center p-4 md:p-8 z-10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] transition-all duration-500 ease-out group-hover:translate-y-1 overflow-hidden">
+                    <div className="relative w-full aspect-square bg-white rounded-[1.9rem] flex items-center justify-center p-4 md:p-6 z-10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] transition-all duration-500 ease-out group-hover:translate-y-1 overflow-hidden">
                       <img
                         src={sponsor.src}
                         alt={sponsor.name}
@@ -65,11 +69,12 @@ function Sponsors() {
                 )}
               </div>
 
+              {/* Shared Name Label */}
               <div className="mt-6 md:mt-8 flex flex-col items-center text-center">
                 <p className="whitespace-pre-line text-gray-800 font-extrabold text-xs sm:text-sm md:text-base leading-tight tracking-tight px-2 group-hover:text-emerald-600 transition-colors duration-300">
                   {sponsor.name}
                 </p>
-                <div className="h-1.5 w-0 bg-emerald-500 mt-2 rounded-full group-hover:w-16 md:group-hover:w-24 shadow-[0_2px_8px_rgba(16,185,129,0.4)] transition-all duration-500 ease-in-out" />
+                <div className="h-1.5 w-0 bg-emerald-500 mt-2 rounded-full group-hover:w-12 md:group-hover:w-24 shadow-[0_2px_8px_rgba(16,185,129,0.4)] transition-all duration-500 ease-in-out" />
               </div>
             </div>
           ))}
