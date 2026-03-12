@@ -20,7 +20,7 @@ const sponsors = [
     name: "Physiotherapy & Recovery \n Support Partners", 
     scale: "scale-110", 
     hoverScale: "group-hover:scale-125", 
-    span: "md:col-span-2 col-start-1 md:col-start-2" // This centers the group on the second row
+    span: "md:col-span-2 col-start-1 md:col-start-2" 
   }
 ];
 
@@ -32,7 +32,6 @@ function Sponsors() {
           Our Official Partners
         </h2>
 
-        {/* CHANGED: grid-cols-7 to grid-cols-5 to use side space and increase height */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-14 max-w-full mx-auto items-start justify-center">
           {sponsors.map((sponsor) => (
             <div key={sponsor.id} className={`group flex flex-col items-center select-none ${sponsor.span}`}>
