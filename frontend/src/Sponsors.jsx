@@ -78,3 +78,5 @@ function Sponsors() {
     </section>
   );
 }
+
+export default Sponsors;
