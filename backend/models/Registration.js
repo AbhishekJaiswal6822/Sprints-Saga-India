@@ -11,7 +11,7 @@ const RunnerDetailsSchema = new mongoose.Schema({
     email: { type: String, required: true },
     phone: { type: String, required: true },
     whatsapp: { type: String },
-    dob: { type: Date, required: true },
+    dob: { type: Date, required: false },
     gender: { type: String, required: true, enum: ['Male', 'Female', 'Other'] },
     bloodGroup: { type: String },
     nationality: { type: String, required: true },
@@ -92,39 +92,44 @@ const RegistrationSchema = new mongoose.Schema({
             lastName: { type: String, required: true },
             email: { type: String, required: true },
             phone: { type: String, required: true },
+            whatsapp: { type: String },
+            bloodGroup: { type: String },
+            experience: { type: String },
+            finishTime: { type: String },
+            dietary: { type: String },
             dob: { type: Date, required: true },
             gender: { type: String, required: true },
             tshirtSize: { type: String, required: true },
             raceCategory: { type: String, required: true },
-            
+
             // --- CUSTOM VALIDATION FOR MEMBER 1 ---
-            nationality: { 
-                type: String, 
-                required: function() { 
+            nationality: {
+                type: String,
+                required: function () {
                     // This refers to the current member being saved
                     // We check the parent document to see if this is the first element
-                    return this.parent().groupMembers.indexOf(this) === 0; 
-                } 
+                    return this.parent().groupMembers.indexOf(this) === 0;
+                }
             },
-            address: { 
-                type: String, 
-                required: function() { return this.parent().groupMembers.indexOf(this) === 0; } 
+            address: {
+                type: String,
+                required: function () { return this.parent().groupMembers.indexOf(this) === 0; }
             },
-            city: { 
-                type: String, 
-                required: function() { return this.parent().groupMembers.indexOf(this) === 0; } 
+            city: {
+                type: String,
+                required: function () { return this.parent().groupMembers.indexOf(this) === 0; }
             },
-            state: { 
-                type: String, 
-                required: function() { return this.parent().groupMembers.indexOf(this) === 0; } 
+            state: {
+                type: String,
+                required: function () { return this.parent().groupMembers.indexOf(this) === 0; }
             },
-            pincode: { 
-                type: String, 
-                required: function() { return this.parent().groupMembers.indexOf(this) === 0; } 
+            pincode: {
+                type: String,
+                required: function () { return this.parent().groupMembers.indexOf(this) === 0; }
             },
-            country: { 
-                type: String, 
-                required: function() { return this.parent().groupMembers.indexOf(this) === 0; } 
+            country: {
+                type: String,
+                required: function () { return this.parent().groupMembers.indexOf(this) === 0; }
             },
             // Parent info can remain optional for everyone or follow the same logic
             parentName: { type: String },
