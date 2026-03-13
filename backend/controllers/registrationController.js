@@ -110,16 +110,16 @@ exports.submitRegistration = async (req, res) => {
 
         // 2. Server-side validation of the coupon
         if (couponCode !== "N/A" && COUPONS[couponCode]) {
-    const coupon = COUPONS[couponCode];
-    if (mergedData.registrationType === coupon.registrationType) {
-        discountAmount = coupon.amount; // This re-assignment requires 'let' above
+            const coupon = COUPONS[couponCode];
+            if (mergedData.registrationType === coupon.registrationType) {
+                discountAmount = coupon.amount; // This re-assignment requires 'let' above
 
-        const baseFee = Number(mergedData.registrationFee) || 0;
-        if (baseFee > 0) {
-            discountPercent = Math.round((discountAmount / baseFee) * 100);
+                const baseFee = Number(mergedData.registrationFee) || 0;
+                if (baseFee > 0) {
+                    discountPercent = Math.round((discountAmount / baseFee) * 100);
+                }
+            }
         }
-    }
-}
 
         /* ----------------------------------
             GROUP MEMBERS PARSE + NORMALIZE
@@ -133,6 +133,11 @@ exports.submitRegistration = async (req, res) => {
                     lastName: m.lastName,
                     email: m.email,
                     phone: m.phone,
+                    whatsapp: m.whatsapp || "N/A",
+                    bloodGroup: m.bloodGroup || "N/A",
+                    experience: m.experience || "N/A",
+                    finishTime: m.finishTime || "N/A",
+                    dietary: m.dietary || "N/A",
                     dob: m.dob && m.dob !== "N/A" ? new Date(m.dob) : new Date(),
                     gender: m.gender,
                     tshirtSize: m.tshirtSize,
