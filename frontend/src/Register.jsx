@@ -20,7 +20,7 @@ const REGISTRATION_DATA_VERSION = "v1.1"; // Change this to "v1.1" when keys cha
 const COUPON_CODE_FLAT = "FITISTAN100"; // Added _FLAT
 const COUPON_DISCOUNT_FLAT = 100;
 
-const PERCENT_COUPONS = ["VIJAY10", "KINNARI10", "RUNMADHU10", "DEEPAKSHI10", "DRROHAN10", "GANESH10", "DADASAHEB10", "JAANTARAJA15","SAURABH10"];
+const PERCENT_COUPONS = ["VIJAY10", "KINNARI10", "RUNMADHU10", "DEEPAKSHI10", "DRROHAN10", "GANESH10", "DADASAHEB10", "JAANTARAJA15", "SAURABH10"];
 const COUPON_DISCOUNT_PERCENT = 10;
 
 // const PG_FEE_RATE = 0.021; // 2.1% Payment Gateway Fee
@@ -238,7 +238,10 @@ const INITIAL_INDIVIDUAL_STATE = {
 const INITIAL_GROUP_STATE = Array.from({ length: 5 }, () => ({
     firstName: "", lastName: "", email: "", phone: "", dob: "", gender: "", tshirtSize: "",
     nationality: "", address: "", raceId: "", idType: "", idNumber: "",
-    idFile: null, queryBox: "", parentName: "", parentPhone: "", city: "", state: "", pincode: "", country: ""
+    idFile: null, queryBox: "", parentName: "", parentPhone: "", city: "", state: "", pincode: "", country: "",
+    experience: "",
+    finishTime: "",
+    dietary: ""
 }));
 
 function Register() {
@@ -336,14 +339,16 @@ function Register() {
         });
     };
 
-
-
     // Helper functions (UPDATED: Added queryBox)
     const newMemberObject = () => ({
         firstName: "", lastName: "", email: "", phone: "", dob: "", gender: "", tshirtSize: "", nationality: "", address: "",
         raceId: "",
         idType: "", idNumber: "", idFile: null,
-        queryBox: "", // <--- ADDED FIELD for query box fix
+        queryBox: "",
+        parentName: "", parentPhone: "", city: "", state: "", pincode: "", country: "",
+        experience: "",
+        finishTime: "",
+        dietary: ""
     });
 
     // Updated handleAddMember to respect the MAX_GROUP_MEMBERS
@@ -845,6 +850,8 @@ function Register() {
                     lastName: member.lastName || "N/A",
                     email: member.email || "N/A",
                     phone: member.phone || "0000000000",
+                    whatsapp: member.whatsapp || "N/A",
+                    bloodGroup: member.bloodGroup || "N/A",
                     dob: member.dob || today,
                     gender: member.gender || "Male",
                     tshirtSize: member.tshirtSize || "M",
@@ -855,6 +862,9 @@ function Register() {
                     // ONLY Member 1 (Leader) gets these full details
                     return {
                         ...finalizedMember,
+                        experience: member.experience || "Beginner",
+                        finishTime: member.finishTime || "N/A",
+                        dietary: member.dietary || "None",
                         nationality: member.nationality || "Indian",
                         address: member.address || "N/A",
                         city: member.city || "N/A",
@@ -1649,7 +1659,7 @@ function Register() {
                                         {/* Member 1 Specific Fields: Parent, City, State, Country, Pincode */}
                                         {index === 0 && (
                                             <div className="grid md:grid-cols-2 gap-4 mt-4">
-                                                <div><label className="block text-sm font-medium text-slate-700">WhatsApp Number *</label><input maxLength="10" type="tel" placeholder="If different from phone" value={member.whatsapp || ""} onChange={(e) => handleMemberChange(index, "whatsapp", e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required /></div>
+                                                <div><label className="block text-sm font-medium text-slate-700">WhatsApp Number*</label><input maxLength="10" type="tel" placeholder="If different from phone" value={member.whatsapp || ""} onChange={(e) => handleMemberChange(index, "whatsapp", e.target.value)} onKeyPress={handleNumberKeyPress} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" required /></div>
                                                 <div>
                                                     <label className="block text-sm font-medium text-slate-700 mb-1">Parent / Emergency Name *</label>
                                                     <input
@@ -1752,6 +1762,44 @@ function Register() {
                                                         required
                                                         id="group-address"
                                                     />
+
+                                                    {/* Experience, Finish Time, and Dietary for Member 1 */}
+                                                    <div className="grid md:grid-cols-2 gap-4 mt-4 border-t border-slate-100 pt-4">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 mb-1">Previous Marathon Experience *</label>
+                                                            <select
+                                                                value={member.experience || ""}
+                                                                onChange={e => handleMemberChange(index, 'experience', e.target.value)}
+                                                                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50"
+                                                                required
+                                                            >
+                                                                <option value="">Select experience level</option>
+                                                                <option value="Beginner">Beginner (0-1 Marathons)</option>
+                                                                <option value="Intermediate">Intermediate (2-5 Marathons)</option>
+                                                                <option value="Pro">Pro (6+ Marathons)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 mb-1">Expected Finish Time</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="e.g., 4:30:00"
+                                                                value={member.finishTime || ""}
+                                                                onChange={e => handleMemberChange(index, 'finishTime', e.target.value)}
+                                                                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50"
+                                                            />
+                                                        </div>
+                                                        <div className="md:col-span-2">
+                                                            <label className="block text-sm font-medium text-slate-700 mb-1">Dietary Restrictions</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Vegetarian, Vegan, Allergies, etc."
+                                                                value={member.dietary || ""}
+                                                                onChange={e => handleMemberChange(index, 'dietary', e.target.value)}
+                                                                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-500/50"
+                                                            />
+                                                        </div>
+                                                    </div>
 
                                                     <label className="block text-sm font-medium text-slate-700 mb-1 mt-4">Query Box </label>
                                                     <textarea
