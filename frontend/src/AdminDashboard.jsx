@@ -327,7 +327,7 @@ function AdminDashboard() {
           <div className="bg-slate-200/50 rounded-full p-2 flex gap-3 w-full md:w-[1230px] border border-slate-200 shadow-inner">
             <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "users" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("users")}>Users Accounts</button>
             <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "registrations" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("registrations")}>Registrations</button>
-            <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "coupons" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("coupons")}>Coupons</button>
+            {/* <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "coupons" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("coupons")}>Coupons</button> */}
           </div>
 
           {activeTab === "coupons" && (
