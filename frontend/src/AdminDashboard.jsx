@@ -19,6 +19,10 @@ function AdminDashboard() {
 
   const [selectedReg, setSelectedReg] = useState(null);
 
+  const [couponData, setCouponData] = useState({ code: '', discountType: 'PERCENT', discountValue: 0 });
+  const [coupons, setCoupons] = useState([]); // To list existing coupons
+  const [couponLoading, setCouponLoading] = useState(false);
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -68,13 +72,41 @@ function AdminDashboard() {
 
     if (year === 1900) return "N/A";
     return `${day}/${month}/${year}`;
-};
+  };
 
   const resetFilters = () => {
     setRegFilter("all");
     setCatFilter("all");
     setStatusFilter("all");
     setSearchTerm("");
+  };
+
+  /**
+   * Handles the creation of a new discount coupon.
+   * Triggered by the "Generate Coupon" form in the Admin Panel.
+   */
+  const handleCreateCoupon = async (e) => {
+    e.preventDefault();
+    setCouponLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const PROD_BACKEND_URL = "https://backend.sprintssagaindia.com";
+      const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:8000" : PROD_BACKEND_URL;
+
+      const res = await axios.post(`${API_BASE_URL}/api/coupons`, couponData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.data.success) {
+        alert("Coupon Generated Successfully!");
+        setCouponData({ code: '', discountType: 'PERCENT', discountValue: 0 });
+        // Optionally: fetchCoupons(); // refresh the list
+      }
+    } catch (err) {
+      alert("Error: " + (err.response?.data?.message || "Failed to create coupon"));
+    } finally {
+      setCouponLoading(false);
+    }
   };
 
   // --- FILTERED USERS ---
@@ -115,7 +147,43 @@ function AdminDashboard() {
   // --- FILTERED REGISTRATIONS ---
   const filteredRegistrations = tableRows.filter((r) => {
     const matchesType = regFilter === "all" || r.registrationType === regFilter;
-    const matchesCategory = catFilter === "all" || r.raceCategory === catFilter;
+    // SMART CATEGORY FILTER: Handles variations like 21k, half, 21.097, etc.
+    // STRICT CATEGORY FILTER: Ensures 5K does not show 35K
+    const matchesCategory = (() => {
+      if (catFilter === "all") return true;
+
+      // Normalize the text from the database to lowercase and trim spaces
+      const rawData = (r.displayDetails?.raceCategory || r.raceCategory || "").toLowerCase().trim();
+
+      // STRICT 5K: Match only if it is exactly "5k" or includes specific "5 km" text
+      if (catFilter === "5k") {
+        return rawData === "5k" || rawData === "5 km" || rawData.includes("5k fun run");
+      }
+
+      if (catFilter === "10k") {
+        return rawData === "10k" || rawData === "10 km" || rawData.includes("10k challenge");
+      }
+
+      if (catFilter === "21k") {
+        return rawData === "21k" ||
+          rawData.includes("21.097") ||
+          rawData.includes("half marathon") ||
+          rawData === "half";
+      }
+
+      if (catFilter === "35k") {
+        return rawData === "35k" || rawData.includes("35k ultra") || rawData === "35 km";
+      }
+
+      if (catFilter === "42k") {
+        return rawData === "42k" ||
+          rawData.includes("full marathon") ||
+          rawData === "full" ||
+          rawData === "42.195";
+      }
+
+      return rawData === catFilter;
+    })();
     const matchesStatus = statusFilter === "all" || r.paymentStatus === statusFilter;
     const s = searchTerm.toLowerCase();
     if (!s) return matchesType && matchesCategory && matchesStatus;
@@ -127,7 +195,10 @@ function AdminDashboard() {
       r.displayDetails?.city, r.displayDetails?.state, r.displayDetails?.pincode,
       r.displayDetails?.country, r.displayDetails?.experience, r.displayDetails?.finishTime,
       r.displayDetails?.dietary, r.displayDetails?.tshirtSize, r.displayDetails?.parentName,
-      r.displayDetails?.parentPhone, r.registrationType, r.raceCategory, r.groupName,
+      r.displayDetails?.parentPhone, r.registrationType,
+      r.displayDetails?.raceCategory,
+      r.raceCategory,
+      r.groupName,
       r.paymentStatus, r.paymentDetails?.paymentId, r.paymentDetails?.orderId,
       r.idProof?.idNumber, r.idProof?.idType, r.amount?.toString(), (r.displayDetails?.dob ? formatDate(r.displayDetails.dob) : "")
     ].join(" ").toLowerCase();
@@ -251,10 +322,62 @@ function AdminDashboard() {
         </div>
 
         <div className="space-y-6 mb-8">
-          <div className="bg-slate-200/50 rounded-full p-1 flex gap-1 w-full md:w-80 border border-slate-200">
-            <button className={`flex-1 py-2 rounded-full text-xs font-bold transition ${activeTab === "users" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`} onClick={() => setActiveTab("users")}>Users Accounts</button>
-            <button className={`flex-1 py-2 rounded-full text-xs font-bold transition ${activeTab === "registrations" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`} onClick={() => setActiveTab("registrations")}>Registrations</button>
+          {/* Tab Switcher */}
+          {/* <div className="bg-slate-200/50 rounded-full p-1 flex gap-1 w-full md:w-80 border border-slate-200"> */}
+          <div className="bg-slate-200/50 rounded-full p-2 flex gap-3 w-full md:w-[1230px] border border-slate-200 shadow-inner">
+            <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "users" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("users")}>Users Accounts</button>
+            <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "registrations" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("registrations")}>Registrations</button>
+            <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "coupons" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("coupons")}>Coupons</button>
           </div>
+
+          {activeTab === "coupons" && (
+            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm max-w-2xl mx-auto">
+              <h2 className="text-xl font-black text-slate-800 mb-6 uppercase tracking-tight">Generate New Coupon</h2>
+              <form onSubmit={handleCreateCoupon} className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-1 ml-1">Coupon Code Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. SUMMER20"
+                    className="w-full p-3 rounded-xl border border-slate-200 uppercase font-bold text-teal-700"
+                    value={couponData.code}
+                    onChange={(e) => setCouponData({ ...couponData, code: e.target.value.toUpperCase() })}
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1 ml-1">Discount Type</label>
+                    <select
+                      className="w-full p-3 rounded-xl border border-slate-200 bg-white font-bold"
+                      value={couponData.discountType}
+                      onChange={(e) => setCouponData({ ...couponData, discountType: e.target.value })}
+                    >
+                      <option value="PERCENT">Percentage (%)</option>
+                      <option value="FLAT">Flat Amount (₹)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1 ml-1">Discount Value</label>
+                    <input
+                      type="number"
+                      className="w-full p-3 rounded-xl border border-slate-200 font-bold"
+                      value={couponData.discountValue}
+                      onChange={(e) => setCouponData({ ...couponData, discountValue: Number(e.target.value) })}
+                      required
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={couponLoading}
+                  className="w-full py-4 rounded-xl bg-teal-600 text-white font-black uppercase tracking-widest hover:bg-teal-700 transition shadow-lg shadow-teal-600/20 disabled:opacity-50"
+                >
+                  {couponLoading ? "Generating..." : "Generate Coupon"}
+                </button>
+              </form>
+            </div>
+          )}
 
           {activeTab === "registrations" && (
             <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
