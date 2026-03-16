@@ -1,15 +1,21 @@
-// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\AdminDashboard.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx"; // Import for Excel support
 import {
   FiUsers, FiDownload, FiSearch, FiActivity, FiHeart, FiAward,
   FiTrendingUp, FiGrid, FiClock, FiXCircle, FiCheckCircle,
-  FiAlertCircle, FiX, FiEye, FiInfo, FiExternalLink, FiMapPin, FiCreditCard, FiRotateCcw
+  FiAlertCircle, FiX, FiEye, FiInfo, FiExternalLink, FiMapPin, FiCreditCard, FiRotateCcw,
+  FiTag, FiPlus, FiTrash2, FiZap
 } from "react-icons/fi";
 
 function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("users");
+// --- MOVE THESE 3 LINES HERE (Line 13) ---
+    const PROD_BACKEND_URL = "https://backend.sprintssagaindia.com";
+    const API_BASE_URL = window.location.hostname === "localhost"
+      ? "http://localhost:8000"
+      : PROD_BACKEND_URL;
+
+    const [activeTab, setActiveTab] = useState("users");
   const [regFilter, setRegFilter] = useState("all");
   const [catFilter, setCatFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -22,6 +28,48 @@ function AdminDashboard() {
   const [couponData, setCouponData] = useState({ code: '', discountType: 'PERCENT', discountValue: 0 });
   const [coupons, setCoupons] = useState([]); // To list existing coupons
   const [couponLoading, setCouponLoading] = useState(false);
+  
+  // NEW STATE: Specific search for coupons to avoid interfering with global search
+  const [couponSearch, setCouponSearch] = useState("");
+
+  // 1. Fetch coupons list
+  const fetchCoupons = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_BASE_URL}/api/coupons`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) setCoupons(res.data.data);
+    } catch (err) { console.error("Fetch Coupons Error:", err.message); }
+  };
+
+  // 2. Toggle Status
+  const toggleStatus = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(`${API_BASE_URL}/api/coupons/${id}/status`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchCoupons(); // Refresh list
+    } catch (err) { alert("Failed to toggle status"); }
+  };
+
+  // 3. Delete Coupon
+  const deleteCoupon = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this coupon?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_BASE_URL}/api/coupons/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchCoupons(); // Refresh list
+    } catch (err) { alert("Failed to delete coupon"); }
+  };
+
+  // 4. Update useEffect to fetch coupons when tab changes
+  useEffect(() => {
+    if (activeTab === "coupons") fetchCoupons();
+  }, [activeTab]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -100,7 +148,7 @@ function AdminDashboard() {
       if (res.data.success) {
         alert("Coupon Generated Successfully!");
         setCouponData({ code: '', discountType: 'PERCENT', discountValue: 0 });
-        // Optionally: fetchCoupons(); // refresh the list
+        fetchCoupons(); // refresh the list
       }
     } catch (err) {
       alert("Error: " + (err.response?.data?.message || "Failed to create coupon"));
@@ -206,29 +254,44 @@ function AdminDashboard() {
     return matchesType && matchesCategory && matchesStatus && searchBlob.includes(s);
   });
 
-  // --- DYNAMIC STATS BASED ON CURRENT TAB ---
-  const dynamicStats = activeTab === "users" ? {
-    "Total Users": filteredUsers.length,
-    "Search Matches": filteredUsers.length
-  } : {
-    matches: filteredRegistrations.length,
-    individual: filteredRegistrations.filter(r => r.registrationType === 'individual').length,
-    group: [...new Set(filteredRegistrations.filter(r => r.registrationType === 'group').map(r => r._id))].length,
-    charity: filteredRegistrations.filter(r => r.registrationType === 'charity').length,
-    // paid: filteredRegistrations.filter(r => r.paymentStatus === 'paid').length,
-    // pending: filteredRegistrations.filter(r => r.paymentStatus === 'pending' || r.paymentStatus === 'Pending Payment').length,
-    // rejected: filteredRegistrations.filter(r => r.paymentStatus === 'rejected').length,
-    paid: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'paid').map(r => r._id))].length,
-    pending: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'pending' || r.paymentStatus === 'Pending Payment').map(r => r._id))].length,
-    rejected: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'rejected').map(r => r._id))].length,
-    revenue: filteredRegistrations.filter(r => r.paymentStatus === 'paid')
-      .reduce((acc, curr) => {
-        const isFirstMember = !curr.isGroupMember || curr.memberPosLabel === "Member 1";
-        return isFirstMember ? acc + (Number(curr.amount) || Number(curr.runnerDetails?.amount) || 0) : acc;
-      }, 0)
-  };
+  // NEW: Filtered Coupons for the dedicated Coupon Search
+  const filteredCoupons = coupons.filter(c => 
+    c.code.toLowerCase().includes(couponSearch.toLowerCase())
+  );
 
-  // --- EXPORT LOGIC (SWITCHES DATA BASED ON ACTIVE TAB) ---
+  // --- DYNAMIC STATS BASED ON CURRENT TAB ---
+  const dynamicStats = (() => {
+    if (activeTab === "users") {
+      return {
+        "Total Users": filteredUsers.length,
+        "Search Matches": filteredUsers.length
+      };
+    } else if (activeTab === "coupons") {
+      return {
+        "Total Coupons": coupons.length,
+        "Active Codes": coupons.filter(c => c.isActive).length,
+        "Percentage Coupon": coupons.filter(c => c.discountType === 'PERCENT').length,
+        "Flat Coupon": coupons.filter(c => c.discountType === 'FLAT').length
+      };
+    } else {
+      return {
+        matches: filteredRegistrations.length,
+        individual: filteredRegistrations.filter(r => r.registrationType === 'individual').length,
+        group: [...new Set(filteredRegistrations.filter(r => r.registrationType === 'group').map(r => r._id))].length,
+        charity: filteredRegistrations.filter(r => r.registrationType === 'charity').length,
+        paid: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'paid').map(r => r._id))].length,
+        pending: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'pending' || r.paymentStatus === 'Pending Payment').map(r => r._id))].length,
+        rejected: [...new Set(filteredRegistrations.filter(r => r.paymentStatus === 'rejected').map(r => r._id))].length,
+        revenue: filteredRegistrations.filter(r => r.paymentStatus === 'paid')
+          .reduce((acc, curr) => {
+            const isFirstMember = !curr.isGroupMember || curr.memberPosLabel === "Member 1";
+            return isFirstMember ? acc + (Number(curr.amount) || Number(curr.runnerDetails?.amount) || 0) : acc;
+          }, 0)
+      };
+    }
+  })();
+
+  // --- EXPORT LOGIC (UNCHANGED) ---
   const handleExportExcel = () => {
     let exportData = [];
     let fileName = "";
@@ -240,9 +303,7 @@ function AdminDashboard() {
         "Email": u.email || "N/A",
         "User ID": u._id || "N/A",
         "Phone": u.phone || "N/A",
-        "Joined At": new Date(u.createdAt).toLocaleDateString(),
-        "DOB": (r.displayDetails?.dob ? formatDate(r.displayDetails.dob) : "N/A"), // For Registrations
-        "Paid Date": (r.paymentDetails?.paidAt ? formatDate(r.paymentDetails.paidAt) : "N/A")
+        "Joined At": new Date(u.createdAt).toLocaleDateString()
       }));
     } else {
       fileName = `SSI_Registrations_${new Date().toLocaleDateString()}`;
@@ -251,7 +312,6 @@ function AdminDashboard() {
         "Last Name": r.displayDetails?.lastName || "N/A",
         "Group Name/Individual Account": r.groupName ? `${r.groupName} (${r.memberPosLabel})` : "Individual Account",
         "Registration Type": r.registrationType || "N/A",
-        // "Race Category": r.raceCategory || "N/A",
         "Race Category": r.displayDetails?.raceCategory || r.raceCategory || "N/A",
         "Email": r.displayDetails?.email || "N/A",
         "Phone": r.displayDetails?.phone || "N/A",
@@ -295,17 +355,17 @@ function AdminDashboard() {
   if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-slate-500 tracking-widest animate-pulse">SYNCING SSI DATABASE...</div>;
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-16 font-sans text-slate-900">
+    <main className="min-h-screen bg-[#fcfdfe] pb-16 font-sans text-slate-900 selection:bg-teal-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10">
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 mt-16">
           <div>
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight">Admin <span className="text-teal-600 underline decoration-teal-200 underline-offset-8">Panel</span></h1>
-            <p className="mt-2 text-slate-400 text-sm font-medium italic">Official Sprints Saga India Event Management</p>
+            <h1 className="text-4xl font-black text-slate-800 tracking-tight">Admin <span className="text-teal-600 underline decoration-teal-200 underline-offset-8">Panel</span></h1>
+            <p className="mt-2 text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">Official Sprints Saga India Event Management</p>
           </div>
           <button
             onClick={handleExportExcel}
-            className="flex items-center gap-2 rounded-xl bg-slate-800 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-700 transition shadow-lg active:scale-95"
+            className="flex items-center gap-2 rounded-2xl bg-slate-900 px-6 py-3.5 text-[11px] font-black tracking-widest text-white hover:bg-slate-800 transition shadow-2xl active:scale-95"
           >
             <FiDownload /> DOWNLOAD EXCEL
           </button>
@@ -314,288 +374,368 @@ function AdminDashboard() {
         {/* DYNAMIC STATS SECTION */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 mb-10 text-slate-900">
           {Object.entries(dynamicStats).map(([key, val]) => (
-            <div key={key} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 transition hover:shadow-md">
-              <p className="text-[9px] uppercase font-black text-slate-400 mb-1 tracking-widest">{key}</p>
-              <p className="text-lg font-bold text-slate-900">{key === 'revenue' ? `₹${val.toFixed(2)}` : val}</p>
+            <div key={key} className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 transition hover:shadow-md group">
+              <p className="text-[9px] uppercase font-black text-slate-400 mb-1.5 tracking-widest group-hover:text-teal-500 transition-colors">{key}</p>
+              <p className="text-xl font-black text-slate-900 tracking-tighter">{key === 'revenue' ? `₹${val.toFixed(2)}` : val}</p>
             </div>
           ))}
         </div>
 
         <div className="space-y-6 mb-8">
           {/* Tab Switcher */}
-          {/* <div className="bg-slate-200/50 rounded-full p-1 flex gap-1 w-full md:w-80 border border-slate-200"> */}
-          <div className="bg-slate-200/50 rounded-full p-2 flex gap-3 w-full md:w-[1230px] border border-slate-200 shadow-inner">
-            <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "users" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("users")}>Users Accounts</button>
-            <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "registrations" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("registrations")}>Registrations</button>
-            {/* <button className={`flex-1 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-200 ${activeTab === "coupons" ? "bg-white text-teal-700 shadow-md scale-[1.01]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("coupons")}>Coupons</button> */}
+          <div className="bg-slate-100 rounded-4xl p-2 flex gap-3 w-full border border-slate-200 shadow-inner">
+            <button className={`flex-1 py-4 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === "users" ? "bg-white text-teal-700 shadow-xl scale-[1.02]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("users")}>Users Accounts</button>
+            <button className={`flex-1 py-4 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === "registrations" ? "bg-white text-teal-700 shadow-xl scale-[1.02]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("registrations")}>Registrations</button>
+            <button className={`flex-1 py-4 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === "coupons" ? "bg-white text-teal-700 shadow-xl scale-[1.02]" : "text-slate-500 hover:text-slate-700"}`} onClick={() => setActiveTab("coupons")}>Coupons</button>
           </div>
 
+          {/* --- COUPONS TAB: UI UPDATED WITH LOCAL SEARCH --- */}
           {activeTab === "coupons" && (
-            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm max-w-2xl mx-auto">
-              <h2 className="text-xl font-black text-slate-800 mb-6 uppercase tracking-tight">Generate New Coupon</h2>
-              <form onSubmit={handleCreateCoupon} className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-1 ml-1">Coupon Code Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. SUMMER20"
-                    className="w-full p-3 rounded-xl border border-slate-200 uppercase font-bold text-teal-700"
-                    value={couponData.code}
-                    onChange={(e) => setCouponData({ ...couponData, code: e.target.value.toUpperCase() })}
-                    required
-                  />
+            <div className="grid lg:grid-cols-[400px_1fr] gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              
+              {/* Left Side: Create Form */}
+              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-slate-200/50 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                    <FiZap size={120} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1 ml-1">Discount Type</label>
-                    <select
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-white font-bold"
-                      value={couponData.discountType}
-                      onChange={(e) => setCouponData({ ...couponData, discountType: e.target.value })}
-                    >
-                      <option value="PERCENT">Percentage (%)</option>
-                      <option value="FLAT">Flat Amount (₹)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1 ml-1">Discount Value</label>
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="h-10 w-10 rounded-2xl bg-teal-600 flex items-center justify-center text-white shadow-lg shadow-teal-200">
+                        <FiPlus />
+                    </div>
+                    <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">Create Coupon</h2>
+                </div>
+                
+                <form onSubmit={handleCreateCoupon} className="space-y-6 relative z-10">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Coupon Code</label>
                     <input
-                      type="number"
-                      className="w-full p-3 rounded-xl border border-slate-200 font-bold"
-                      value={couponData.discountValue}
-                      onChange={(e) => setCouponData({ ...couponData, discountValue: Number(e.target.value) })}
+                      type="text"
+                      placeholder="e.g. SUMMER20"
+                      className="w-full p-4 rounded-2xl border-2 border-slate-50 focus:border-teal-500 bg-slate-50/50 outline-none transition-all font-black uppercase text-slate-700 placeholder:text-slate-300"
+                      value={couponData.code}
+                      onChange={(e) => setCouponData({ ...couponData, code: e.target.value.toUpperCase() })}
                       required
                     />
                   </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={couponLoading}
-                  className="w-full py-4 rounded-xl bg-teal-600 text-white font-black uppercase tracking-widest hover:bg-teal-700 transition shadow-lg shadow-teal-600/20 disabled:opacity-50"
-                >
-                  {couponLoading ? "Generating..." : "Generate Coupon"}
-                </button>
-              </form>
-            </div>
-          )}
 
-          {activeTab === "registrations" && (
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-50 pb-2">
-                <span className="text-xs font-black uppercase text-slate-900 tracking-widest flex items-center gap-2">
-                  <FiGrid className="text-teal-600" /> Active Filters
-                </span>
-                <button onClick={resetFilters} className="text-[10px] font-bold text-rose-500 flex items-center gap-1 hover:underline">
-                  <FiRotateCcw size={12} /> Reset All
-                </button>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Type</label>
+                      <select
+                        className="w-full p-4 rounded-2xl border-2 border-slate-50 focus:border-teal-500 bg-slate-50/50 outline-none transition-all font-bold text-slate-700"
+                        value={couponData.discountType}
+                        onChange={(e) => setCouponData({ ...couponData, discountType: e.target.value })}
+                      >
+                        <option value="PERCENT">PERCENTAGE %</option>
+                        <option value="FLAT">FLAT ₹</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Value</label>
+                      <input
+                        type="number"
+                        placeholder="0"
+                        className="w-full p-4 rounded-2xl border-2 border-slate-50 focus:border-teal-500 bg-slate-50/50 outline-none transition-all font-black text-slate-700"
+                        value={couponData.discountValue}
+                        onChange={(e) => setCouponData({ ...couponData, discountValue: Number(e.target.value) })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <button type="submit" disabled={couponLoading} className="w-full py-5 rounded-2xl bg-slate-900 text-teal-400 font-black uppercase tracking-[0.2em] text-[11px] hover:bg-slate-800 transition-all shadow-xl active:scale-95 disabled:opacity-50">
+                    {couponLoading ? "Establishing..." : "Deploy Coupon"}
+                  </button>
+                </form>
               </div>
 
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-black uppercase text-slate-400">Filter By Type</span>
-                <div className="flex flex-wrap gap-2">
-                  {['all', 'individual', 'group', 'charity'].map(t => (
-                    <button key={t} onClick={() => setRegFilter(t)} className={subTabClasses(regFilter === t)}>{t}</button>
-                  ))}
+              {/* Right Side: List and SEARCH */}
+              <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden">
+                <div className="p-8 border-b border-slate-50 bg-slate-50/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="relative w-full sm:w-80">
+                      <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                      <input 
+                        type="text" 
+                        placeholder="Search coupon identity..." 
+                        className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-slate-200 text-xs font-black uppercase tracking-widest focus:ring-4 focus:ring-teal-500/10 transition-all outline-none"
+                        value={couponSearch}
+                        onChange={(e) => setCouponSearch(e.target.value)}
+                      />
+                  </div>
+                  <span className="px-4 py-1.5 bg-teal-50 text-teal-700 text-[10px] font-black rounded-full uppercase tracking-widest border border-teal-100">
+                    {filteredCoupons.length} Active Records
+                  </span>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-black uppercase text-slate-400">Payment Status</span>
-                <div className="flex flex-wrap gap-2">
-                  {['all', 'paid', 'pending', 'rejected'].map(s => (
-                    <button key={s} onClick={() => setStatusFilter(s)} className={subTabClasses(statusFilter === s)}>{s}</button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-black uppercase text-slate-400">Race Distance</span>
-                <div className="flex flex-wrap gap-2">
-                  {['all', '5k', '10k', '21k', '35k', '42k'].map(r => (
-                    <button key={r} onClick={() => setCatFilter(r)} className={subTabClasses(catFilter === r)}>{r}</button>
-                  ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left">
+                    <thead className="bg-slate-50/50 text-slate-400 font-black uppercase text-[9px] tracking-widest border-b border-slate-50">
+                      <tr>
+                        <th className="p-6">Identity</th>
+                        <th className="p-6">Method</th>
+                        <th className="p-6">Benefit</th>
+                        <th className="p-6 text-center">Status Control</th>
+                        <th className="p-6 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {filteredCoupons.map((c) => (
+                        <tr key={c._id} className="hover:bg-slate-50/80 transition-all group">
+                          <td className="p-6">
+                            <span className="font-black text-slate-800 uppercase tracking-tighter text-lg">{c.code}</span>
+                            <p className="text-[9px] text-slate-300 font-mono mt-0.5 tracking-widest uppercase">Ref: {c._id.substring(c._id.length - 6)}</p>
+                          </td>
+                          <td className="p-6">
+                            <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-lg uppercase tracking-widest border border-slate-200">{c.discountType}</span>
+                          </td>
+                          <td className="p-6">
+                            <span className="text-xl font-black text-teal-600 tracking-tighter">
+                                {c.discountType === 'FLAT' ? `₹${c.discountValue}` : `${c.discountValue}%`}
+                            </span>
+                          </td>
+                          <td className="p-6 text-center">
+                            <button
+                              onClick={() => toggleStatus(c._id)}
+                              className={`px-6 py-2 rounded-full text-[10px] font-black tracking-widest transition-all ${
+                                  c.isActive 
+                                  ? 'bg-teal-50 text-teal-600 border border-teal-200 shadow-sm shadow-teal-100' 
+                                  : 'bg-slate-100 text-slate-400 border border-slate-200'}`}
+                            >
+                              {c.isActive ? 'ONLINE' : 'OFFLINE'}
+                            </button>
+                          </td>
+                          <td className="p-6 text-right">
+                            <button onClick={() => deleteCoupon(c._id)} className="p-3 text-slate-200 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all">
+                              <FiTrash2 size={20} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {filteredCoupons.length === 0 && (
+                      <div className="py-24 text-center flex flex-col items-center">
+                          <FiInfo className="text-slate-200 mb-4" size={48} />
+                          <p className="text-slate-400 font-black uppercase text-xs tracking-widest">No matching coupons found</p>
+                      </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        <div className="mb-6 relative text-slate-900">
-          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder={`Search by any member field, Payment ID, or Address...`}
-            className="w-full pl-11 pr-12 py-3 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-teal-500/10 transition bg-white text-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          {searchTerm && <button onClick={() => setSearchTerm("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"><FiX /></button>}
-        </div>
+        {/* --- USERS & REGISTRATIONS SECTIONS: UNTOUCHED --- */}
+        {activeTab !== "coupons" && (
+            <>
+                <div className="mb-6 relative text-slate-900">
+                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                        type="text"
+                        placeholder={`Search records...`}
+                        className="w-full pl-11 pr-12 py-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-teal-500/10 transition bg-white text-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && <button onClick={() => setSearchTerm("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"><FiX /></button>}
+                </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
-          {((activeTab === "users" && filteredUsers.length > 0) || (activeTab === "registrations" && filteredRegistrations.length > 0)) ? (
-            <div className="overflow-x-auto custom-scrollbar">
-              <table className={`min-w-full text-sm text-left table-fixed ${activeTab === "registrations" ? "min-w-[6500px]" : ""}`}>
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px] tracking-widest">
-                  <tr>
-                    {activeTab === "users" ? (
-                      <><th className="p-5 w-48">Name</th><th className="p-5 w-64">Email</th><th className="p-5 w-48">User ID</th><th className="p-5 w-48">Phone</th><th className="p-5 w-48">Created At</th></>
-                    ) : (
-                      <>
-                        <th className="p-5 sticky left-0 bg-slate-50 z-30 w-48 border-r">First Name</th>
-                        <th className="p-5 sticky left-48 bg-slate-50 z-30 w-48 border-r">Last Name</th>
-                        <th className="p-5 w-48 text-teal-700">Group Name Individual Account</th>
-                        <th className="p-5 w-40">Registration Type</th>
-                        <th className="p-5 w-48 text-teal-600">Registration Category</th>
-                        <th className="p-5 w-64">Member Email</th>
-                        <th className="p-5 w-48">Phone Number</th>
-                        <th className="p-5 w-48">WhatsApp Number</th>
-                        <th className="p-5 w-40">DOB</th>
-                        <th className="p-5 w-32">Gender</th>
-                        <th className="p-5 w-40 text-rose-600">Blood Group</th>
-                        <th className="p-5 w-40">Nationality</th>
-                        <th className="p-5 w-[500px]" style={{ minWidth: '500px' }}>Address</th>
-                        <th className="p-5 w-48">City</th>
-                        <th className="p-5 w-48">State</th>
-                        <th className="p-5 w-40">Pincode</th>
-                        <th className="p-5 w-40">Country</th>
-                        <th className="p-5 w-40">Experience</th>
-                        <th className="p-5 w-40">Finish Time</th>
-                        <th className="p-5 w-40">Dietary</th>
-                        <th className="p-5 w-40 font-black">T-Shirt Size</th>
-                        <th className="p-5 w-64">Parent Name</th>
-                        <th className="p-5 w-64">Parent Phone Number</th>
-                        <th className="p-5 w-48">Registration Fee</th>
-                        <th className="p-5 w-48 text-slate-400">Coupon Code</th>
-                        {/* <th className="p-5 w-48 text-slate-400">Discount Percent</th> */}
-                        <th className="p-5 w-48 text-slate-400">Discount</th>
-                        <th className="p-5 w-48 text-slate-400">Platform Fee</th>
-                        <th className="p-5 w-48 text-slate-400">PG Fee</th>
-                        <th className="p-5 w-48 text-slate-400">GST Amount</th>
-                        <th className="p-5 w-48 font-black text-slate-900 bg-slate-50">Amount</th>
-                        <th className="p-5 w-40">ID Type</th>
-                        <th className="p-5 w-64">ID Number</th>
-                        <th className="p-5 w-64">ID Path</th>
-                        <th className="p-5 w-64">Order ID</th>
-                        <th className="p-5 w-64">Payment ID</th>
-                        <th className="p-5 w-40">Status</th>
-                        <th className="p-5 w-64">Paid At</th>
-                      </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {(activeTab === "users" ? filteredUsers : filteredRegistrations).map((r) => (
-                    <tr key={r.rowId || r._id} className="hover:bg-slate-50 transition text-[12px] font-bold text-slate-900 uppercase">
-                      {activeTab === "users" ? (
-                        <>
-                          <td className="p-5 font-bold text-teal-800 uppercase">{r.name}</td>
-                          <td className="p-5 text-slate-700 font-medium lowercase">{r.email}</td>
-                          <td className="p-5 text-slate-900 font-mono text-[12px] font-bold tracking-tight">{r._id}</td>
-                          <td className="p-5 text-slate-900 font-bold font-mono">{r.phone || "N/A"}</td>
-                          <td className="p-5 text-slate-900 font-bold">{formatDate(r.createdAt)}</td>
-                        </>
-                      ) : (
-                        <>
-                          <td className="p-5 sticky left-0 bg-white z-10 border-r" style={{ width: '192px', minWidth: '192px' }}>{r.displayDetails?.firstName || "N/A"}</td>
-                          <td className="p-5 sticky left-48 bg-white z-10 border-r" style={{ width: '192px', minWidth: '192px' }}>{r.displayDetails?.lastName || "N/A"}</td>
-                          <td className="p-5 text-teal-700 font-black">{r.groupName ? `${r.groupName} (${r.memberPosLabel})` : "Individual Account"}</td>
-                          <td className="p-5 text-slate-400 font-black">{r.registrationType || "N/A"}</td>
-                          {/* <td className="p-5 text-teal-600 font-black">{r.raceCategory || "N/A"}</td> */}
-                          <td className="p-5 text-teal-600 font-black">
-                            {r.displayDetails?.raceCategory || r.raceCategory || "N/A"}
-                          </td>
-                          <td className="p-5 lowercase font-medium">{r.displayDetails?.email || "N/A"}</td>
-                          <td className="p-5 font-mono">{r.displayDetails?.phone || "N/A"}</td>
-                          <td className="p-5 font-mono">{r.displayDetails?.whatsapp || "N/A"}</td>
-                          <td className="p-5">{formatDate(r.displayDetails?.dob)}</td>
-                          <td className="p-5">{r.displayDetails?.gender || "N/A"}</td>
-                          <td className="p-5 text-rose-600">{r.displayDetails?.bloodGroup || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.nationality || "N/A"}</td>
-                          <td className="p-5 whitespace-normal wrap-break-words" style={{ width: '500px', minWidth: '500px' }}>{r.displayDetails?.address || r.runnerDetails?.address || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.city || r.runnerDetails?.city || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.state || r.runnerDetails?.state || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.pincode || r.runnerDetails?.pincode || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.country || r.runnerDetails?.country || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.experience || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.finishTime || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.dietary || "N/A"}</td>
-                          <td className="p-5 font-black">{r.displayDetails?.tshirtSize || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.parentName || "N/A"}</td>
-                          <td className="p-5">{r.displayDetails?.parentPhone || "N/A"}</td>
-                          {/* Scenario 1: Financial data only for Leader or Individual */}
-                          <td className="p-5">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.registrationFee || r.displayDetails?.registrationFee || 0}` : "—"}
-                          </td>
-                          <td className="p-5 italic text-slate-400">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.couponCode || "N/A") : "—"}
-                          </td>
-                          <td className="p-5 text-slate-400">
-                            {/* {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `${r.discountPercent || 0}%` : "—"} */}
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
-                              r.registrationType === "individual"
-                                ? `₹${r.discountAmount || 0}` // Show amount for individual
-                                : `${r.discountPercent || 0}%`  // Show percentage for group
+                {activeTab === "registrations" && (
+                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6 mb-6 text-slate-900">
+                        <div className="flex items-center justify-between border-b border-slate-50 pb-2">
+                            <span className="text-xs font-black uppercase text-slate-900 tracking-widest flex items-center gap-2">
+                            <FiGrid className="text-teal-600" /> Active Filters
+                            </span>
+                            <button onClick={resetFilters} className="text-[10px] font-bold text-rose-500 flex items-center gap-1 hover:underline">
+                            <FiRotateCcw size={12} /> Reset All
+                            </button>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <span className="text-[10px] font-black uppercase text-slate-400">Filter By Type</span>
+                            <div className="flex flex-wrap gap-2">
+                            {['all', 'individual', 'group', 'charity'].map(t => (
+                                <button key={t} onClick={() => setRegFilter(t)} className={subTabClasses(regFilter === t)}>{t}</button>
+                            ))}
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <span className="text-[10px] font-black uppercase text-slate-400">Payment Status</span>
+                            <div className="flex flex-wrap gap-2">
+                            {['all', 'paid', 'pending', 'rejected'].map(s => (
+                                <button key={s} onClick={() => setStatusFilter(s)} className={subTabClasses(statusFilter === s)}>{s}</button>
+                            ))}
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <span className="text-[10px] font-black uppercase text-slate-400">Race Distance</span>
+                            <div className="flex flex-wrap gap-2">
+                            {['all', '5k', '10k', '21k', '35k', '42k'].map(r => (
+                                <button key={r} onClick={() => setCatFilter(r)} className={subTabClasses(catFilter === r)}>{r}</button>
+                            ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+                {((activeTab === "users" && filteredUsers.length > 0) || (activeTab === "registrations" && filteredRegistrations.length > 0)) ? (
+                    <div className="overflow-x-auto custom-scrollbar">
+                    <table className={`min-w-full text-sm text-left table-fixed ${activeTab === "registrations" ? "min-w-[6500px]" : ""}`}>
+                        <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px] tracking-widest">
+                        <tr>
+                            {activeTab === "users" ? (
+                            <><th className="p-5 w-48">Name</th><th className="p-5 w-64">Email</th><th className="p-5 w-48">User ID</th><th className="p-5 w-48">Phone</th><th className="p-5 w-48">Created At</th></>
                             ) : (
-                              "—"
+                            <>
+                                <th className="p-5 sticky left-0 bg-slate-50 z-30 w-48 border-r">First Name</th>
+                                <th className="p-5 sticky left-48 bg-slate-50 z-30 w-48 border-r">Last Name</th>
+                                <th className="p-5 w-48 text-teal-700">Group Name Individual Account</th>
+                                <th className="p-5 w-40">Registration Type</th>
+                                <th className="p-5 w-48 text-teal-600">Registration Category</th>
+                                <th className="p-5 w-64">Member Email</th>
+                                <th className="p-5 w-48">Phone Number</th>
+                                <th className="p-5 w-48">WhatsApp Number</th>
+                                <th className="p-5 w-40">DOB</th>
+                                <th className="p-5 w-32">Gender</th>
+                                <th className="p-5 w-40 text-rose-600">Blood Group</th>
+                                <th className="p-5 w-40">Nationality</th>
+                                <th className="p-5 w-[500px]" style={{ minWidth: '500px' }}>Address</th>
+                                <th className="p-5 w-48">City</th>
+                                <th className="p-5 w-48">State</th>
+                                <th className="p-5 w-40">Pincode</th>
+                                <th className="p-5 w-40">Country</th>
+                                <th className="p-5 w-40">Experience</th>
+                                <th className="p-5 w-40">Finish Time</th>
+                                <th className="p-5 w-40">Dietary</th>
+                                <th className="p-5 w-40 font-black">T-Shirt Size</th>
+                                <th className="p-5 w-64">Parent Name</th>
+                                <th className="p-5 w-64">Parent Phone Number</th>
+                                <th className="p-5 w-48">Registration Fee</th>
+                                <th className="p-5 w-48 text-slate-400">Coupon Code</th>
+                                <th className="p-5 w-48 text-slate-400">Discount</th>
+                                <th className="p-5 w-48 text-slate-400">Platform Fee</th>
+                                <th className="p-5 w-48 text-slate-400">PG Fee</th>
+                                <th className="p-5 w-48 text-slate-400">GST Amount</th>
+                                <th className="p-5 w-48 font-black text-slate-900 bg-slate-50">Amount</th>
+                                <th className="p-5 w-40">ID Type</th>
+                                <th className="p-5 w-64">ID Number</th>
+                                <th className="p-5 w-64">ID Path</th>
+                                <th className="p-5 w-64">Order ID</th>
+                                <th className="p-5 w-64">Payment ID</th>
+                                <th className="p-5 w-40">Status</th>
+                                <th className="p-5 w-64">Paid At</th>
+                            </>
                             )}
-                          </td>
-                          <td className="p-5 text-slate-500">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.platformFee || 0}` : "—"}
-                          </td>
-                          <td className="p-5 text-slate-500">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.pgFee || 0}` : "—"}
-                          </td>
-                          <td className="p-5 text-slate-500">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.gstAmount || 0}` : "—"}
-                          </td>
-                          <td className="p-5 font-black bg-slate-50 border-x">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${(r.amount || r.runnerDetails?.amount || 0).toFixed(2)}` : "—"}
-                          </td>
-                          <td className="p-5 text-slate-500">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.idProof?.idType || "N/A") : "—"}
-                          </td>
-                          <td className="p-5 font-mono tracking-tighter">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.idProof?.idNumber || "N/A") : "—"}
-                          </td>
-                          <td className="p-5">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
-                              <a href={r.idProof?.path} target="_blank" rel="noreferrer"
-                                className="text-teal-600 hover:underline flex items-center gap-1">
-                                <FiExternalLink /> VIEW FILE
-                              </a>
-                            ) : "—"}
-                          </td>
-                          <td className="p-5 font-mono text-[10px] text-slate-400">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.paymentDetails?.orderId || "N/A") : "—"}
-                          </td>
-                          <td className="p-5 font-mono text-teal-700">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.paymentDetails?.paymentId || "N/A") : "—"}
-                          </td>
-                          <td className="p-5 text-center">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
-                              <span className={`px-3 py-1 rounded-full text-[10px] font-black text-white ${r.paymentStatus === 'paid' ? 'bg-teal-600' : 'bg-amber-500'}`}>
-                                {r.paymentStatus || "N/A"}
-                              </span>
-                            ) : "—"}
-                          </td>
-                          <td className="p-5 text-slate-400">
-                            {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? formatDate(r.paymentDetails?.paidAt) : "—"}
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="py-20 text-center flex flex-col items-center justify-center">
-              <FiAlertCircle className="text-slate-200 size-12 mb-4" />
-              <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No matching records found</p>
-            </div>
-          )}
-        </div>
+                        </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-slate-900 font-bold uppercase">
+                        {(activeTab === "users" ? filteredUsers : filteredRegistrations).map((r) => (
+                            <tr key={r.rowId || r._id} className="hover:bg-slate-50 transition text-[12px] uppercase">
+                            {activeTab === "users" ? (
+                                <>
+                                <td className="p-5 font-bold text-teal-800 uppercase">{r.name}</td>
+                                <td className="p-5 text-slate-700 font-medium lowercase">{r.email}</td>
+                                <td className="p-5 text-slate-900 font-mono text-[12px] font-bold tracking-tight">{r._id}</td>
+                                <td className="p-5 text-slate-900 font-bold font-mono">{r.phone || "N/A"}</td>
+                                <td className="p-5 text-slate-900 font-bold">{formatDate(r.createdAt)}</td>
+                                </>
+                            ) : (
+                                <>
+                                <td className="p-5 sticky left-0 bg-white z-10 border-r" style={{ width: '192px', minWidth: '192px' }}>{r.displayDetails?.firstName || "N/A"}</td>
+                                <td className="p-5 sticky left-48 bg-white z-10 border-r" style={{ width: '192px', minWidth: '192px' }}>{r.displayDetails?.lastName || "N/A"}</td>
+                                <td className="p-5 text-teal-700 font-black">{r.groupName ? `${r.groupName} (${r.memberPosLabel})` : "Individual Account"}</td>
+                                <td className="p-5 text-slate-400 font-black">{r.registrationType || "N/A"}</td>
+                                <td className="p-5 text-teal-600 font-black">
+                                    {r.displayDetails?.raceCategory || r.raceCategory || "N/A"}
+                                </td>
+                                <td className="p-5 lowercase font-medium">{r.displayDetails?.email || "N/A"}</td>
+                                <td className="p-5 font-mono">{r.displayDetails?.phone || "N/A"}</td>
+                                <td className="p-5 font-mono">{r.displayDetails?.whatsapp || "N/A"}</td>
+                                <td className="p-5">{formatDate(r.displayDetails?.dob)}</td>
+                                <td className="p-5">{r.displayDetails?.gender || "N/A"}</td>
+                                <td className="p-5 text-rose-600">{r.displayDetails?.bloodGroup || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.nationality || "N/A"}</td>
+                                <td className="p-5 whitespace-normal wrap-break-words" style={{ width: '500px', minWidth: '500px' }}>{r.displayDetails?.address || r.runnerDetails?.address || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.city || r.runnerDetails?.city || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.state || r.runnerDetails?.state || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.pincode || r.runnerDetails?.pincode || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.country || r.runnerDetails?.country || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.experience || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.finishTime || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.dietary || "N/A"}</td>
+                                <td className="p-5 font-black">{r.displayDetails?.tshirtSize || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.parentName || "N/A"}</td>
+                                <td className="p-5">{r.displayDetails?.parentPhone || "N/A"}</td>
+                                <td className="p-5">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.registrationFee || r.displayDetails?.registrationFee || 0}` : "—"}
+                                </td>
+                                <td className="p-5 italic text-slate-400">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.couponCode || "N/A") : "—"}
+                                </td>
+                                <td className="p-5 text-slate-400">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
+                                    r.registrationType === "individual"
+                                        ? `₹${r.discountAmount || 0}` 
+                                        : `${r.discountPercent || 0}%` 
+                                    ) : (
+                                    "—"
+                                    )}
+                                </td>
+                                <td className="p-5 text-slate-500">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.platformFee || 0}` : "—"}
+                                </td>
+                                <td className="p-5 text-slate-500">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.pgFee || 0}` : "—"}
+                                </td>
+                                <td className="p-5 text-slate-500">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${r.gstAmount || 0}` : "—"}
+                                </td>
+                                <td className="p-5 font-black bg-slate-50 border-x">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? `₹${(r.amount || r.runnerDetails?.amount || 0).toFixed(2)}` : "—"}
+                                </td>
+                                <td className="p-5 text-slate-500">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.idProof?.idType || "N/A") : "—"}
+                                </td>
+                                <td className="p-5 font-mono tracking-tighter">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.idProof?.idNumber || "N/A") : "—"}
+                                </td>
+                                <td className="p-5">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
+                                    <a href={r.idProof?.path} target="_blank" rel="noreferrer"
+                                        className="text-teal-600 hover:underline flex items-center gap-1">
+                                        <FiExternalLink /> VIEW FILE
+                                    </a>
+                                    ) : "—"}
+                                </td>
+                                <td className="p-5 font-mono text-[10px] text-slate-400">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.paymentDetails?.orderId || "N/A") : "—"}
+                                </td>
+                                <td className="p-5 font-mono text-teal-700">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.paymentDetails?.paymentId || "N/A") : "—"}
+                                </td>
+                                <td className="p-5 text-center">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? (
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black text-white ${r.paymentStatus === 'paid' ? 'bg-teal-600' : 'bg-amber-500'}`}>
+                                        {r.paymentStatus || "N/A"}
+                                    </span>
+                                    ) : "—"}
+                                </td>
+                                <td className="p-5 text-slate-400">
+                                    {(!r.isGroupMember || r.memberPosLabel === "Member 1") ? formatDate(r.paymentDetails?.paidAt) : "—"}
+                                </td>
+                                </>
+                            )}
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                    </div>
+                ) : (
+                    <div className="py-20 text-center flex flex-col items-center justify-center text-slate-900"><FiAlertCircle className="text-slate-200 size-12 mb-4" /><p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No matching records found</p></div>
+                )}
+                </div>
+            </>
+        )}
       </div>
     </main>
   );
