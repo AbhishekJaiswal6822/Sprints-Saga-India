@@ -13,21 +13,14 @@ import tshirtChart from "./assets/tshirt-size.jpeg"
 
 const REGISTRATION_DATA_VERSION = "v1.1"; // Change this to "v1.1" when keys change
 
-
-
-// --- CONFIGURATION CONSTANTS ---
-// --- COUPON cODE INDIVIDUAL    ---
-const COUPON_CODE_FLAT = "FITISTAN100"; // Added _FLAT
-const COUPON_DISCOUNT_FLAT = 100;
-
-const PERCENT_COUPONS = ["VIJAY10", "KINNARI10", "RUNMADHU10", "DEEPAKSHI10", "DRROHAN10", "GANESH10", "DADASAHEB10", "JAANTARAJA15", "SAURABH10", "MEENAL10", "ASHISH10", "SAGAR10"];
-const COUPON_DISCOUNT_PERCENT = 10;
-
 // const PG_FEE_RATE = 0.021; // 2.1% Payment Gateway Fee
 const PG_FEE_RATE = 0.025; // 2.5% Payment Gateway Fee
 const GST_RATE = 0.18;    // 18% GST (Applied only to PG Fee)
 // New Constant for Group Registration Limit
 const MAX_GROUP_MEMBERS = 35;
+// Coupon constants
+const COUPON_CODE_FLAT = "FITISTAN100";
+const PERCENT_COUPONS = [];
 // Get today's date in YYYY-MM-DD format for max DOB constraint
 const today = new Date().toISOString().split('T')[0];
 
@@ -249,6 +242,9 @@ function Register() {
     const { token, user } = useAuth();
     const navigate = useNavigate();
 
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponError, setCouponError] = useState("");
+
     // STEP 1: Declare basic variables FIRST
     const [registrationType, setRegistrationType] = useState("individual");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -292,6 +288,38 @@ function Register() {
         const { idFile, ...dataToSave } = individualRunner;
         localStorage.setItem("temp_individual_runner", JSON.stringify(dataToSave));
     }, [individualRunner]);
+
+    useEffect(() => {
+        const validateDynamicCoupon = async () => {
+            const code = individualRunner.referralCode;
+            if (!code) {
+                setAppliedCoupon(null);
+                setCouponError("");
+                return;
+            }
+
+            try {
+                // Your api helper usually returns the data property directly
+                const res = await api(`/api/coupons/validate/${code}`);
+
+                if (res && res.success) {
+                    // Save the whole coupon object from the database
+                    setAppliedCoupon(res.data);
+                    setCouponError("");
+                } else {
+                    setAppliedCoupon(null);
+                    setCouponError("Invalid coupon code");
+                }
+            } catch (err) {
+                setAppliedCoupon(null);
+                // Show error only if they finished typing a full code
+                if (code.length > 3) setCouponError("Invalid coupon code");
+            }
+        };
+
+        const timeoutId = setTimeout(validateDynamicCoupon, 500);
+        return () => clearTimeout(timeoutId);
+    }, [individualRunner.referralCode]);
 
     // --- END AUTO-SAVE CODE ---
 
@@ -490,22 +518,14 @@ function Register() {
                         ? selectedRace.regularPrice
                         : selectedRace.charityFee;
 
-                // Coupon ONLY for individual
-                if (registrationType === "individual" && selectedRace) {
-                    const code = individualRunner.referralCode;
-
-                    if (code === COUPON_CODE_FLAT) {
-                        discountAmount = COUPON_DISCOUNT_FLAT;
+                // Dynamic Coupon Logic for individual
+                if (registrationType === "individual" && appliedCoupon) {
+                    if (appliedCoupon.discountType === 'FLAT') {
+                        discountAmount = appliedCoupon.discountValue;
+                        // Calculate percent for the UI summary display
                         discountPercent = (discountAmount / rawRegistrationFee) * 100;
-                    }
-                    else if (PERCENT_COUPONS.includes(code)) {
-                        // NEW LOGIC: Check for specific 15% code, else default to 10%
-                        if (code === "JAANTARAJA15") {
-                            discountPercent = 15;
-                        } else {
-                            discountPercent = 10;
-                        }
-
+                    } else {
+                        discountPercent = appliedCoupon.discountValue;
                         discountAmount = rawRegistrationFee * (discountPercent / 100);
                     }
                 }
@@ -1266,57 +1286,38 @@ function Register() {
                                                     Enter Code Here
                                                 </label>
                                                 <div className="relative">
-                                                    {(() => {
-                                                        const enteredCode = individualRunner.referralCode;
-                                                        const isFlat = enteredCode === COUPON_CODE_FLAT;
-                                                        const isPercent = PERCENT_COUPONS.includes(enteredCode);
-                                                        const isCouponValid = isFlat || isPercent;
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. SAVE10"
+                                                        value={individualRunner.referralCode}
+                                                        onChange={(e) => handleIndividualChange('referralCode', e.target.value.toUpperCase().trim())}
+                                                        className={`w-full rounded-2xl border-2 py-3 px-4 text-sm font-black tracking-widest transition-all outline-none uppercase ${appliedCoupon
+                                                                ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
+                                                                : couponError
+                                                                    ? "border-rose-400 bg-rose-50 text-rose-700"
+                                                                    : "border-slate-200 focus:border-teal-500 bg-white"
+                                                            }`}
+                                                    />
 
-                                                        // Minimal check: Error if typed text doesn't match the start of any valid code
-                                                        const allValid = [COUPON_CODE_FLAT, ...PERCENT_COUPONS];
-                                                        const isIncorrect = enteredCode.length > 0 &&
-                                                            !isCouponValid &&
-                                                            !allValid.some(c => c.startsWith(enteredCode));
+                                                    {appliedCoupon && (
+                                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-600 font-bold animate-bounce">
+                                                            ✓
+                                                        </span>
+                                                    )}
 
-                                                        return (
-                                                            <>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="e.g. SAVE10"
-                                                                    value={enteredCode}
-                                                                    onChange={(e) => handleIndividualChange('referralCode', e.target.value.toUpperCase().trim())}
-                                                                    className={`w-full rounded-2xl border-2 py-3 px-4 text-sm font-black tracking-widest transition-all outline-none uppercase ${isCouponValid
-                                                                        ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
-                                                                        : isIncorrect
-                                                                            ? "border-rose-400 bg-rose-50 text-rose-700"
-                                                                            : "border-slate-200 focus:border-teal-500 bg-white"
-                                                                        }`}
-                                                                />
-                                                                {isCouponValid && (
-                                                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-teal-600 font-bold animate-bounce">
-                                                                        ✓
-                                                                    </span>
-                                                                )}
-                                                                {isFlat && (
-                                                                    <p className="text-[10px] text-teal-600 font-bold mt-1.5 ml-1 text-left">
-                                                                        Flat ₹100 Discount Applied!
-                                                                    </p>
-                                                                )}
-                                                                {isPercent && (
-                                                                    <p className="text-[10px] text-teal-600 font-bold mt-1.5 ml-1 text-left">
-                                                                        {Math.round(discountPercent)}% Discount Applied!
-                                                                    </p>
-                                                                )}
+                                                    {appliedCoupon && (
+                                                        <p className="text-[10px] text-teal-600 font-bold mt-1.5 ml-1 text-left">
+                                                            {appliedCoupon.discountType === 'FLAT'
+                                                                ? `Flat ₹${appliedCoupon.discountValue}`
+                                                                : `${appliedCoupon.discountValue}%`} Discount Applied!
+                                                        </p>
+                                                    )}
 
-                                                                {/* Error message for incorrect entry/typo */}
-                                                                {isIncorrect && (
-                                                                    <p className="text-[10px] text-rose-600 font-bold mt-1.5 ml-1 text-left">
-                                                                        ⚠️ Please enter a correct coupon code.
-                                                                    </p>
-                                                                )}
-                                                            </>
-                                                        );
-                                                    })()}
+                                                    {couponError && (
+                                                        <p className="text-[10px] text-rose-600 font-bold mt-1.5 ml-1 text-left">
+                                                            ⚠️ {couponError}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
