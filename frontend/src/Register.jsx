@@ -349,20 +349,56 @@ function Register() {
 
 
     // --- CRITICAL FIX FOR UNCONTROLLED INPUT ERROR ---
+    // const handleIndividualChange = (field, value) => {
+    //     setIndividualRunner((prev) => {
+    //         // 1. Create a complete shallow copy of the previous state
+    //         const updatedState = { ...prev };
+
+    //         // 2. Update the specific field being changed
+    //         updatedState[field] = value;
+
+    //         // 3. Special handling for gender (to reset T-Shirt size)
+    //         if (field === 'gender') {
+    //             updatedState.tshirtSize = "";
+    //         }
+
+    //         // 4. Return the full object so no fields become 'undefined'
+    //         return updatedState;
+    //     });
+    // };
+
+    // inside your handleIndividualChange or handleCharityParticipantChange logic:
+
+    // 1. Reusable file handler with size check
+    const validateAndSetFile = (file, setterFunction, fieldName) => {
+        if (!file) return;
+
+        // Check if file exceeds 10MB (10 * 1024 * 1024 bytes)
+        const MAX_SIZE = 10 * 1024 * 1024;
+
+        if (file.size > MAX_SIZE) {
+            toast.error("File is too large! Please upload an ID proof smaller than 10MB.");
+            // We do not call the setter, effectively rejecting the file
+            return;
+        }
+
+        // If size is okay, proceed to save in state
+        setterFunction(fieldName, file);
+    };
+
+    // 2. Update your existing handleIndividualChange to use the check
     const handleIndividualChange = (field, value) => {
+        if (field === 'idFile') {
+            validateAndSetFile(value, (f, v) => {
+                setIndividualRunner(prev => ({ ...prev, [f]: v }));
+            }, 'idFile');
+            return;
+        }
+
         setIndividualRunner((prev) => {
-            // 1. Create a complete shallow copy of the previous state
             const updatedState = { ...prev };
-
-            // 2. Update the specific field being changed
             updatedState[field] = value;
-
-            // 3. Special handling for gender (to reset T-Shirt size)
-            if (field === 'gender') {
-                updatedState.tshirtSize = "";
-            }
-
-            // 4. Return the full object so no fields become 'undefined'
+            if (field === 'gender') updatedState.tshirtSize = "";
             return updatedState;
         });
     };
@@ -453,6 +489,14 @@ function Register() {
     const handleRemoveMember = (indexToRemove) => setGroupMembers((prev) => prev.length <= 1 ? prev : prev.filter((_, i) => i !== indexToRemove));
 
     const handleMemberChange = (index, field, value) => {
+        if (field === 'idFile') {
+            validateAndSetFile(value, (f, v) => {
+                setGroupMembers(prev => prev.map((member, i) =>
+                    i === index ? { ...member, [f]: v } : member
+                ));
+            }, 'idFile');
+            return;
+        }
         setGroupMembers(prev => prev.map((member, i) => {
             if (i === index) {
                 const updatedMember = { ...member, [field]: value };
@@ -467,6 +511,14 @@ function Register() {
     };
 
     const handleCharityParticipantChange = (field, value) => {
+
+        if (field === 'idFile') {
+            validateAndSetFile(value, (f, v) => {
+                setCharityParticipant(prev => ({ ...prev, [f]: v }));
+            }, 'idFile');
+            return;
+        }
+
         if (field === 'gender') {
             setCharityParticipant(prev => ({
                 ...prev,
@@ -1292,10 +1344,10 @@ function Register() {
                                                         value={individualRunner.referralCode}
                                                         onChange={(e) => handleIndividualChange('referralCode', e.target.value.toUpperCase().trim())}
                                                         className={`w-full rounded-2xl border-2 py-3 px-4 text-sm font-black tracking-widest transition-all outline-none uppercase ${appliedCoupon
-                                                                ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
-                                                                : couponError
-                                                                    ? "border-rose-400 bg-rose-50 text-rose-700"
-                                                                    : "border-slate-200 focus:border-teal-500 bg-white"
+                                                            ? "border-teal-500 bg-teal-50 text-teal-700 shadow-sm shadow-teal-100"
+                                                            : couponError
+                                                                ? "border-rose-400 bg-rose-50 text-rose-700"
+                                                                : "border-slate-200 focus:border-teal-500 bg-white"
                                                             }`}
                                                     />
 
