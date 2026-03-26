@@ -29,13 +29,14 @@ function Navbar() {
     { key: "home", label: "Home", to: "/" },
     { key: "register", label: "Register", to: "/register" },
     { key: "community", label: "Community", to: "/community" },
-    { key: "expo", label: "Expo Management", to: "/expo" },
+    // { key: "expo", label: "Expo Management", to: "/expo" },
     { key: "raceday", label: "Race Day", to: "/raceday" },
     { key: "results", label: "Results & Gallery", to: "/results" },
     { key: "dashboard", label: "Dashboard", to: "/dashboard" },
   ];
 
   if (user?.isLoggedIn && user?.email === ADMIN_EMAIL) {
+    links.push({ key: "expo", label: "Expo Management", to: "/expo" });
     links.push({ key: "admin", label: "Admin", to: "/admin" });
   }
 
