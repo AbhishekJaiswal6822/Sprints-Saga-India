@@ -183,7 +183,7 @@ const Community = () => {
                     <ul className="grid grid-cols-1 gap-2">
                       {person.highlights.map((point, i) => (
                         <li key={i} className="flex items-start gap-2 text-slate-300 text-xs">
-                          <FiZap className="text-teal-500 mt-0.5 flex-shrink-0" size={14} />
+                          <FiZap className="text-teal-500 mt-0.5 shrink-0" size={14} />
                           <span>{point}</span>
                         </li>
                       ))}
@@ -227,10 +227,10 @@ const Community = () => {
                   <img
                     src={person.image}
                     alt={person.name}
-                    className="w-full h-full object-cover object-right grayscale-[20%] group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110"
+                    className="w-full h-full object-cover object-right grayscale-20 group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110"
                   />
                   {/* Radial gradient adjusted to soften the transition from text to image */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent lg:bg-gradient-to-l lg:from-slate-900/80 lg:via-transparent lg:to-transparent opacity-90"></div>
+                  <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent lg:bg-linear-to-l lg:from-slate-900/80 lg:via-transparent lg:to-transparent opacity-90"></div>
                 </div>
 
               </div>
