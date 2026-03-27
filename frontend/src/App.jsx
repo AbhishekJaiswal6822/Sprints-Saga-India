@@ -1,7 +1,10 @@
 // C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\App.jsx 
-
+import CameraTest from "./pages/CameraTest";
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Imports for and Payment
 import PaymentPage from "./pages/PaymentPage";
@@ -24,6 +27,8 @@ import AdminAccommodation from "./AdminAccommodation";
 import UnderMaintenance from "./UnderMaintenance";
 import Faqs from "./Faqs";
 import PrivacyPolicy from "./PrivacyPolicy";
+import Community from "./pages/Community";
+import ExpoManagement from "./pages/ExpoManagement";
 
 // UserDashboard
 import UserDashboard from "./pages/UserDashboard";
@@ -50,6 +55,7 @@ function App() {
                             <Route path="/" element={<Home />} />
 
                             {/* --- PROTECTED ROUTES (Requiring only LOGIN) --- */}
+                            <Route path="/test-camera" element={<CameraTest />} />
                             <Route
                                 path="/register"
                                 element={<ProtectedRoute><Register /></ProtectedRoute>}
@@ -77,15 +83,24 @@ function App() {
                                 }
                             />
 
+                            <Route 
+                                path="/expo" 
+                                element={
+                                    <ProtectedRoute requiredRole="admin">
+                                        <ExpoManagement />
+                                    </ProtectedRoute>
+                                } 
+                            />
+
                             {/* --- PUBLIC ROUTES --- */}
                             <Route path="/signin" element={<SignIn />} />
                             <Route path="/signup" element={<SignUp />} />
                             <Route path="/results" element={<ResultsGallery />} />
                             <Route path="/accommodation" element={<Accomodation />} />
-                            <Route path="/community" element={<UnderMaintenance />} />
+                            <Route path="/community" element={<Community />} />
                             <Route path="/expo" element={<UnderMaintenance />} />
                             <Route path="/raceday" element={<UnderMaintenance />} />
-                            <Route path="/dashboard"element={<ProtectedRoute><UserDashboard /></ProtectedRoute>}/>
+                            <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
                             <Route path="/faqs" element={<Faqs />} />
                             <Route path="/privacy&policies" element={<PrivacyPolicy />} />
                             <Route
@@ -101,6 +116,19 @@ function App() {
                     </main>
 
                     <Footer />
+
+                    <ToastContainer
+                        position="top-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme="colored"
+                    />
 
                 </div>
 
