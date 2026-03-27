@@ -8,7 +8,7 @@ import ambassadors3 from "../assets/ambassador-kinnari-shah.png";
 import ambassadors4 from "../assets/ambassador-vijay-gumaste.png"
 import ambassadors5 from "../assets/ambassador-dadasaheb-sabakale.png"
 import ambassadors6 from "../assets/ambassador-siddesh-pandit.png"
-import ambassadors7 from "../assets/ambassador-ganesh-dhamagunde.png"
+// import ambassadors7 from "../assets/ambassador-ganesh-dhamagunde.png"
 
 const ambassadors = [
   {
