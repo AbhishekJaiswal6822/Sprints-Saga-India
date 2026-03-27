@@ -1,6 +1,4 @@
-// EventOverview.jsx (FINAL MINIMAL VERSION)
 import React from "react";
-// Removed unnecessary imports for unused icons and router hooks
 import {
   LuCalendarDays,
   LuMapPin,
@@ -9,21 +7,19 @@ import {
 
 export default function EventOverview() {
   return (
-    // Outer section is now minimal, relying on parent for background/padding
     <section>
       <div 
         className="
           max-w-7xl 
           mx-auto 
-          px-6 /* Horizontal padding */
+          px-6 
           w-full 
           flex 
           flex-col 
           gap-6
-          py-16 /* Vertical padding to separate from elements above/below */
+          py-16 
         "
       >
-
         {/* ===== Event Info Title ===== */}
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-slate-800">
@@ -45,6 +41,8 @@ export default function EventOverview() {
             icon={<LuMapPin />}
             title="Location"
             value="Savitribai Phule Pune University, Maharashtra"
+            // ADDED THE GOOGLE MAPS LINK HERE
+            link="https://www.google.com/maps/place/?q=place_id:ChIJ30sQXwW_wjsRmp2z5g0ZD0k"
           />
           <InfoCard
             icon={<LuUsers />}
@@ -57,14 +55,13 @@ export default function EventOverview() {
             value="5K, 10K, 21K, 35K, 42K"
           />
         </div>
-
       </div>
     </section>
   );
 }
 
-/* ---------- Small reusable card (REMOVED REDUNDANT 'flex') ---------- */
-function InfoCard({ icon, title, value }) {
+/* ---------- Reusable card with Link support ---------- */
+function InfoCard({ icon, title, value, link }) {
   return (
     <div className="
       bg-white 
@@ -74,8 +71,7 @@ function InfoCard({ icon, title, value }) {
       p-6 
       text-center 
       shadow-sm 
-      
-      /* Only one instance of flex is needed */
+      flex 
       flex-col 
       justify-between 
       h-full
@@ -88,7 +84,19 @@ function InfoCard({ icon, title, value }) {
         <h3 className="text-sm font-semibold text-slate-500">{title}</h3>
       </div>
       
-      <p className="text-lg font-bold text-slate-800 mt-2">{value}</p>
+      {/* IF A LINK IS PROVIDED, RENDER AN ANCHOR TAG; OTHERWISE RENDER TEXT */}
+      {link ? (
+        <a 
+          href={link} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-lg font-bold text-teal-600 hover:text-teal-700 underline decoration-teal-200 underline-offset-4 mt-2 transition-colors"
+        >
+          {value}
+        </a>
+      ) : (
+        <p className="text-lg font-bold text-slate-800 mt-2">{value}</p>
+      )}
     </div>
   );
 }
