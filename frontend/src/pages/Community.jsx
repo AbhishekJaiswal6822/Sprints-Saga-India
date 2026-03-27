@@ -27,6 +27,7 @@ const ambassadors = [
     achievement: "Completed a remarkable 405 KM Indian Army Ultra Marathon Finisher 🇮🇳",
     mission: "Focused on promoting fitness for everyone, training and motivating people across all age groups while actively contributing to the running community.",
     couponCode: "SAGAR10",
+    instagram: "https://www.instagram.com/sagar_kachare810?igsh=MXZ4Z3YyeG9veHV3cg==",
   },
   {
     id: 2,
@@ -47,6 +48,7 @@ const ambassadors = [
       "Fitness Icon - Aloha Clinics Marathon 2022"
     ],
     couponCode: "MEENAL10",
+    instagram: "https://www.instagram.com/meenalkunalkashikar?igsh=MTQxcTZ1YjQ1ZmNr",
   },
   {
     id: 3,
@@ -69,6 +71,7 @@ const ambassadors = [
       "Swami Vivekanand Run (10km) - 2nd Position"
     ],
     couponCode: "KINNARI10",
+    instagram: "https://www.instagram.com/kinnshah?igsh=MWs5YzYya2piOGhuZg==",
   },
   {
     id: 4,
@@ -89,6 +92,7 @@ const ambassadors = [
       globalHonor: "1 Million Steps Challenge Finisher"
     },
     couponCode: "VIJAY10",
+    instagram: "https://www.instagram.com/gumastevijay954?igsh=ZTlyZzVtYTQ0eTB6",
   },
   {
     id: 5,
@@ -110,6 +114,7 @@ const ambassadors = [
       "Pharmathon & Pune World Marathon (21K - 2:20/2:45)"
     ],
     couponCode: "DADASAHEB10",
+    instagram: "https://www.instagram.com/dadasahebsabakale92?igsh=MXg1aGh0azhwaG4zbg==",
   },
   {
     id: 6,
@@ -127,6 +132,7 @@ const ambassadors = [
     mission: "To provide scientific and structured training focused on endurance, running efficiency, injury prevention, and building mental strength.",
     coachingApproach: "Scientifically structured training designed to help runners 'Train With Experience. Run With Confidence.'",
     couponCode: "SIDDHESH10",
+    instagram: "https://www.instagram.com/runwithpandit?igsh=bGl4bnl6NDdwYWJx",
   },
   // {
   //   id: 7,
@@ -217,8 +223,15 @@ const Community = () => {
                     </div>
 
                     <div className="flex gap-3">
-                      <button className="p-2.5 bg-white/5 hover:bg-teal-600 rounded-xl transition-all text-white active:scale-90"><FiInstagram size={18} /></button>
-                      <button className="p-2.5 bg-white/5 hover:bg-teal-600 rounded-xl transition-all text-white active:scale-90"><FiTwitter size={18} /></button>
+                      <a 
+                        href={person.instagram} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-2.5 bg-white/5 hover:bg-teal-600 rounded-xl transition-all text-white active:scale-90 flex items-center justify-center"
+                        title="Follow on Instagram"
+                      >
+                        <FiInstagram size={18} />
+                      </a>
                     </div>
                   </div>
                 </div>
