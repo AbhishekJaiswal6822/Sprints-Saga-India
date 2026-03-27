@@ -20,6 +20,7 @@ const ambassadors = [
       "Ultra Runner & Fitness Trainer",
       "Event Organizer",
       "Race Ambassador",
+      
       "Pacer and Motivational Speaker",
       "Highly dedicated runner with experience in multiple types of marathons"
     ],

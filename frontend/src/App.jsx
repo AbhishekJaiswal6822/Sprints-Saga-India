@@ -28,7 +28,7 @@ import UnderMaintenance from "./UnderMaintenance";
 import Faqs from "./Faqs";
 import PrivacyPolicy from "./PrivacyPolicy";
 import Community from "./pages/Community";
-import ExpoManagement from "./pages/ExpoManagement";
+// import ExpoManagement from "./pages/ExpoManagement";
 
 // UserDashboard
 import UserDashboard from "./pages/UserDashboard";
@@ -83,14 +83,14 @@ function App() {
                                 }
                             />
 
-                            <Route 
+                            {/* <Route 
                                 path="/expo" 
                                 element={
                                     <ProtectedRoute requiredRole="admin">
                                         <ExpoManagement />
                                     </ProtectedRoute>
                                 } 
-                            />
+                            /> */}
 
                             {/* --- PUBLIC ROUTES --- */}
                             <Route path="/signin" element={<SignIn />} />
@@ -98,7 +98,7 @@ function App() {
                             <Route path="/results" element={<ResultsGallery />} />
                             <Route path="/accommodation" element={<Accomodation />} />
                             <Route path="/community" element={<Community />} />
-                            <Route path="/expo" element={<UnderMaintenance />} />
+                            {/* <Route path="/expo" element={<UnderMaintenance />} /> */}
                             <Route path="/raceday" element={<UnderMaintenance />} />
                             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
                             <Route path="/faqs" element={<Faqs />} />
