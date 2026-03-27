@@ -20,7 +20,7 @@ const ambassadors = [
       "Ultra Runner & Fitness Trainer",
       "Event Organizer",
       "Race Ambassador",
-      
+
       "Pacer and Motivational Speaker",
       "Highly dedicated runner with experience in multiple types of marathons"
     ],
@@ -167,90 +167,90 @@ const Community = () => {
         </div>
 
         {/* Ambassadors Grid */}
-        <div className="space-y-12">
-          {ambassadors.map((person) => (
-            <div key={person.id} className="relative group">
-              {/* 3. Custom grid proportions [1.2fr_0.8fr] pulls text and image closer */}
-              <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-0 rounded-[3rem] overflow-hidden bg-slate-900 shadow-2xl border border-slate-800">
+<div className="space-y-12">
+  {ambassadors.map((person) => (
+    <div key={person.id} className="relative group">
+      {/* GRID FIX: 
+        1. Default (Mobile): grid-cols-1 (Image on top, Text below)
+        2. Large: lg:grid-cols-[1.2fr_0.8fr] (Text left, Image right)
+      */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-0 rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-slate-900 shadow-2xl border border-slate-800">
 
-                {/* LEFT SIDE: DETAILS */}
-                <div className="p-6 md:p-10 md:pr-4 flex flex-col justify-center order-2 lg:order-1 lg:h-[550px]">
+        {/* DETAILS SECTION (Order-2 on mobile so it stays below the image) */}
+        <div className="p-6 md:p-10 flex flex-col justify-center order-2 lg:order-1 lg:min-h-[550px]">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="h-1 w-10 bg-teal-500 rounded-full"></span>
+            <p className="text-teal-400 font-black uppercase tracking-[0.3em] text-[10px]">Ambassador Profile</p>
+          </div>
 
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="h-1 w-10 bg-teal-500 rounded-full"></span>
-                    <p className="text-teal-400 font-black uppercase tracking-[0.3em] text-[10px]">Ambassador Profile</p>
-                  </div>
+          <h2 className="text-3xl md:text-5xl font-black text-white leading-tight uppercase tracking-tighter mb-2">
+            {person.name}
+          </h2>
+          <p className="text-teal-500 font-bold italic text-sm mb-6">{person.title}</p>
 
-                  <h2 className="text-3xl md:text-5xl font-black text-white leading-tight uppercase tracking-tighter mb-2">
-                    {person.name}
-                  </h2>
-                  <p className="text-teal-500 font-bold italic text-sm mb-6">{person.title}</p>
+          <div className="space-y-3 mb-6">
+            <ul className="grid grid-cols-1 gap-2">
+              {person.highlights.map((point, i) => (
+                <li key={i} className="flex items-start gap-2 text-slate-300 text-xs md:text-sm">
+                  <FiZap className="text-teal-500 mt-0.5 shrink-0" size={14} />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-                  <div className="space-y-3 mb-6">
-                    <ul className="grid grid-cols-1 gap-2">
-                      {person.highlights.map((point, i) => (
-                        <li key={i} className="flex items-start gap-2 text-slate-300 text-xs">
-                          <FiZap className="text-teal-500 mt-0.5 shrink-0" size={14} />
-                          <span>{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Achievement Box */}
-                  <div className="bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/10 mb-4 transform transition-transform group-hover:translate-x-1">
-                    <div className="flex items-center gap-2 text-teal-400 mb-1">
-                      <FiAward size={16} />
-                      <span className="font-black uppercase tracking-widest text-[9px]">Major Achievement</span>
-                    </div>
-                    <p className="text-white font-medium text-xs leading-relaxed">{person.achievement}</p>
-                  </div>
-
-                  {/* Mission */}
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2 text-teal-400 mb-1">
-                      <FiTarget size={16} />
-                      <span className="font-black uppercase tracking-widest text-[9px]">Mission</span>
-                    </div>
-                    <p className="text-slate-400 text-[11px] leading-snug italic line-clamp-2">{person.mission}</p>
-                  </div>
-
-                  {/* Coupon & Socials Section */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/10">
-                    <div className="bg-teal-600 text-white px-5 py-3 rounded-xl flex items-center gap-4 shadow-lg shadow-teal-900/20">
-                      <span className="font-black uppercase tracking-widest text-[9px] text-teal-100 border-r border-teal-400 pr-4 leading-none">Use Code</span>
-                      <span className="text-xl font-black tracking-widest font-mono uppercase leading-none">{person.couponCode}</span>
-                    </div>
-
-                    <div className="flex gap-3">
-                      <a 
-                        href={person.instagram} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-2.5 bg-white/5 hover:bg-teal-600 rounded-xl transition-all text-white active:scale-90 flex items-center justify-center"
-                        title="Follow on Instagram"
-                      >
-                        <FiInstagram size={18} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* RIGHT SIDE: IMAGE */}
-                <div className="relative h-[300px] lg:h-[550px] order-1 lg:order-2 overflow-hidden">
-                  <img
-                    src={person.image}
-                    alt={person.name}
-                    className="w-full h-full object-cover object-right grayscale-20 group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110"
-                  />
-                  {/* Radial gradient adjusted to soften the transition from text to image */}
-                  <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent lg:bg-linear-to-l lg:from-slate-900/80 lg:via-transparent lg:to-transparent opacity-90"></div>
-                </div>
-
-              </div>
+          {/* Achievement Box */}
+          <div className="bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/10 mb-4">
+            <div className="flex items-center gap-2 text-teal-400 mb-1">
+              <FiAward size={16} />
+              <span className="font-black uppercase tracking-widest text-[9px]">Major Achievement</span>
             </div>
-          ))}
+            <p className="text-white font-medium text-xs md:text-sm leading-relaxed">{person.achievement}</p>
+          </div>
+
+          {/* Mission */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 text-teal-400 mb-1">
+              <FiTarget size={16} />
+              <span className="font-black uppercase tracking-widest text-[9px]">Mission</span>
+            </div>
+            <p className="text-slate-400 text-[11px] md:text-xs leading-snug italic line-clamp-3">{person.mission}</p>
+          </div>
+
+          {/* Action Row */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-white/10">
+            <div className="w-full sm:w-auto bg-teal-600 text-white px-5 py-3 rounded-xl flex items-center justify-center gap-4 shadow-lg">
+              <span className="font-black uppercase tracking-widest text-[9px] text-teal-100 border-r border-teal-400 pr-4">Use Code</span>
+              <span className="text-xl font-black tracking-widest font-mono uppercase">{person.couponCode}</span>
+            </div>
+
+            <a
+              href={person.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto p-3 bg-white/5 hover:bg-teal-600 rounded-xl transition-all text-white flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest"
+            >
+              <FiInstagram size={20} />
+              <span className="sm:hidden">Follow on Instagram</span>
+            </a>
+          </div>
         </div>
+
+        {/* IMAGE SECTION (Order-1 on mobile so it stays on top) */}
+        <div className="relative h-72 sm:h-96 lg:h-full order-1 lg:order-2 overflow-hidden bg-slate-800">
+          <img
+            src={person.image}
+            alt={person.name}
+            className="w-full h-full object-cover object-top lg:object-right grayscale-20 group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
+          />
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent lg:bg-gradient-to-l lg:from-slate-900/80 lg:via-transparent lg:to-transparent opacity-90"></div>
+        </div>
+
+      </div>
+    </div>
+  ))}
+</div>
       </div>
     </div>
   );
