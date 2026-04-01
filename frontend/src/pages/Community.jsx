@@ -174,7 +174,7 @@ const Community = () => {
         1. Default (Mobile): grid-cols-1 (Image on top, Text below)
         2. Large: lg:grid-cols-[1.2fr_0.8fr] (Text left, Image right)
       */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-0 rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-slate-900 shadow-2xl border border-slate-800">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-0 rounded-4xl md:rounded-[3rem] overflow-hidden bg-slate-900 shadow-2xl border border-slate-800">
 
         {/* DETAILS SECTION (Order-2 on mobile so it stays below the image) */}
         <div className="p-6 md:p-10 flex flex-col justify-center order-2 lg:order-1 lg:min-h-[550px]">
@@ -244,7 +244,7 @@ const Community = () => {
             className="w-full h-full object-cover object-top lg:object-right grayscale-20 group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
           />
           {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent lg:bg-gradient-to-l lg:from-slate-900/80 lg:via-transparent lg:to-transparent opacity-90"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent lg:bg-linear-to-l lg:from-slate-900/80 lg:via-transparent lg:to-transparent opacity-90"></div>
         </div>
 
       </div>
