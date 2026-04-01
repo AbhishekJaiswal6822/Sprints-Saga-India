@@ -8,7 +8,7 @@ import {
 export default function EventOverview() {
   return (
     <section>
-      <div 
+      <div
         className="
           max-w-7xl 
           mx-auto 
@@ -31,7 +31,7 @@ export default function EventOverview() {
         </div>
 
         {/* ===== Event Info Cards (4-Column Grid) ===== */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6"> 
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <InfoCard
             icon={<LuCalendarDays />}
             title="Date"
@@ -41,8 +41,7 @@ export default function EventOverview() {
             icon={<LuMapPin />}
             title="Location"
             value="Savitribai Phule Pune University, Maharashtra"
-            // ADDED THE GOOGLE MAPS LINK HERE
-            link="https://www.google.com/maps/place/?q=place_id:ChIJ30sQXwW_wjsRmp2z5g0ZD0k"
+            link="https://www.google.com/maps/search/?api=1&query=Pune+University+Sports+Grounds"
           />
           <InfoCard
             icon={<LuUsers />}
@@ -77,18 +76,18 @@ function InfoCard({ icon, title, value, link }) {
       h-full
       "
     >
-      <div> 
+      <div>
         <div className="text-3xl text-teal-600 mb-2 flex justify-center">
           {icon}
         </div>
         <h3 className="text-sm font-semibold text-slate-500">{title}</h3>
       </div>
-      
+
       {/* IF A LINK IS PROVIDED, RENDER AN ANCHOR TAG; OTHERWISE RENDER TEXT */}
       {link ? (
-        <a 
-          href={link} 
-          target="_blank" 
+        <a
+          href={link}
+          target="_blank"
           rel="noopener noreferrer"
           className="text-lg font-bold text-teal-600 hover:text-teal-700 underline decoration-teal-200 underline-offset-4 mt-2 transition-colors"
         >
