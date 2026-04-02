@@ -74,6 +74,8 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
   const COLORS = ['#0d9488', '#0ea5e9', '#6366f1', '#f43f5e', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981', '#f97316', '#06b6d4', '#a855f7', '#ef4444', '#2dd4bf', '#fbbf24', '#fb7185', '#818cf8', '#c084fc', '#4ade80', '#fb923c', '#22d3ee'];
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
+  const couponBarChartRef = useRef(null);
+  const couponPieChartRef = useRef(null);
   const [barMetric, setBarMetric] = useState("revenue"); // options: "revenue" or "uses"
   // --- DATA PROCESSING FOR INSIGHTS ---
   const couponChartData = useMemo(() => {
@@ -364,7 +366,7 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
         "Percentage Coupon": coupons.filter(c => c.discountType === 'PERCENT').length,
         "Flat Coupon": coupons.filter(c => c.discountType === 'FLAT').length
       };
-    } else {
+    } else if (activeTab === "registrations") {
       return {
         matches: filteredRegistrations.length,
         individual: filteredRegistrations.filter(r => r.registrationType === 'individual').length,
@@ -379,7 +381,18 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
             return isFirstMember ? acc + (Number(curr.amount) || Number(curr.runnerDetails?.amount) || 0) : acc;
           }, 0)
       };
+    } else if (activeTab === "data-insights") {
+      const totalCouponRevenue = couponChartData.reduce((a, b) => a + b.revenue, 0);
+      const totalCouponUses = couponChartData.reduce((a, b) => a + b.uses, 0);
+      const distinctCategories = demographicData.length;
+      return {
+        "Coupon Codes": coupons.length,
+        "Coupon Redemptions": totalCouponUses,
+        "Coupon Revenue": `₹${totalCouponRevenue.toLocaleString()}`,
+        "Demographic Metrics": distinctCategories
+      };
     }
+    return {};
   })();
 
   // --- EXPORT LOGIC (UNCHANGED) ---
@@ -593,14 +606,16 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
         </div>
 
         {/* DYNAMIC STATS SECTION */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 mb-10 text-slate-900">
-          {Object.entries(dynamicStats).map(([key, val]) => (
-            <div key={key} className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 transition hover:shadow-md group">
-              <p className="text-[9px] uppercase font-black text-slate-400 mb-1.5 tracking-widest group-hover:text-teal-500 transition-colors">{key}</p>
-              <p className="text-xl font-black text-slate-900 tracking-tighter">{key === 'revenue' ? `₹${val.toFixed(2)}` : val}</p>
-            </div>
-          ))}
-        </div>
+        {activeTab !== "data-insights" && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 mb-10 text-slate-900">
+            {Object.entries(dynamicStats).map(([key, val]) => (
+              <div key={key} className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 transition hover:shadow-md group">
+                <p className="text-[9px] uppercase font-black text-slate-400 mb-1.5 tracking-widest group-hover:text-teal-500 transition-colors">{key}</p>
+                <p className="text-xl font-black text-slate-900 tracking-tighter">{key === 'revenue' ? `₹${val.toFixed(2)}` : val}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="space-y-6 mb-8">
           {/* Tab Switcher */}
@@ -750,23 +765,33 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
             <div className="flex animate-in fade-in slide-in-from-left-6 duration-700 min-h-screen -mx-4 sm:-mx-6 -mt-4">
 
               {/* EXTREME LEFT SIDEBAR */}
-              <aside className="w-[280px] bg-[#042f2e] min-h-screen p-4 flex flex-col gap-2 border-r border-white/5 shadow-2xl sticky top-0 h-screen">
-                <div className="px-6 py-12 mb-4">
-                  <h3 className="text-teal-500 font-black uppercase tracking-[0.3em] text-[10px] opacity-70">Analytics Menu</h3>
+              <aside className="w-60 min-h-screen p-3 flex flex-col gap-2 border-r border-teal-200/20 shadow-2xl sticky top-0 h-screen bg-linear-to-b from-slate-900 via-[#062e2a] to-[#042f2e] text-teal-100">
+                <div className="px-3 py-6 rounded-3xl bg-slate-800/60 border border-teal-300/30 shadow-inner">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-teal-300 mb-1">Analytics Dashboard</p>
+                  <h3 className="text-white font-black leading-tight text-lg">Insights Control</h3>
+                  <p className="text-[10px] uppercase text-teal-200/80 mt-1">Choose the report mode to visualize data.</p>
                 </div>
 
                 <button
                   onClick={() => setInsightTab("coupons")}
-                  className={`w-full flex items-center gap-4 px-6 py-5 rounded-3xl transition-all duration-500 font-black uppercase tracking-widest text-[10px] ${insightTab === "coupons" ? "bg-teal-500 text-white shadow-xl shadow-teal-900/50 translate-x-2" : "text-teal-100/40 hover:bg-white/5 hover:text-white"}`}
+                  className={`w-full text-left flex items-center gap-3 px-5 py-4 rounded-2xl transition-all duration-300 font-black tracking-widest text-[11px] ${insightTab === "coupons" ? "bg-teal-500 text-white shadow-xl shadow-teal-900/50 border border-teal-300" : "bg-white/5 text-teal-100 hover:bg-white/20 hover:text-white"}`}
                 >
-                  <FiTag size={18} /> Coupon Analytics
+                  <FiTag size={18} />
+                  <div>
+                    <span>Coupon Analytics</span>
+                    <p className="text-[9px] font-bold uppercase text-teal-100/70">Campaign usage, revenue, discounts</p>
+                  </div>
                 </button>
 
                 <button
                   onClick={() => setInsightTab("demographics")}
-                  className={`w-full flex items-center gap-4 px-6 py-5 rounded-3xl transition-all duration-500 font-black uppercase tracking-widest text-[10px] ${insightTab === "demographics" ? "bg-teal-500 text-white shadow-xl shadow-teal-900/50 translate-x-2" : "text-teal-100/40 hover:bg-white/5 hover:text-white"}`}
+                  className={`w-full text-left flex items-center gap-3 px-5 py-4 rounded-2xl transition-all duration-300 font-black tracking-widest text-[11px] ${insightTab === "demographics" ? "bg-teal-500 text-white shadow-xl shadow-teal-900/50 border border-teal-300" : "bg-white/5 text-teal-100 hover:bg-white/20 hover:text-white"}`}
                 >
-                  <FiUsers size={18} /> Demographics
+                  <FiUsers size={18} />
+                  <div>
+                    <span>Demographics</span>
+                    <p className="text-[9px] font-bold uppercase text-teal-100/70">Runner segments by category/gender/city</p>
+                  </div>
                 </button>
 
                 <div className="mt-auto pb-10 px-6 border-t border-white/5 pt-6">
@@ -801,7 +826,7 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
                     </div>
 
                     {/* --- MAIN UNIFIED CONTAINER --- */}
-                    <div className="bg-white p-6 md:p-10 rounded-[3rem] border border-slate-100 shadow-2xl space-y-16">
+                    <div className="bg-white p-6 md:p-10 rounded-[3rem] border border-slate-100 shadow-2xl space-y-8">
 
                       {/* 1. DYNAMIC BAR CHART (REVENUE / USAGE) */}
                       <div className="space-y-8">
@@ -813,23 +838,31 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
                             </p>
                           </div>
 
-                          <div className="bg-slate-100 p-1.5 rounded-2xl flex gap-2 border border-slate-200 shadow-inner">
+                          <div className="flex gap-2">
                             <button
-                              onClick={() => setBarMetric("revenue")}
-                              className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${barMetric === "revenue" ? "bg-white text-teal-700 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+                              onClick={() => downloadChartImage(couponBarChartRef, `coupon-bar-${barMetric}.png`)}
+                              className="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-teal-500"
                             >
-                              Revenue flow
+                              Download Bar Chart
                             </button>
-                            <button
-                              onClick={() => setBarMetric("uses")}
-                              className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${barMetric === "uses" ? "bg-white text-teal-700 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
-                            >
-                              Usage count
-                            </button>
+                            <div className="bg-slate-100 p-1.5 rounded-2xl flex gap-2 border border-slate-200 shadow-inner">
+                              <button
+                                onClick={() => setBarMetric("revenue")}
+                                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${barMetric === "revenue" ? "bg-white text-teal-700 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+                              >
+                                Revenue flow
+                              </button>
+                              <button
+                                onClick={() => setBarMetric("uses")}
+                                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${barMetric === "uses" ? "bg-white text-teal-700 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+                              >
+                                Usage count
+                              </button>
+                            </div>
                           </div>
                         </div>
 
-                        <div className="h-[500px] w-full">
+                        <div className="h-[500px] w-full" ref={couponBarChartRef}>
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={couponChartData} margin={{ top: 40, right: 30, left: 20, bottom: 100 }}>
                               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -873,13 +906,21 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
                       </div>
 
                       {/* 2. MARKET SHARE PIE CHART */}
-                      <div className="space-y-8 pt-10 border-t border-slate-50">
-                        <div className="text-center">
-                          <h3 className="text-xl font-black uppercase tracking-tight text-slate-800">Usage Distribution</h3>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Total Market Share per Coupon</p>
+                      <div className="space-y-8 pt-6 border-t border-slate-50">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-xl font-black uppercase tracking-tight text-slate-800">Usage Distribution</h3>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Total Market Share per Coupon</p>
+                          </div>
+                          <button
+                            onClick={() => downloadChartImage(couponPieChartRef, `coupon-pie-distribution.png`)}
+                            className="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-teal-500"
+                          >
+                            Download Pie Chart
+                          </button>
                         </div>
 
-                        <div className="h-[400px] w-full">
+                        <div className="h-[400px] w-full" ref={couponPieChartRef}>
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Pie
@@ -942,6 +983,21 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
       </div>
 
       <div className="flex justify-center gap-2 mb-6">
+        <button
+          onClick={() => downloadChartImage(pieChartRef, `demographics-pie-${demoMetric}-${genderFilter}.png`)}
+          className="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-teal-500"
+        >
+          Download Pie Image
+        </button>
+        <button
+          onClick={() => downloadChartImage(barChartRef, `demographics-bar-${demoMetric}-${genderFilter}.png`)}
+          className="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-slate-700"
+        >
+          Download Bar Image
+        </button>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-6">
         {['all', 'male', 'female', 'other'].map((option) => (
           <button
             key={option}
@@ -992,25 +1048,9 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
       </div>
 
       <div className="mt-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <div className="text-center sm:text-left">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-800">Demographic Pie Distribution</h4>
-            <p className="text-[10px] text-slate-400 font-bold uppercase">Based on selected metric and gender filter</p>
-          </div>
-          <div className="flex gap-2 justify-center">
-            <button
-              onClick={() => downloadChartImage(pieChartRef, `demographics-pie-${demoMetric}-${genderFilter}.png`)}
-              className="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-teal-500"
-            >
-              Download Pie Image
-            </button>
-            <button
-              onClick={() => downloadChartImage(barChartRef, `demographics-bar-${demoMetric}-${genderFilter}.png`)}
-              className="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-slate-700"
-            >
-              Download Bar Image
-            </button>
-          </div>
+        <div className="text-center mb-4">
+          <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-800">Demographic Pie Distribution</h4>
+          <p className="text-[10px] text-slate-400 font-bold uppercase">Based on selected metric and gender filter</p>
         </div>
         <div className="h-[450px] w-full" ref={pieChartRef}>
           <ResponsiveContainer width="100%" height="100%">
