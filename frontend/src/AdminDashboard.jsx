@@ -27,9 +27,7 @@ import {
 function AdminDashboard() {
   // --- MOVE THESE 3 LINES HERE (Line 13) ---
   const PROD_BACKEND_URL = "https://backend.sprintssagaindia.com";
-  const API_BASE_URL = window.location.hostname === "localhost"
-    ? "http://localhost:8000"
-    : PROD_BACKEND_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://backend.sprintssagaindia.com";
 
   // demographics 
   const [demoMetric, setDemoMetric] = useState("category"); // default view
