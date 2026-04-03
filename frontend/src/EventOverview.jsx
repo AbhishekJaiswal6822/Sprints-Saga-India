@@ -46,7 +46,7 @@ export default function EventOverview() {
           <InfoCard
             icon={<LuUsers />}
             title="Expected Runners"
-            value="1500+"
+            value="500+"
           />
           <InfoCard
             icon={<LuUsers />}
