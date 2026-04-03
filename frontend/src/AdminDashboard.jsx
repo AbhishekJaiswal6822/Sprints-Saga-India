@@ -28,6 +28,9 @@ function AdminDashboard() {
   // --- MOVE THESE 3 LINES HERE (Line 13) ---
   const PROD_BACKEND_URL = "https://backend.sprintssagaindia.com";
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://backend.sprintssagaindia.com";
+  
+
+  
 
   // demographics 
   const [demoMetric, setDemoMetric] = useState("category"); // default view
@@ -63,7 +66,60 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
   const [coupons, setCoupons] = useState([]); // To list existing coupons
   const [couponLoading, setCouponLoading] = useState(false);
 
+  // revenue analytics 
+const [revMetric, setRevMetric] = useState("category"); // options: "category", "gender"
+const revenueBarRef = useRef(null);
+const revenuePieRef = useRef(null);
+const [revGenderFilter, setRevGenderFilter] = useState("all");
 
+const revenueAnalyticsData = useMemo(() => {
+  // Always initialize the 5 standard race categories
+  const stats = { "5k": 0, "10k": 0, "21k": 0, "35k": 0, "42k": 0 };
+
+  (data.registrations || []).forEach(r => {
+    // Only process PAID registrations
+    if (r.paymentStatus === 'paid') {
+      const amount = Number(r.amount) || 0;
+      const category = normalizeCategory(r.raceCategory || r.displayDetails?.raceCategory);
+      
+      // Get gender and clean it for strict comparison
+      const rawGender = (r.displayDetails?.gender || r.runnerDetails?.gender || "").toString().toLowerCase().trim();
+
+      let shouldCount = false;
+
+      // 1. Logic for "Race Category Revenue" tab (Shows total for everyone)
+      if (revMetric === "category") {
+        shouldCount = true;
+      } 
+      // 2. Logic for "Gender Revenue" tab (Filters by the selected button)
+      else if (revMetric === "gender") {
+        if (revGenderFilter === "all") {
+          shouldCount = true;
+        } else if (revGenderFilter === "male") {
+          if (rawGender === "male") shouldCount = true;
+        } else if (revGenderFilter === "female") {
+          if (rawGender === "female") shouldCount = true;
+        } else if (revGenderFilter === "other") {
+          // Strictly count only if it's NOT male and NOT female
+          if (rawGender !== "male" && rawGender !== "female" && rawGender !== "") {
+            shouldCount = true;
+          }
+        }
+      }
+
+      // Add to category bucket if it passed the filters above
+      if (shouldCount && stats[category] !== undefined) {
+        stats[category] += amount;
+      }
+    }
+  });
+
+  // Format for the charts
+  return Object.entries(stats).map(([name, value]) => ({
+    name,
+    value: Number(value.toFixed(2))
+  }));
+}, [data.registrations, revMetric, revGenderFilter]);
 
   // NEW STATE: Specific search for coupons to avoid interfering with global search
   const [couponSearch, setCouponSearch] = useState("");
@@ -792,6 +848,18 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
                   </div>
                 </button>
 
+                {/* REVENUE ANALYTICS BUTTON */}
+<button
+  onClick={() => setInsightTab("revenue")}
+  className={`w-full text-left flex items-center gap-3 px-5 py-4 rounded-2xl transition-all duration-300 font-black tracking-widest text-[11px] ${insightTab === "revenue" ? "bg-teal-500 text-white shadow-xl shadow-teal-900/50 border border-teal-300" : "bg-white/5 text-teal-100 hover:bg-white/20 hover:text-white"}`}
+>
+  <FiCreditCard size={18} />
+  <div>
+    <span>Revenue Analytics</span>
+    <p className="text-[9px] font-bold uppercase text-teal-100/70">Income split by Gender & Category</p>
+  </div>
+</button>
+
                 <div className="mt-auto pb-10 px-6 border-t border-white/5 pt-6">
                   <p className="text-[8px] text-teal-100/20 font-black uppercase tracking-widest leading-relaxed">Sprints Saga India<br />Internal Analytics v2.0</p>
                 </div>
@@ -1073,6 +1141,122 @@ const [data, setData] = useState({ users: [], registrations: [], stats: {} });
             </PieChart>
           </ResponsiveContainer>
         </div>
+      </div>
+    </div>
+  </div>
+)}
+
+{insightTab === "revenue" && (
+  <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="flex items-center gap-4">
+      <div className="h-1.5 w-16 bg-teal-500 rounded-full"></div>
+      <h2 className="text-4xl font-black text-slate-800 uppercase tracking-tighter italic">Revenue Analytics</h2>
+    </div>
+
+    {/* PRIMARY TABS: RACE VS GENDER */}
+    <div className="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm flex flex-wrap gap-2">
+      <button
+        onClick={() => setRevMetric("category")}
+        className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${revMetric === "category" ? "bg-slate-900 text-white shadow-lg" : "bg-slate-50 text-slate-400 hover:bg-slate-100"}`}
+      >
+        <FiActivity /> Race Category Revenue
+      </button>
+      <button
+        onClick={() => setRevMetric("gender")}
+        className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${revMetric === "gender" ? "bg-slate-900 text-white shadow-lg" : "bg-slate-50 text-slate-400 hover:bg-slate-100"}`}
+      >
+        <FiUsers /> Gender Revenue
+      </button>
+    </div>
+
+    {/* GENDER FILTER BUTTONS (Visible only when Gender Revenue is clicked) */}
+    {revMetric === "gender" && (
+      <div className="flex justify-center items-center gap-4 py-4 animate-in slide-in-from-top-2">
+        {['all', 'male', 'female', 'other'].map((option) => (
+          <button
+            key={option}
+            onClick={() => setRevGenderFilter(option)}
+            className={`py-3 px-8 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all duration-300 shadow-sm ${
+              revGenderFilter === option
+                ? 'bg-teal-600 text-white shadow-teal-200 scale-105'
+                : 'bg-slate-50 text-slate-400 hover:bg-white hover:border-slate-200 border border-transparent'
+            }`}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    )}
+
+    {/* CHARTS CONTAINER */}
+    <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-2xl space-y-12">
+      <div className="text-center">
+        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-800">
+          {revMetric === "gender" ? `${revGenderFilter.toUpperCase()} GENDER REVENUE PER CATEGORY` : "TOTAL REVENUE PER RACE CATEGORY"}
+        </h3>
+        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Dynamically calculated from paid registrations (₹)</p>
+        
+        <div className="flex gap-2 justify-center mt-6">
+          <button onClick={() => downloadChartImage(revenueBarRef, `revenue-bar-${revMetric}.png`)} className="px-4 py-2 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-700">Download Bar</button>
+          <button onClick={() => downloadChartImage(revenuePieRef, `revenue-pie-${revMetric}.png`)} className="px-4 py-2 bg-teal-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-teal-500">Download Pie</button>
+        </div>
+      </div>
+
+      {/* BAR CHART */}
+      <div className="h-[400px] w-full" ref={revenueBarRef}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart 
+  data={revenueAnalyticsData} 
+  margin={{ top: 40, right: 30, left: 20, bottom: 60 }} // Increased top margin from 20 to 40
+>
+  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 900, fill: '#64748b' }} />
+  
+  {/* Change 2: Set the YAxis domain to 'auto' with a 15% buffer */}
+  <YAxis 
+    axisLine={false} 
+    tickLine={false} 
+    tick={{ fontSize: 10, fontWeight: 'bold' }} 
+    tickFormatter={(val) => `₹${val}`}
+    domain={[0, 'dataMax + 1000']} // This ensures the scale always goes ₹1000 above your highest bar
+  />
+  
+  <Tooltip formatter={(val) => `₹${val.toLocaleString()}`} contentStyle={{ borderRadius: '15px', border: 'none', boxShadow: '0 10px 15px rgba(0,0,0,0.1)' }} />
+  
+  <Bar dataKey="value" fill="#0d9488" radius={[10, 10, 0, 0]} barSize={60}>
+    <LabelList 
+      dataKey="value" 
+      position="top" 
+      offset={15} // Added offset to move the label higher up
+      formatter={(val) => `₹${val.toLocaleString()}`} 
+      style={{ fontSize: '11px', fontWeight: '900', fill: '#111827' }} 
+    />
+  </Bar>
+</BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* PIE CHART */}
+      <div className="h-[400px] w-full pt-10 border-t border-slate-50" ref={revenuePieRef}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={revenueAnalyticsData.filter(item => item.value > 0)}
+              dataKey="value"
+              nameKey="name"
+              cx="50%" cy="50%"
+              innerRadius={80} outerRadius={130}
+              paddingAngle={5}
+              label={({ name, value }) => `${name}: ₹${value.toLocaleString()}`}
+            >
+              {revenueAnalyticsData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip formatter={(val) => `₹${val.toLocaleString()}`} />
+            <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase' }} />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     </div>
   </div>
