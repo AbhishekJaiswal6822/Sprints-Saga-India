@@ -39,7 +39,7 @@ function EventInformation() {
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm px-6 py-10 text-center">
               <LuUsers className="text-teal-600 text-4xl mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-slate-800">Expected Runners</h3>
-              <p className="text-slate-700 font-medium mt-2">1,500+</p>
+              <p className="text-slate-700 font-medium mt-2">500+</p>
               <p className="text-slate-400 mt-1">Participants</p>
             </div>
 
