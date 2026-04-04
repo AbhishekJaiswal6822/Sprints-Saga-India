@@ -12,6 +12,7 @@ const ExpoManagement = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [facingMode, setFacingMode] = useState("user"); // "user" is front, "environment" is back
 
   const [checklist, setChecklist] = useState({
     isVerified: false,
@@ -59,7 +60,7 @@ const ExpoManagement = () => {
 
       // Forces HP Wide Vision / Laptop Camera
       html5QrCode.start(
-        { facingMode: "user" },
+        { facingMode: facingMode }, // Uses the dynamic state
         { fps: 10, qrbox: { width: 250, height: 250 } },
         qrCodeSuccessCallback
       ).catch(err => {
@@ -75,26 +76,26 @@ const ExpoManagement = () => {
     };
   }, [showScanner]);
 
- const performSearch = async (query) => {
+  const performSearch = async (query) => {
     const searchVal = query || searchQuery;
     if (!searchVal) return;
 
     setLoading(true);
     setRunner(null);
     try {
-        // ADD { token } AS THE SECOND ARGUMENT HERE
-        const res = await api(`/api/expo/search/${searchVal}`, { token }); 
-        
-        if (res.success) {
-            setRunner(res.data);
-            setChecklist({ isVerified: false, tshirtIssued: false, kitIssued: false });
-        }
+      // ADD { token } AS THE SECOND ARGUMENT HERE
+      const res = await api(`/api/expo/search/${searchVal}`, { token });
+
+      if (res.success) {
+        setRunner(res.data);
+        setChecklist({ isVerified: false, tshirtIssued: false, kitIssued: false });
+      }
     } catch (err) {
-        toast.error(err.message || "Runner not found");
+      toast.error(err.message || "Runner not found");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   const handleCheckIn = async () => {
     if (!checklist.isVerified) {
@@ -148,9 +149,17 @@ const ExpoManagement = () => {
             {showScanner ? <><FiX /> Cancel Scan</> : <><FiCamera /> Use QR Scanner</>}
           </button>
 
-          {showScanner && (
-            <div id="reader" className="rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-black"></div>
-          )}
+         {showScanner && (
+  <div className="relative">
+    <div id="reader" className="rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-black"></div>
+    <button
+      onClick={() => setFacingMode(prev => prev === "user" ? "environment" : "user")}
+      className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border border-white/30 z-50"
+    >
+      Flip Camera
+    </button>
+  </div>
+)}
 
           {!showScanner && (
             <form onSubmit={(e) => { e.preventDefault(); performSearch(); }} className="relative">
