@@ -28,6 +28,7 @@ import UnderMaintenance from "./UnderMaintenance";
 import Faqs from "./Faqs";
 import PrivacyPolicy from "./PrivacyPolicy";
 import Community from "./pages/Community";
+import RaceDay from "./pages/RaceDay"
 // import ExpoManagement from "./pages/ExpoManagement";
 
 // UserDashboard
@@ -99,7 +100,7 @@ function App() {
                             <Route path="/accommodation" element={<Accomodation />} />
                             <Route path="/community" element={<Community />} />
                             {/* <Route path="/expo" element={<UnderMaintenance />} /> */}
-                            <Route path="/raceday" element={<UnderMaintenance />} />
+                            <Route path="/raceday" element={<RaceDay />} />
                             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
                             <Route path="/faqs" element={<Faqs />} />
                             <Route path="/privacy&policies" element={<PrivacyPolicy />} />
