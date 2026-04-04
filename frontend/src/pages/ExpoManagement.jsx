@@ -74,7 +74,7 @@ const ExpoManagement = () => {
         html5QrCode.stop().catch(err => console.error("Stop error:", err));
       }
     };
-  }, [showScanner]);
+  }, [showScanner, facingMode]);
 
   const performSearch = async (query) => {
     const searchVal = query || searchQuery;
@@ -150,11 +150,30 @@ const ExpoManagement = () => {
           </button>
 
          {showScanner && (
-  <div className="relative">
-    <div id="reader" className="rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-black"></div>
+  <div className="relative group">
+    <div 
+      key={facingMode} 
+      id="reader" 
+      className="rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-black min-h-[300px]"
+    ></div>
+    
     <button
-      onClick={() => setFacingMode(prev => prev === "user" ? "environment" : "user")}
-      className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border border-white/30 z-50"
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const newMode = facingMode === "user" ? "environment" : "user";
+        setFacingMode(newMode);
+        
+        // ADDED TOAST MESSAGE
+        toast.info(`Switching to ${newMode === "user" ? "Front" : "Back"} Camera`, {
+          position: "bottom-center",
+          autoClose: 1000,
+          hideProgressBar: true
+        });
+      }}
+      style={{ zIndex: 100 }}
+      className="absolute bottom-6 right-6 bg-slate-900/80 backdrop-blur-md text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest border border-white/20 shadow-2xl active:scale-95 transition-all"
     >
       Flip Camera
     </button>
