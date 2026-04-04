@@ -29,7 +29,7 @@ import Faqs from "./Faqs";
 import PrivacyPolicy from "./PrivacyPolicy";
 import Community from "./pages/Community";
 import RaceDay from "./pages/RaceDay"
-// import ExpoManagement from "./pages/ExpoManagement";
+import ExpoManagement from "./pages/ExpoManagement";
 
 // UserDashboard
 import UserDashboard from "./pages/UserDashboard";
@@ -84,14 +84,14 @@ function App() {
                                 }
                             />
 
-                            {/* <Route 
+                            <Route 
                                 path="/expo" 
                                 element={
                                     <ProtectedRoute requiredRole="admin">
                                         <ExpoManagement />
                                     </ProtectedRoute>
                                 } 
-                            /> */}
+                            />
 
                             {/* --- PUBLIC ROUTES --- */}
                             <Route path="/signin" element={<SignIn />} />
