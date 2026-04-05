@@ -1,259 +1,792 @@
-import React from "react";
-import { FiAward, FiTarget, FiZap, FiTwitter, FiInstagram } from "react-icons/fi";
+import React, { useState } from 'react';
+
+import { Zap, Trophy, Target, Copy, Check } from 'lucide-react';
+// import { Zap, Trophy, Target, Copy, Check, Instagram } from 'lucide-react';
+
+import { motion, useScroll, useTransform } from 'framer-motion';
+
+
 
 // Asset Imports
+
 import ambassadors1 from "../assets/ambassador-sagar-abaso-kachare.png";
+
 import ambassadors2 from "../assets/ambassador-meenal-kunal-kashikar.png";
+
 import ambassadors3 from "../assets/ambassador-kinnari-shah.png";
+
 import ambassadors4 from "../assets/ambassador-vijay-gumaste.png"
+
 import ambassadors5 from "../assets/ambassador-dadasaheb-sabakale.png"
+
 import ambassadors6 from "../assets/ambassador-siddesh-pandit.png"
-// import ambassadors7 from "../assets/ambassador-ganesh-dhamagunde.png"
+
+import ambassadors7 from "../assets/ambassador-ganesh-dhamagunde.png"
+
+import ambassadors8 from "../assets/ambassador-ashish-dhillon.png"
+
+
+
+
 
 const ambassadors = [
-  {
-    id: 1,
-    name: "Sagar Abaso Kachare",
-    title: "Fitness Trainer (Free for All Ages)",
-    image: ambassadors1,
-    highlights: [
-      "Ultra Runner & Fitness Trainer",
-      "Event Organizer",
-      "Race Ambassador",
 
-      "Pacer and Motivational Speaker",
-      "Highly dedicated runner with experience in multiple types of marathons"
-    ],
-    achievement: "Completed a remarkable 405 KM Indian Army Ultra Marathon Finisher 🇮🇳",
-    mission: "Focused on promoting fitness for everyone, training and motivating people across all age groups while actively contributing to the running community.",
-    couponCode: "SAGAR10",
-    instagram: "https://www.instagram.com/sagar_kachare810?igsh=MXZ4Z3YyeG9veHV3cg==",
-  },
   {
-    id: 2,
-    name: "Meenal Kunal Kashikar",
+
+    name: "SAGAR ABASO KACHARE",
+
+    title: "Fitness Trainer (Free for All Ages)",
+
+    image: ambassadors1,
+
+    highlights: [
+
+      "Ultra Runner & Fitness Trainer",
+
+      "Event Organizer & Race Ambassador",
+
+      "Professional Pacer and Motivational Speaker",
+
+      "Highly dedicated runner with experience in multiple types of marathons",
+
+      "Community fitness advocate for all age groups"
+
+    ],
+
+    achievement: "Completed a remarkable 405 KM Indian Army Ultra Marathon - one of the toughest endurance challenges in the country",
+
+    mission: "Focused on promoting fitness for everyone, training and motivating people across all age groups, whilst actively contributing to the running community and making marathons accessible to all.",
+
+    code: "SAGAR10",
+
+    gradient: "from-orange-500 to-red-500"
+
+  },
+
+  {
+
+    name: "MEENAL KUNAL KASHIKAR",
+
     title: "Senior Project Manager at SymphonyAI | Marathoner | Ironman 70.3 Finisher",
+
     image: ambassadors2,
+
     highlights: [
-      "Race Coordinator - Vrukshathon 2024 & 2025",
+
+      "Race Coordinator – Vrudshabron 2024 & 2025",
+
       "Marathon Ambassador (2024-2026) for major events including Pharmathon and Sinhagad Hill Marathon",
+
       "Duathlon Podium Finisher - Bergman Kolhapur (1st Rank - 2022 & 2023)",
-      "Marathon Pacer for Lokmat, AFMC Pune, and NDA Marathons",
-      "Cycling: Pune-Goa Ride 2024 | Pune-Mumbai Ride 2022 & 2025"
+
+      "Marathon Pacer for Jalonar, AFMC Pune, and NDA Marathons",
+
+      "Cycling: Pune-Goa Ride 2024 | Pune-Mumbai Ride 2024 & 2025"
+
     ],
-    achievement: "Ironman 70.3 Goa (2023) & Powerthon Triathlon (2023) Finisher",
-    mission: "To represent the running community with dedication and endurance, motivating countless runners to push beyond their limits while actively running major marathons like TMM and Satara Hill since 2018.",
-    recognition: [
-      "Face of Vihaan NGO - Tata Mumbai Marathon 2023",
-      "Fitness Icon - Aloha Clinics Marathon 2022"
-    ],
-    couponCode: "MEENAL10",
-    instagram: "https://www.instagram.com/meenalkunalkashikar?igsh=MTQxcTZ1YjQ1ZmNr",
+
+    achievement: "Ironman 70.3 Goa (2023) & Powerthon Triathlon (2023) Finisher - pushing the boundaries of endurance sports",
+
+    mission: "To represent the running community with dedication and enthusiasm, motivating countless runners to push beyond their limits while actively running major marathons like TMM and Satara Hill since 2018.",
+
+    code: "MEENAL10",
+
+    gradient: "from-pink-500 to-purple-500"
+
   },
+
   {
-    id: 3,
-    name: "Kinnari Shah",
+
+    name: "KINNARI SHAH",
+
     title: "Entrepreneur | Fitness Enthusiast | Passionate Runner",
+
     image: ambassadors3,
+
     highlights: [
+
       "Entrepreneur and dedicated fitness enthusiast",
+
       "6 years of consistent running experience",
+
       "Participated in nearly 60 competitive races",
+
       "Actively encourages women to prioritize their health and fitness",
+
       "Consistency-driven athlete and community motivator"
+
     ],
+
     achievement: "Multiple Podium Finishes: 1st Position at Dosti Thane & Jupiter Thane Half Marathons; 2nd Position at Jiyo Sanman Se & Swami Vivekanand Runs",
-    mission: "To push boundaries, lead by example, and inspire more women to join the running community by demonstrating determination and consistency.",
-    recentPerformance: [
-      "Dosti Thane Half Marathon (10km) - 1st Position",
-      "Jupiter Thane Half Marathon (10km) - 1st Position",
-      "Jiyo Sanman Se Run (10km) - 2nd Position",
-      "Swami Vivekanand Run (10km) - 2nd Position"
-    ],
-    couponCode: "KINNARI10",
-    instagram: "https://www.instagram.com/kinnshah?igsh=MWs5YzYya2piOGhuZg==",
+
+    mission: "To push boundaries, lead by example, and inspire more women to join the running community by demonstrating determination and consistency in every stride.",
+
+    code: "KINNARI10",
+
+    gradient: "from-blue-500 to-cyan-500"
+
   },
+
   {
-    id: 4,
-    name: "Vijay Gumaste",
+
+    name: "VIJAY GUMASTE",
+
     title: "Endurance Athlete | Record Holder | Experienced Pacer",
+
     image: ambassadors4,
+
     highlights: [
-      "Record Holder – 268 Surya Namaskars in just 1 hour",
+
+      "Record Holder - 268 Surya Namaskars in just 1 hour",
+
       "Globally Recognized – Honored by Taiwan Marathon Club for 1,000,000+ steps in 30 days",
+
       "Experienced Pacer for Pune International Marathon and Apla Pune Marathon",
-      "Consistent pacer for Neerathon and various other major racing events",
+
+      "Consistent pacer for Merathon and various other major racing events",
+
       "Known for lifting others while chasing his own limits"
+
     ],
-    achievement: "Personal Bests: Full Marathon - 5:23 | Half Marathon - 2:55",
-    mission: "To maintain a consistent, self-driven approach to fitness while serving as a guide and pacer to help fellow runners achieve their personal milestones.",
-    stats: {
-      worldRecord: "268 Surya Namaskars (60 mins)",
-      globalHonor: "1 Million Steps Challenge Finisher"
-    },
-    couponCode: "VIJAY10",
-    instagram: "https://www.instagram.com/gumastevijay954?igsh=ZTlyZzVtYTQ0eTB6",
+
+    achievement: "Personal Bests: Full Marathon - 5:23 | Half Marathon - 2:55 - proving that consistency beats perfection",
+
+    mission: "To maintain a consistent, self-driven approach to fitness while serving as a guide and pacer to help fellow runners achieve their personal milestones and race goals.",
+
+    code: "VIJAY10",
+
+    gradient: "from-indigo-500 to-blue-500"
+
   },
+
   {
-    id: 5,
-    name: "Dadasaheb Sabakale",
+
+    name: "DADASAHEB SABAKALE",
+
     title: "Pacer | Marathon Ambassador | Bluebrigade Running Club",
+
     image: ambassadors5,
+
     highlights: [
+
       "Prominent member of Bluebrigade Running Club",
+
       "Disciplined athlete known for Accurate Timing",
+
       "Strong Group Motivation and community leadership",
+
       "Available as 10K Pacer, 21K Pacer, and Event Ambassador",
-      "Official Ambassador for CME Soldierathon 2025 and Punekar Half Marathon 2026"
+
+      "Official Ambassador for CME Soldierthon 2025 and Punekar Half Marathon 2026"
+
     ],
-    achievement: "Proven Pacing Record: 5K in 30 mins | 10K in 60-70 mins | 21K in 2:20 & 2:45 across major marathons like Pharmathon and Pune World Marathon.",
-    mission: "To lead runners with discipline and accurate timing, ensuring a strong finish for every group he leads while promoting the spirit of 'Let's Run Together. Finish Strong.'",
-    pacingEvents: [
-      "AMC Marathon (5K - 30 mins)",
-      "SBI Green & Punekar HM (10K - 60-70 mins)",
-      "Pharmathon & Pune World Marathon (21K - 2:20/2:45)"
+
+    achievement: "Proven Pacing Record: 5K in 30 mins | 10K in 60-70 mins | 21K in 2:20 & 2:45 across major marathons like Pharmathon and Pune World Marathon",
+
+    mission: "To lead runners with discipline and accurate timing, ensuring a strong finish for every group he leads while promoting the spirit of 'Let's Run Together, Finish Strong'.",
+
+    code: "DADASAHEB10",
+
+    gradient: "from-red-500 to-orange-500"
+
+  },
+
+  {
+
+    name: "SIDHESH PANDIT",
+
+    title: "Running Coach – ABCR Kharadi Runners | Marathoner",
+
+    image: ambassadors6,
+
+    highlights: [
+
+      "11+ years of extensive running experience",
+
+      "Trained 150+ amateur runners to reach their fitness goals",
+
+      "Official Pacer: Bajaj Pune HM, Federal Pune HM, Lokmot Pune Marathon, Punekar HM, and SPI 10K",
+
+      "Brand Ambassador: PGHM Marathon, Punekar Half Marathon, and FamilyThon",
+
+      "Active participant in multiple high-profile marathons"
+
     ],
-    couponCode: "DADASAHEB10",
-    instagram: "https://www.instagram.com/dadasahebsabakale92?igsh=MXg1aGh0azhwaG4zbg==",
+
+    achievement: "Personal Bests: Full Marathon - 3:28 Hours | Half Marathon - 1:34 Hours - elite-level performance",
+
+    mission: "To provide scientific and structured training focused on endurance, running efficiency, injury prevention, and building mental strength for runners of all levels.",
+
+    code: "SIDDHESH10",
+
+    gradient: "from-teal-500 to-green-500"
+
+  },
+
+  {
+
+    name: "GANESH DHAMAGUNDE",
+
+    title: "Marathon Enthusiast | Community Leader | Fitness Advocate",
+
+    image: ambassadors7,
+
+    highlights: [
+
+      "Dedicated runner with passion for community fitness",
+
+      "Active participant in major marathons and running events",
+
+      "Known for his motivational spirit and positive energy",
+
+      "Encourages beginners to start their fitness journey",
+
+      "Regular presence at local running clubs and training sessions"
+
+    ],
+
+    achievement: "Consistent Marathon Finisher with impressive personal records and dedication to continuous improvement in endurance sports",
+
+    mission: "To inspire and motivate fellow runners by leading through example, sharing experiences, and building a stronger, healthier running community together.",
+
+    code: "GANESH10",
+
+    gradient: "from-green-500 to-teal-500"
+
   },
   {
-    id: 6,
-    name: "Sidhesh Pandit",
-    title: "Running Coach – ABCR Kharadi Runners | Marathoner",
-    image: ambassadors6,
+    name: "ASHISH DHILLON",
+    title: "Captain – Fitistan | Ex-NCC Cadet | Long-distance Runner & Pacer",
+    image: ambassadors8,
     highlights: [
-      "11+ years of extensive running experience",
-      "Trained 150+ amateur runners to reach their fitness goals",
-      "Official Pacer: Bajaj Pune HM, Federal Pune HM, Lokmat Pune Marathon, Punekar HM, and SPJ 10K",
-      "Brand Ambassador: PCHM Marathon, Punekar Half Marathon, and Familython",
-      "Active participant in multiple high-profile marathons"
+      "Captain – Fitistan and experienced marathon pacer",
+      "KVS Regional Athletics Representative",
+      "Paced major events: Pune World Marathon & CME Soldierathon",
+      "Completed 6 consecutive pacing events (Feb-Mar)",
+      "Dedicated long-distance runner and community leader"
     ],
-    achievement: "Personal Bests: Full Marathon - 3:28 Hours | Half Marathon - 1:34 Hours",
-    mission: "To provide scientific and structured training focused on endurance, running efficiency, injury prevention, and building mental strength.",
-    coachingApproach: "Scientifically structured training designed to help runners 'Train With Experience. Run With Confidence.'",
-    couponCode: "SIDDHESH10",
-    instagram: "https://www.instagram.com/runwithpandit?igsh=bGl4bnl6NDdwYWJx",
+    achievement: "Successfully completed 6 consecutive professional pacing assignments between 1st February and 8th March",
+    mission: "To lead and motivate the running community through disciplined pacing, sharing athletics expertise as a Regional Representative, and achieving the Procam Slam goal.",
+    code: "ASHISH10",
+    gradient: "from-yellow-400 to-orange-500"
   },
-  // {
-  //   id: 7,
-  //   name: "Ganesh Dhamagunde",
-  //   title: "Marathoner | Ironman 70.3 Finisher",
-  //   image: ambassadors7,
-  //   highlights: [
-  //     "Senior Project Manager at SymphonyAI",
-  //     "Marathon Ambassador (2024-2026)",
-  //     "Duathlon Podium Finisher"
-  //   ],
-  //   achievement: "Ironman 70.3 Goa - 2023 & Powerthon Triathlon - 2023",
-  //   mission: "Actively running major marathons like TMM and Satara Hill since 2018.",
-  //   couponCode: "GANESH10",
-  // }
+
 ];
 
-const Community = () => {
+
+
+const AmbassadorCard = ({ ambassador, index }) => {
+
+  const [copiedCode, setCopiedCode] = useState(false);
+
+
+
+  const handleCopyCode = () => {
+
+    navigator.clipboard.writeText(ambassador.code);
+
+    setCopiedCode(true);
+
+    setTimeout(() => setCopiedCode(false), 2000);
+
+  };
+
+
+
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      {/* 1. Container width set to 6xl for a balanced professional look */}
-      <div className="max-w-6xl mx-auto">
 
-        {/* 2. Header brought down with mt-12; gap below reduced with mb-6 */}
-        <div className="text-center mt-12 mb-6">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">
-            Our <span className="text-teal-600 underline decoration-teal-200 underline-offset-4">Community</span>
-          </h1>
-          <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px]">
-            Meet the athletes leading the movement
-          </p>
-        </div>
+    <motion.div
 
-        {/* Ambassadors Grid */}
-<div className="space-y-12">
-  {ambassadors.map((person) => (
-    <div key={person.id} className="relative group">
-      {/* GRID FIX: 
-        1. Default (Mobile): grid-cols-1 (Image on top, Text below)
-        2. Large: lg:grid-cols-[1.2fr_0.8fr] (Text left, Image right)
-      */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-0 rounded-4xl md:rounded-[3rem] overflow-hidden bg-slate-900 shadow-2xl border border-slate-800">
+      initial={{ opacity: 0, y: 60 }}
 
-        {/* DETAILS SECTION (Order-2 on mobile so it stays below the image) */}
-        <div className="p-6 md:p-10 flex flex-col justify-center order-2 lg:order-1 lg:min-h-[550px]">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="h-1 w-10 bg-teal-500 rounded-full"></span>
-            <p className="text-teal-400 font-black uppercase tracking-[0.3em] text-[10px]">Ambassador Profile</p>
-          </div>
+      whileInView={{ opacity: 1, y: 0 }}
 
-          <h2 className="text-3xl md:text-5xl font-black text-white leading-tight uppercase tracking-tighter mb-2">
-            {person.name}
-          </h2>
-          <p className="text-teal-500 font-bold italic text-sm mb-6">{person.title}</p>
+      viewport={{ once: true, margin: "-50px" }}
 
-          <div className="space-y-3 mb-6">
-            <ul className="grid grid-cols-1 gap-2">
-              {person.highlights.map((point, i) => (
-                <li key={i} className="flex items-start gap-2 text-slate-300 text-xs md:text-sm">
-                  <FiZap className="text-teal-500 mt-0.5 shrink-0" size={14} />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+      transition={{
 
-          {/* Achievement Box */}
-          <div className="bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/10 mb-4">
-            <div className="flex items-center gap-2 text-teal-400 mb-1">
-              <FiAward size={16} />
-              <span className="font-black uppercase tracking-widest text-[9px]">Major Achievement</span>
-            </div>
-            <p className="text-white font-medium text-xs md:text-sm leading-relaxed">{person.achievement}</p>
-          </div>
+        duration: 0.7,
 
-          {/* Mission */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 text-teal-400 mb-1">
-              <FiTarget size={16} />
-              <span className="font-black uppercase tracking-widest text-[9px]">Mission</span>
-            </div>
-            <p className="text-slate-400 text-[11px] md:text-xs leading-snug italic line-clamp-3">{person.mission}</p>
-          </div>
+        delay: index * 0.15,
 
-          {/* Action Row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-white/10">
-            <div className="w-full sm:w-auto bg-teal-600 text-white px-5 py-3 rounded-xl flex items-center justify-center gap-4 shadow-lg">
-              <span className="font-black uppercase tracking-widest text-[9px] text-teal-100 border-r border-teal-400 pr-4">Use Code</span>
-              <span className="text-xl font-black tracking-widest font-mono uppercase">{person.couponCode}</span>
-            </div>
+        type: "spring",
 
-            <a
-              href={person.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto p-3 bg-white/5 hover:bg-teal-600 rounded-xl transition-all text-white flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest"
-            >
-              <FiInstagram size={20} />
-              <span className="sm:hidden">Follow on Instagram</span>
-            </a>
-          </div>
-        </div>
+        stiffness: 80,
 
-        {/* IMAGE SECTION (Order-1 on mobile so it stays on top) */}
-        <div className="relative h-72 sm:h-96 lg:h-full order-1 lg:order-2 overflow-hidden bg-slate-800">
-          <img
-            src={person.image}
-            alt={person.name}
-            className="w-full h-full object-cover object-top lg:object-right grayscale-20 group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
+        damping: 20
+
+      }}
+
+      className="group relative"
+
+    >
+
+      <div className={`absolute -inset-0.5 bg-gradient-to-r ${ambassador.gradient} rounded-[32px] opacity-0
+
+                      group-hover:opacity-20 blur-xl transition-all duration-700`}></div>
+
+
+
+      <motion.div
+
+        whileHover={{
+
+          y: -12,
+
+          transition: { duration: 0.4, ease: "easeOut" }
+
+        }}
+
+        className="relative bg-white rounded-[28px] lg:rounded-[32px] shadow-lg border border-slate-200 overflow-hidden
+
+                   hover:shadow-2xl hover:border-slate-300 transition-all duration-500
+
+                   flex flex-col lg:flex-row"
+
+      >
+
+        {/* Mobile/Tablet Image - Top */}
+
+        <div className="relative lg:hidden w-full h-72 sm:h-80 overflow-hidden">
+
+          <motion.div
+
+            className={`absolute inset-0 bg-gradient-to-b ${ambassador.gradient} opacity-10 z-10 pointer-events-none`}
+
+            animate={{ opacity: [0.1, 0.15, 0.1] }}
+
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+
+          ></motion.div>
+
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white via-white/80 to-transparent z-10"></div>
+
+          <motion.img
+
+            src={ambassador.image}
+
+            alt={ambassador.name}
+
+            className="w-full h-full object-cover object-top"
+
+            whileHover={{ scale: 1.05 }}
+
+            transition={{ duration: 0.6, ease: "easeOut" }}
+
+            loading="lazy"
+
           />
-          {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent lg:bg-linear-to-l lg:from-slate-900/80 lg:via-transparent lg:to-transparent opacity-90"></div>
+
         </div>
 
-      </div>
-    </div>
-  ))}
-</div>
-      </div>
-    </div>
+
+
+        {/* Left Column - Content */}
+
+        <div className="flex-1 lg:w-1/2 p-5 lg:pl-10 lg:pr-8 flex flex-col justify-between">
+
+          <motion.div
+
+            className="flex items-center gap-2 mb-4"
+
+            initial={{ width: 0 }}
+
+            whileInView={{ width: "auto" }}
+
+            transition={{ delay: 0.3, duration: 0.5 }}
+
+          >
+
+            <motion.div
+
+              className={`h-0.5 w-10 bg-gradient-to-r ${ambassador.gradient}`}
+
+              initial={{ scaleX: 0 }}
+
+              whileInView={{ scaleX: 1 }}
+
+              transition={{ delay: 0.4, duration: 0.5 }}
+
+            ></motion.div>
+
+            <span className="text-teal-600 text-[10px] sm:text-xs font-extrabold uppercase tracking-[0.15em]">
+
+              AMBASSADOR PROFILE
+
+            </span>
+
+          </motion.div>
+
+
+
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black uppercase
+
+                         text-slate-900 leading-[1.1] tracking-tight mb-3 sm:mb-4">
+
+            {ambassador.name}
+
+          </h2>
+
+
+
+          <p className="text-teal-600 text-sm sm:text-base lg:text-lg italic font-semibold mb-5 sm:mb-6 leading-relaxed">
+
+            {ambassador.title}
+
+          </p>
+
+
+
+          <motion.ul
+
+            className="space-y-2.5 sm:space-y-3 mb-5 sm:mb-6"
+
+            initial="hidden"
+
+            whileInView="visible"
+
+            viewport={{ once: true }}
+
+            variants={{
+
+              visible: {
+
+                transition: {
+
+                  staggerChildren: 0.08
+
+                }
+
+              }
+
+            }}
+
+          >
+
+            {ambassador.highlights.map((highlight, idx) => (
+
+              <motion.li
+
+                key={idx}
+
+                className="flex items-start gap-3"
+
+                variants={{
+
+                  hidden: { opacity: 0, x: -20 },
+
+                  visible: { opacity: 1, x: 0 }
+
+                }}
+
+              >
+
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+
+                <span className="text-slate-700 text-xs sm:text-sm lg:text-base leading-relaxed">
+
+                  {highlight}
+
+                </span>
+
+              </motion.li>
+
+            ))}
+
+          </motion.ul>
+
+
+
+          <motion.div
+
+            className="relative bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 overflow-hidden"
+
+            whileHover={{ scale: 1.02 }}
+
+            transition={{ duration: 0.3 }}
+
+          >
+
+            <motion.div
+
+              className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${ambassador.gradient} opacity-5 rounded-full blur-2xl`}
+
+              animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
+
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+
+            ></motion.div>
+
+            <div className="relative flex items-start gap-3">
+
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 flex-shrink-0 mt-0.5" />
+
+              <div>
+
+                <span className="text-teal-800 text-[10px] sm:text-xs font-extrabold uppercase tracking-[0.12em] block mb-2">
+
+                  MAJOR ACHIEVEMENT
+
+
+                </span>
+
+                <p className="text-slate-800 text-xs sm:text-sm lg:text-base font-medium leading-relaxed">
+
+                  {ambassador.achievement}
+
+                </p>
+
+              </div>
+
+            </div>
+
+          </motion.div>
+
+
+
+          <div className="mb-6 sm:mb-8">
+
+            <div className="flex items-center gap-2 mb-3">
+
+              <Target className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600" />
+
+              <span className="text-slate-900 text-[10px] sm:text-xs font-extrabold uppercase tracking-[0.12em]">
+
+                MISSION
+
+              </span>
+
+            </div>
+
+            <p className="text-slate-600 text-xs sm:text-sm lg:text-base italic leading-relaxed">
+
+              {ambassador.mission}
+
+            </p>
+
+
+
+          </div>
+
+
+
+
+
+        </div>
+
+
+
+        {/* Right Column - Desktop Image */}
+
+        <div className="hidden lg:block relative lg:w-1/2 overflow-hidden">
+
+          <motion.div
+
+            className={`absolute inset-0 bg-gradient-to-r ${ambassador.gradient} opacity-10 z-10 pointer-events-none`}
+
+            animate={{ opacity: [0.1, 0.15, 0.1] }}
+
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+
+          ></motion.div>
+
+          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white via-white/60 to-transparent z-10"></div>
+
+          <motion.img
+
+            src={ambassador.image}
+
+            alt={ambassador.name}
+
+            className="w-full h-full object-cover object-right transition-transform duration-700
+
+                     group-hover:scale-110"
+
+            loading="lazy"
+
+          />
+
+        </div>
+
+      </motion.div>
+
+
+
+    </motion.div>
+
   );
+
 };
 
+
+
+const Community = () => {
+
+  const { scrollYProgress } = useScroll();
+
+  const headerY = useTransform(scrollYProgress, [0, 0.2], [0, -50]);
+
+  const headerOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+
+
+
+  return (
+
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 py-12 sm:py-16 lg:py-24 overflow-hidden">
+
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+
+        <motion.header
+
+          style={{ y: headerY, opacity: headerOpacity }}
+
+          className="text-center mb-12 sm:mb-16 lg:mb-20 relative"
+
+        >
+
+          <motion.div
+
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96
+
+                       bg-gradient-to-r from-teal-500/10 to-cyan-500/10 rounded-full blur-3xl"
+
+            animate={{
+
+              scale: [1, 1.2, 1],
+
+              rotate: [0, 90, 0]
+
+            }}
+
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+
+          ></motion.div>
+
+
+
+          <motion.div
+
+            initial={{ opacity: 0, y: 30 }}
+
+            animate={{ opacity: 1, y: 0 }}
+
+            transition={{ duration: 0.8, ease: "easeOut" }}
+
+          >
+
+            <motion.h1
+
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black uppercase mb-4 sm:mb-6 relative z-10"
+
+              initial={{ opacity: 0, y: 20 }}
+
+              animate={{ opacity: 1, y: 0 }}
+
+              transition={{ duration: 0.6, delay: 0.2 }}
+
+            >
+
+              <span className="text-slate-900">OUR </span>
+
+              <span className="relative inline-block">
+
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-cyan-600">
+
+                  COMMUNITY
+
+                </span>
+
+                <motion.span
+
+                  className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-teal-600 to-cyan-600 opacity-30"
+
+                  initial={{ scaleX: 0 }}
+
+                  animate={{ scaleX: 1 }}
+
+                  transition={{ duration: 0.8, delay: 0.8 }}
+
+                ></motion.span>
+
+              </span>
+
+            </motion.h1>
+
+            <motion.p
+
+              className="text-slate-500 text-xs sm:text-sm lg:text-base uppercase tracking-[0.2em] sm:tracking-[0.25em] font-bold relative z-10"
+
+              initial={{ opacity: 0 }}
+
+              animate={{ opacity: 1 }}
+
+              transition={{ duration: 0.6, delay: 0.4 }}
+
+            >
+
+              Meet the athletes leading the movement
+
+            </motion.p>
+
+          </motion.div>
+
+
+
+
+
+        </motion.header>
+
+
+
+        <div className="space-y-6 sm:space-y-8 lg:space-y-12">
+
+          {ambassadors.map((ambassador, index) => (
+
+            <AmbassadorCard
+
+              key={ambassador.code}
+
+              ambassador={ambassador}
+
+              index={index}
+
+            />
+
+          ))}
+
+        </div>
+
+
+
+        <motion.div
+
+          initial={{ opacity: 0, y: 40 }}
+
+          whileInView={{ opacity: 1, y: 0 }}
+
+          viewport={{ once: true }}
+
+          transition={{ duration: 0.8 }}
+
+          className="mt-16 sm:mt-20 lg:mt-24 text-center relative"
+
+        >
+
+
+
+
+
+        </motion.div>
+
+      </div>
+
+    </div>
+
+  );
+
+};
+
+
+
 export default Community;
+
