@@ -21,6 +21,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState({ isLoggedIn: false, role: null });
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  
 
   // Load initial state from storage and set loading state
   useEffect(() => {
