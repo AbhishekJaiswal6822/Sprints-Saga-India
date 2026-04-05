@@ -316,7 +316,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
     >
 
-      <div className={`absolute -inset-0.5 bg-gradient-to-r ${ambassador.gradient} rounded-[32px] opacity-0
+      <div className={`absolute -inset-0.5 bg-linear-to-r ${ambassador.gradient} rounded-4xl opacity-0
 
                       group-hover:opacity-20 blur-xl transition-all duration-700`}></div>
 
@@ -332,7 +332,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
         }}
 
-        className="relative bg-white rounded-[28px] lg:rounded-[32px] shadow-lg border border-slate-200 overflow-hidden
+        className="relative bg-white rounded-[28px] lg:rounded-4xl shadow-lg border border-slate-200 overflow-hidden
 
                    hover:shadow-2xl hover:border-slate-300 transition-all duration-500
 
@@ -346,7 +346,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
           <motion.div
 
-            className={`absolute inset-0 bg-gradient-to-b ${ambassador.gradient} opacity-10 z-10 pointer-events-none`}
+            className={`absolute inset-0 bg-linear-to-b ${ambassador.gradient} opacity-10 z-10 pointer-events-none`}
 
             animate={{ opacity: [0.1, 0.15, 0.1] }}
 
@@ -354,7 +354,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
           ></motion.div>
 
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white via-white/80 to-transparent z-10"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-white via-white/80 to-transparent z-10"></div>
 
           <motion.img
 
@@ -394,7 +394,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
             <motion.div
 
-              className={`h-0.5 w-10 bg-gradient-to-r ${ambassador.gradient}`}
+              className={`h-0.5 w-10 bg-linear-to-r ${ambassador.gradient}`}
 
               initial={{ scaleX: 0 }}
 
@@ -476,7 +476,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
               >
 
-                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 shrink-0 mt-0.5" />
 
                 <span className="text-slate-700 text-xs sm:text-sm lg:text-base leading-relaxed">
 
@@ -494,7 +494,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
           <motion.div
 
-            className="relative bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 overflow-hidden"
+            className="relative bg-linear-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 overflow-hidden"
 
             whileHover={{ scale: 1.02 }}
 
@@ -504,7 +504,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
             <motion.div
 
-              className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${ambassador.gradient} opacity-5 rounded-full blur-2xl`}
+              className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${ambassador.gradient} opacity-5 rounded-full blur-2xl`}
 
               animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
 
@@ -514,7 +514,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
             <div className="relative flex items-start gap-3">
 
-              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 flex-shrink-0 mt-0.5" />
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 shrink-0 mt-0.5" />
 
               <div>
 
@@ -577,7 +577,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
           <motion.div
 
-            className={`absolute inset-0 bg-gradient-to-r ${ambassador.gradient} opacity-10 z-10 pointer-events-none`}
+            className={`absolute inset-0 bg-linear-to-r ${ambassador.gradient} opacity-10 z-10 pointer-events-none`}
 
             animate={{ opacity: [0.1, 0.15, 0.1] }}
 
@@ -585,7 +585,7 @@ const AmbassadorCard = ({ ambassador, index }) => {
 
           ></motion.div>
 
-          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white via-white/60 to-transparent z-10"></div>
+          <div className="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-white via-white/60 to-transparent z-10"></div>
 
           <motion.img
 
@@ -627,7 +627,7 @@ const Community = () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 py-12 sm:py-16 lg:py-24 overflow-hidden">
+    <div className="min-h-screen bg-linear-to-b from-slate-50 via-white to-slate-50 py-12 sm:py-16 lg:py-24 overflow-hidden">
 
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -643,7 +643,7 @@ const Community = () => {
 
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96
 
-                       bg-gradient-to-r from-teal-500/10 to-cyan-500/10 rounded-full blur-3xl"
+                       bg-linear-to-r from-teal-500/10 to-cyan-500/10 rounded-full blur-3xl"
 
             animate={{
 
@@ -685,7 +685,7 @@ const Community = () => {
 
               <span className="relative inline-block">
 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-cyan-600">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-teal-600 to-cyan-600">
 
                   COMMUNITY
 
@@ -693,7 +693,7 @@ const Community = () => {
 
                 <motion.span
 
-                  className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-teal-600 to-cyan-600 opacity-30"
+                  className="absolute bottom-0 left-0 w-full h-1 bg-linear-to-r from-teal-600 to-cyan-600 opacity-30"
 
                   initial={{ scaleX: 0 }}
 
