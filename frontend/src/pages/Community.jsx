@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
-
-import { Zap, Trophy, Target, Copy, Check } from 'lucide-react';
-// import { Zap, Trophy, Target, Copy, Check, Instagram } from 'lucide-react';
-
 import { motion, useScroll, useTransform } from 'framer-motion';
-
-
+import { Zap, Trophy, Target, Copy, Check } from 'lucide-react';
 
 // Asset Imports
 
