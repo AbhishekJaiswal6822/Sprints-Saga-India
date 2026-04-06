@@ -26,23 +26,32 @@ const UserDashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const response = await api("/api/register/my-registration", { token });
-                if (response.success) {
-                    const normalizedData = Array.isArray(response.data)
-                        ? response.data
-                        : response.data ? [response.data] : [];
-                    setRegistrations(normalizedData);
-                }
-            } catch (err) {
-                console.error("Dashboard error:", err);
-            } finally {
-                setLoading(false);
+    const fetchDashboardData = async () => {
+        try {
+            const response = await api("/api/register/my-registration", { token });
+            if (response.success) {
+                const normalizedData = Array.isArray(response.data)
+                    ? response.data
+                    : response.data ? [response.data] : [];
+                setRegistrations(normalizedData);
             }
-        };
+        } catch (err) {
+            console.error("Dashboard error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchDashboardData();
+
+    // --- ADD POLLING HERE ---
+    // Check for updates every 5 seconds
+    const interval = setInterval(() => {
         fetchDashboardData();
-    }, [token]);
+    }, 5000); 
+
+    return () => clearInterval(interval); // Cleanup on unmount
+}, [token]);
 
     const handleDownload = (regId) => {
         window.open(`${import.meta.env.VITE_API_BASE_URL}/api/payment/invoice/${regId}`, "_blank");
@@ -135,21 +144,39 @@ const UserDashboard = () => {
         <div className="space-y-6 w-full">
             {/* If Group, show all members. If individual, show the main runner */}
             {reg.registrationType === 'group' && reg.groupMembers?.length > 0 ? (
-                reg.groupMembers.map((member, idx) => (
-                    <div key={member._id || idx} className="flex flex-col items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                        <p className="text-[10px] font-black text-teal-600 uppercase mb-2 tracking-widest text-center">
-                            {member.firstName} {member.lastName}
+    <div className="space-y-6 w-full">
+        {reg.groupMembers.map((member, idx) => (
+            <div key={member._id || idx} className="flex flex-row items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                
+                {/* Member Info & BIB */}
+                <div className="flex-1">
+                    <p className="text-[10px] font-black text-teal-600 uppercase mb-1 tracking-widest">
+                        {member.firstName} {member.lastName}
+                    </p>
+                    <div className="mt-2">
+                        <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-1">Individual BIB</p>
+                        <p className="text-lg font-black text-slate-900">
+                            {/* Check for bib in member object, otherwise show waiting */}
+                            {member.bibNumber || member.expoDetails?.bibNumber || "WAITING"}
                         </p>
-                        <QRCodeSVG 
-                            value={btoa(secretSalt + reg._id + "_" + (member._id || idx))} 
-                            size={100} 
-                            fgColor="#0d9488"
-                            level="H" 
-                        />
-                        <p className="mt-2 text-[8px] font-bold text-slate-400 uppercase italic">Member QR</p>
                     </div>
-                ))
-            ) : (
+                </div>
+
+                {/* Member QR */}
+                <div className="flex flex-col items-center ml-4">
+                    <QRCodeSVG 
+                        value={btoa(secretSalt + reg._id + "_" + (member._id || idx))} 
+                        size={80} 
+                        fgColor="#0d9488"
+                        level="H" 
+                    />
+                    <p className="mt-2 text-[7px] font-bold text-slate-400 uppercase italic">Scan to Assign</p>
+                </div>
+
+            </div>
+        ))}
+    </div>
+) : (
                 /* Standard Individual View */
                 <div className="flex flex-col items-center">
                     <p className="text-[10px] font-black text-teal-600 uppercase mb-3 tracking-widest">Digital Entry QR</p>
