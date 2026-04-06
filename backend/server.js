@@ -72,6 +72,9 @@ app.use("/api/auth", require("./routes/authRoutes"));
 // b. Registration (Prefix: /api/register)
 app.use('/api/register', registrationRoutes); 
 
+// Expo verification
+app.use('/api/expo', require('./routes/expoRoutes'));
+
 // c. Payment (Prefix: /api/payment - Removed the duplicate entry)
 app.use('/api/payment', paymentRoutes); 
 
@@ -92,5 +95,4 @@ app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
 });
 
-// Expo verification
-app.use('/api/expo', require('./routes/expoRoutes'));
+
