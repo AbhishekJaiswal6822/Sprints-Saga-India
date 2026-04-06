@@ -64,9 +64,18 @@ const adminMiddleware = async (req, res, next) => {
 const staffMiddleware = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id);
-        // Allows both ADMINS and VOLUNTEERS (once you add the role field)
-        // If no role field exists yet, this will still allow admins
-        if (!user || (user.role !== 'volunteer' && user.email !== "admin@sprintssagaindia.com")) {
+        const ADMIN_EMAIL = "admin@sprintssagaindia.com";
+
+        // Logic to handle both standard role and the quoted version from your database
+        const role = user.role || user["\"role\""];
+
+        const isAuthorized = user && (
+            role === 'volunteer' || 
+            role === 'admin' || 
+            user.email === ADMIN_EMAIL
+        );
+
+        if (!isAuthorized) {
             return res.status(403).json({ 
                 message: "Access Denied: Staff privileges required." 
             });
