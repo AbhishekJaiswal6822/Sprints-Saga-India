@@ -82,9 +82,6 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 
 app.use("/api/coupons", require("./routes/couponRoutes"));
 
-// Expo verification
-app.use('/api/expo', require('./routes/expoRoutes'));
-
 // Basic Route for testing
 app.get('/', (req, res) => {
     res.send('Marathon Project Backend Running!');
