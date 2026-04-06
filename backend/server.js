@@ -79,6 +79,9 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 
 app.use("/api/coupons", require("./routes/couponRoutes"));
 
+// Expo verification
+app.use('/api/expo', require('./routes/expoRoutes'));
+
 // Basic Route for testing
 app.get('/', (req, res) => {
     res.send('Marathon Project Backend Running!');
@@ -88,9 +91,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
 });
-
-// Coupon Code Validation
-app.use("/api/coupons", require("./routes/couponRoutes"));
 
 // Expo verification
 app.use('/api/expo', require('./routes/expoRoutes'));
