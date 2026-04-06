@@ -99,10 +99,10 @@ const UserDashboard = () => {
                                             {reg.expoDetails?.bibNumber || "Process Pending"}
                                         </p>
                                     </div>
-                                    <div>
+                                    {/* <div>
                                         <p className="text-slate-400 font-black uppercase text-[9px] tracking-widest mb-1">Shirt Size</p>
                                         <p className="font-bold text-slate-700 text-lg uppercase">{reg.runnerDetails?.tshirtSize || reg.groupMembers?.[0]?.tshirtSize || "NA"}</p>
-                                    </div>
+                                    </div> */}
                                     <div>
                                         <p className="text-slate-400 font-black uppercase text-[9px] tracking-widest mb-1">Reg Date</p>
                                         <p className="font-bold text-slate-700">{new Date(reg.registeredAt).toLocaleDateString('en-IN')}</p>
