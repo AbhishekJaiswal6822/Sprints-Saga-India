@@ -85,13 +85,13 @@ function App() {
                                 }
                             />
 
-                            <Route 
-                                path="/expo" 
+                            <Route
+                                path="/expo"
                                 element={
-                                    <ProtectedRoute requiredRole="admin">
+                                    <ProtectedRoute allowedRoles={["admin", "volunteer"]}>
                                         <ExpoManagement />
                                     </ProtectedRoute>
-                                } 
+                                }
                             />
 
                             {/* --- PUBLIC ROUTES --- */}

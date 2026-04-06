@@ -35,8 +35,17 @@ function Navbar() {
     { key: "dashboard", label: "Dashboard", to: "/dashboard" },
   ];
 
-  if (user?.isLoggedIn && user?.email === ADMIN_EMAIL) {
+  // 1. Show Expo Management to BOTH Admins and Volunteers
+  // Added checks for the database key with extra quotes "\"role\""
+  const isVolunteer = user?.role === 'volunteer' || user?.["\"role\""] === 'volunteer';
+  const isAdmin = user?.role === 'admin' || user?.["\"role\""] === 'admin' || user?.email === ADMIN_EMAIL;
+
+  if (user?.isLoggedIn && (isAdmin || isVolunteer)) {
     links.push({ key: "expo", label: "Expo Management", to: "/expo" });
+  }
+
+  // 2. Show Admin Dashboard ONLY to Admins
+  if (user?.isLoggedIn && isAdmin) {
     links.push({ key: "admin", label: "Admin", to: "/admin" });
   }
 
