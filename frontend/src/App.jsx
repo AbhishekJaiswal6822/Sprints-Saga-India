@@ -30,6 +30,7 @@ import PrivacyPolicy from "./PrivacyPolicy";
 import Community from "./pages/Community";
 import RaceDay from "./pages/RaceDay"
 import ExpoManagement from "./pages/ExpoManagement";
+import RegistrationClosed from "./pages/RegistrationClosed";
 
 // UserDashboard
 import UserDashboard from "./pages/UserDashboard";
@@ -59,7 +60,7 @@ function App() {
                             <Route path="/test-camera" element={<CameraTest />} />
                             <Route
                                 path="/register"
-                                element={<ProtectedRoute><Register /></ProtectedRoute>}
+                                element={<ProtectedRoute><RegistrationClosed /></ProtectedRoute>}
                             />
                             <Route
                                 path="/payment"
