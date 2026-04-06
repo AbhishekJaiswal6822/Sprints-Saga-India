@@ -61,4 +61,20 @@ const adminMiddleware = async (req, res, next) => {
     }
 };
 
-module.exports = { authMiddleware, adminMiddleware };
+const staffMiddleware = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        // Allows both ADMINS and VOLUNTEERS (once you add the role field)
+        // If no role field exists yet, this will still allow admins
+        if (!user || (user.role !== 'volunteer' && user.email !== "admin@sprintssagaindia.com")) {
+            return res.status(403).json({ 
+                message: "Access Denied: Staff privileges required." 
+            });
+        }
+        next();
+    } catch (error) {
+        res.status(500).json({ message: "Server error during verification." });
+    }
+};
+
+module.exports = { authMiddleware, adminMiddleware, staffMiddleware };
