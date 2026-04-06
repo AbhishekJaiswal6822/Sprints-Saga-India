@@ -75,7 +75,7 @@ const RegistrationClosed = () => {
                 </p>
 
                 <motion.a
-                  href="https://www.indiarunning.com/"
+                  href="https://www.indiarunning.com/app/event?eventSlug=lokraja_marathon_2026__chapter_pune_62632"
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.01 }}
