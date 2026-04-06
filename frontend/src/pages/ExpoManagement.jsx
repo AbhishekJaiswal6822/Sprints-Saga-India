@@ -29,34 +29,38 @@ const ExpoManagement = () => {
       // This initializes the core logic on the 'reader' div
       html5QrCode = new Html5Qrcode("reader");
 
-      const qrCodeSuccessCallback = async (decodedText) => { // Added 'async'
-        try {
-          const decryptedData = atob(decodedText);
-          const salt = "SPRINTS_SAGA_2026_";
+      const qrCodeSuccessCallback = async (decodedText) => {
+  try {
+    const decryptedData = atob(decodedText);
+    const salt = "SPRINTS_SAGA_2026_";
 
-          if (decryptedData.startsWith(salt)) {
-            const realID = decryptedData.replace(salt, "");
+    if (decryptedData.startsWith(salt)) {
+      const cleanData = decryptedData.replace(salt, "");
 
-            // 1. First, stop the camera completely
-            if (html5QrCode && html5QrCode.isScanning) {
-              await html5QrCode.stop();
-            }
+      // --- NEW LOGIC: Support Split IDs for Group Members ---
+      // This splits "REG123_MEM456" into ["REG123", "MEM456"]
+      // If it's a normal ID, memberId will just be undefined.
+      const [registrationId, memberId] = cleanData.split("_");
 
-            // 2. ONLY AFTER the camera is off, update the state
-            setSearchQuery(realID);
-            setShowScanner(false); // No more transition conflict!
+      // Stop camera
+      if (html5QrCode && html5QrCode.isScanning) {
+        await html5QrCode.stop();
+      }
 
-            // 3. Trigger the search
-            performSearch(realID);
-            toast.success("Ticket Verified!");
-          } else {
-            toast.error("Invalid QR Code.");
-          }
-        } catch (e) {
-          console.error("Decryption error:", e);
-          toast.error("Unreadable QR.");
-        }
-      };
+      setShowScanner(false);
+      
+      // If memberId exists, we pass both to the search function
+      performSearch(registrationId, memberId); 
+      
+      toast.success("Ticket Verified!");
+    } else {
+      toast.error("Invalid QR Code.");
+    }
+  } catch (e) {
+    console.error("Decryption error:", e);
+    toast.error("Unreadable QR.");
+  }
+};
 
       // Forces HP Wide Vision / Laptop Camera
       html5QrCode.start(
@@ -76,56 +80,60 @@ const ExpoManagement = () => {
     };
   }, [showScanner, facingMode]);
 
-  const performSearch = async (query) => {
-    const searchVal = query || searchQuery;
-    if (!searchVal) return;
+  const performSearch = async (regId, memberId = null) => {
+  const searchVal = regId || searchQuery;
+  if (!searchVal) return;
 
-    setLoading(true);
-    setRunner(null);
-    try {
-      // ADD { token } AS THE SECOND ARGUMENT HERE
-      const res = await api(`/api/expo/search/${searchVal}`, { token });
+  setLoading(true);
+  setRunner(null);
+  try {
+    // We update the URL to include the memberId as a query parameter if it exists
+    const url = memberId 
+      ? `/api/expo/search/${searchVal}?memberId=${memberId}` 
+      : `/api/expo/search/${searchVal}`;
 
-      if (res.success) {
-        setRunner(res.data);
-        setChecklist({ isVerified: false, tshirtIssued: false, kitIssued: false });
-      }
-    } catch (err) {
-      toast.error(err.message || "Runner not found");
-    } finally {
-      setLoading(false);
+    const res = await api(url, { token });
+
+    if (res.success) {
+      setRunner(res.data);
+      setChecklist({ isVerified: false, tshirtIssued: false, kitIssued: false });
     }
-  };
+  } catch (err) {
+    toast.error(err.message || "Runner not found");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleCheckIn = async () => {
-    if (!checklist.isVerified) {
-      toast.warning("Please verify the Physical ID first!");
-      return;
-    }
+  if (!checklist.isVerified) {
+    toast.warning("Please verify the Physical ID first!");
+    return;
+  }
 
-    setSubmitting(true);
-    try {
-      // FIX: Added 'token' to the api call options
-      const res = await api(`/api/expo/checkin/${runner._id}`, {
-        method: "POST",
-        token: token, // <--- ADD THIS LINE
-        body: checklist,
-      });
+  setSubmitting(true);
+  try {
+    // If the runner object has a specific memberId (from the search), we send it
+    const res = await api(`/api/expo/checkin/${runner._id}`, {
+      method: "POST",
+      token: token,
+      body: { 
+        ...checklist, 
+        memberId: runner.memberId // Ensure your backend search returns this memberId
+      },
+    });
 
-      if (res.success) {
-        toast.success(`Success! Bib Assigned: ${res.bibAssigned}`, {
-          position: "top-center",
-          autoClose: 3000
-        });
-        setRunner(null); // Clear the card for the next person
-        setSearchQuery("");
-      }
-    } catch (err) {
-      toast.error(err.message || "Check-in failed");
-    } finally {
-      setSubmitting(false);
+    if (res.success) {
+      toast.success(`Success! Bib Assigned: ${res.bibAssigned}`);
+      setRunner(null);
+      setSearchQuery("");
     }
-  };
+  } catch (err) {
+    toast.error(err.message || "Check-in failed");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-slate-50 py-24 px-4">
