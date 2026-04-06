@@ -36,23 +36,18 @@ const ExpoManagement = () => {
 
     if (decryptedData.startsWith(salt)) {
       const cleanData = decryptedData.replace(salt, "");
+      const [registrationId, memberId] = cleanData.split("_"); // This is correct
 
-      // --- NEW LOGIC: Support Split IDs for Group Members ---
-      // This splits "REG123_MEM456" into ["REG123", "MEM456"]
-      // If it's a normal ID, memberId will just be undefined.
-      const [registrationId, memberId] = cleanData.split("_");
-
-      // Stop camera
       if (html5QrCode && html5QrCode.isScanning) {
         await html5QrCode.stop();
       }
 
       setShowScanner(false);
+      setSearchQuery(registrationId); // Set the UI input to the main ID
       
-      // If memberId exists, we pass both to the search function
+      // CALL with both IDs
       performSearch(registrationId, memberId); 
-      
-      toast.success("Ticket Verified!");
+      toast.success("Code Decoded!");
     } else {
       toast.error("Invalid QR Code.");
     }
@@ -87,7 +82,6 @@ const ExpoManagement = () => {
   setLoading(true);
   setRunner(null);
   try {
-    // We update the URL to include the memberId as a query parameter if it exists
     const url = memberId 
       ? `/api/expo/search/${searchVal}?memberId=${memberId}` 
       : `/api/expo/search/${searchVal}`;
@@ -95,7 +89,13 @@ const ExpoManagement = () => {
     const res = await api(url, { token });
 
     if (res.success) {
-      setRunner(res.data);
+      // FIX: Manually attach the activeMemberId to the runner object
+      // so handleCheckIn can find it later.
+      const runnerData = { 
+        ...res.data, 
+        activeMemberId: memberId 
+      };
+      setRunner(runnerData);
       setChecklist({ isVerified: false, tshirtIssued: false, kitIssued: false });
     }
   } catch (err) {
@@ -113,15 +113,14 @@ const ExpoManagement = () => {
 
   setSubmitting(true);
   try {
-    // If the runner object has a specific memberId (from the search), we send it
     const res = await api(`/api/expo/checkin/${runner._id}`, {
-      method: "POST",
-      token: token,
-      body: { 
-        ...checklist, 
-        memberId: runner.memberId // Ensure your backend search returns this memberId
-      },
-    });
+  method: "POST",
+  token: token,
+  body: { 
+    ...checklist, 
+    memberId: runner.activeMemberId // Use the ID we attached in performSearch
+  },
+});
 
     if (res.success) {
       toast.success(`Success! Bib Assigned: ${res.bibAssigned}`);
