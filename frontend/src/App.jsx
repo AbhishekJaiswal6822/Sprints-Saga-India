@@ -60,7 +60,7 @@ function App() {
                             <Route path="/test-camera" element={<CameraTest />} />
                             <Route
                                 path="/register"
-                                element={<ProtectedRoute><RegistrationClosed /></ProtectedRoute>}
+                                element={<RegistrationClosed />}
                             />
                             <Route
                                 path="/payment"
