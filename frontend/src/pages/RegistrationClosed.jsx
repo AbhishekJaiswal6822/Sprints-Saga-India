@@ -18,7 +18,7 @@ const RegistrationClosed = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 bg-[#f8fafc] overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center p-4 py-12 pb-28 md:p-8 bg-[#f8fafc] overflow-hidden">
       {/* Soft Decorative Blurs */}
       <div className="absolute top-[-10%] left-[-5%] w-[50%] h-[50%] rounded-full bg-orange-100/40 blur-[100px]" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] rounded-full bg-blue-100/30 blur-[100px]" />
@@ -37,7 +37,7 @@ const RegistrationClosed = () => {
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               /* Reduced p-8 to p-6 */
-              className="bg-orange-500 p-6 rounded-[2rem] shadow-2xl shadow-orange-200"
+              className="bg-orange-500 p-6 rounded-4xl shadow-2xl shadow-orange-200"
             >
               <Trophy className="w-16 h-16 text-white" />
             </motion.div>
@@ -52,7 +52,7 @@ const RegistrationClosed = () => {
           <motion.div variants={itemVariants}>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full mb-3">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Portal Status: Closed</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Portal Status: Registration Closed</span>
             </div>
             
             {/* Reduced mb-6 to mb-3 */}
@@ -64,50 +64,46 @@ const RegistrationClosed = () => {
 
           {/* Reduced space-y-8 to space-y-4 */}
           <motion.div variants={itemVariants} className="space-y-4">
-            <div className="bg-slate-50/50 border border-slate-100 rounded-[1.5rem] p-5 relative overflow-hidden group">
+            <div className="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 relative overflow-hidden group">
               <div className="relative z-10">
-                <h2 className="text-lg font-bold text-slate-800 mb-1">
-                  Participate in <span className="text-orange-600">LokRaja Marathon 2026</span>
+                <h2 className="text-xl md:text-2xl font-black text-slate-800 mb-2 uppercase tracking-tight italic">
+                  The Countdown <span className="text-orange-600">Begins!</span>
                 </h2>
-                {/* Reduced mb-6 to mb-4 */}
-                <p className="text-slate-500 text-sm mb-4 leading-relaxed">
-                  Direct slots are full, but you can still secure your spot through **IndiaRunning**.
+                
+                <p className="text-slate-600 text-sm mb-5 leading-relaxed font-medium">
+                  We are officially sold out! Now, it's time to lace up, hit the track, and prepare for the ultimate test of endurance and spirit at the <strong className="text-slate-900">LokRaja Marathon 2026</strong>.
                 </p>
 
-                <motion.a
-                  href="https://www.indiarunning.com/app/event?eventSlug=lokraja_marathon_2026__chapter_pune_62632"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  /* Reduced p-5 to p-4 */
-                  className="flex items-center justify-between bg-white border border-slate-200 p-4 rounded-xl shadow-sm hover:shadow-md hover:border-orange-200 transition-all"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white">
-                      <ExternalLink className="w-5 h-5" />
+                {/* Excitement / Date Badge replacing the external link */}
+                <div className="flex items-center bg-white border border-orange-100 p-4 rounded-xl shadow-sm relative overflow-hidden">
+                  {/* Decorative background flair */}
+                  <div className="absolute right-0 top-0 w-24 h-24 bg-orange-500/5 rounded-full blur-xl transform translate-x-1/2 -translate-y-1/2" />
+                  
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className="flex flex-col items-center justify-center w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl shadow-md text-white border border-orange-300/50">
+                      <span className="text-[10px] font-bold uppercase tracking-widest opacity-90 mt-1">Apr</span>
+                      <span className="text-2xl font-black leading-none mb-1">12</span>
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900 text-sm">Register via IndiaRunning</p>
-                      <p className="text-[11px] text-orange-500 font-bold italic uppercase">Ends 10:00 PM Today!</p>
+                      <p className="font-black text-slate-900 text-lg uppercase italic tracking-wide">Race Day 2026</p>
+                      <p className="text-xs text-orange-600 font-bold uppercase tracking-wider">Savitribai Phule Pune University, Maharashtra</p>
                     </div>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-orange-500" />
-                </motion.a>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-slate-400 text-xs font-medium italic">
-              <Info className="w-3 h-3" />
-              Entries are limited. Grab your spot before the deadline.
+            <div className="flex items-start gap-2 text-slate-500 text-xs font-bold italic px-2">
+              <Info className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+              <p>Train hard, rest well, and get ready. We can't wait to see you at the start line!</p>
             </div>
           </motion.div>
         </div>
       </motion.div>
 
       {/* Footer Branding */}
-      <div className="absolute bottom-8 text-[10px] font-black text-slate-700 uppercase tracking-[0.5em] drop-shadow-sm">
-        LokRaja Marathon 2026 • Official Announcement
+      <div className="absolute bottom-6 md:bottom-8 left-0 w-full px-4 text-center text-[9px] md:text-[10px] font-black text-slate-700 uppercase tracking-widest md:tracking-[0.5em] drop-shadow-sm leading-relaxed">
+        LokRaja Marathon 2026 <span className="hidden sm:inline">•</span><br className="sm:hidden" /> Official Announcement
       </div>
     </div>
   );
