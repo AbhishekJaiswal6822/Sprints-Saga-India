@@ -1,5 +1,4 @@
 // C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\backend\controllers\authController.js
-
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -101,7 +100,6 @@ exports.loginUser = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    // ✅ SUCCESS RESPONSE
     return res.json({
   success: true,
   token,
