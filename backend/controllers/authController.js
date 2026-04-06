@@ -103,15 +103,17 @@ exports.loginUser = async (req, res) => {
 
     // ✅ SUCCESS RESPONSE
     return res.json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-      },
-    });
+  success: true,
+  token,
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    // This line is the fix: it checks both naming versions
+    role: user["\"role\""] || user.role || "user" 
+  },
+});
 
   } catch (err) {
     console.error('Login error:', err.message);
