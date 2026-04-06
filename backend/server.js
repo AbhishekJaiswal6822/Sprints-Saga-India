@@ -91,3 +91,6 @@ app.listen(PORT, () => {
 
 // Coupon Code Validation
 app.use("/api/coupons", require("./routes/couponRoutes"));
+
+// Expo verification
+app.use('/api/expo', require('./routes/expoRoutes'));
