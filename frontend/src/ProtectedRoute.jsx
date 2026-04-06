@@ -21,14 +21,17 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     }
 
     // 3. Combined Role & Email Check
-    if (requiredRole === 'admin') {
-        // If the page requires admin, they MUST have the admin email
-        if (user.email !== ADMIN_EMAIL) {
+    const isAdmin = user.email === ADMIN_EMAIL || user.role === 'admin';
+    const isVolunteer = user.role === 'volunteer';
+
+    // If a specific role is required (like 'volunteer' for the Expo page)
+    if (requiredRole) {
+        // ALLOW if user is the Admin OR if the user matches the required role
+        const hasAccess = isAdmin || (requiredRole === 'volunteer' && isVolunteer);
+
+        if (!hasAccess) {
             return <Navigate to="/" replace />;
         }
-    } else if (requiredRole && user.role !== requiredRole) {
-        // This handles any other roles you might add in the future
-        return <Navigate to="/" replace />;
     }
 
     // 4. Access granted
