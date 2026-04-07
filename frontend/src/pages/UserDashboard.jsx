@@ -145,33 +145,35 @@ const UserDashboard = () => {
                                         {reg.registrationType === 'group' && reg.groupMembers?.length > 0 ? (
                                             <div className="space-y-6 w-full">
                                                 {reg.groupMembers.map((member, idx) => (
-                                                    <div key={member._id || idx} className="flex flex-row items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                                                    <div key={member._id || idx} className="w-full max-w-[200px] mx-auto flex flex-col items-center bg-white p-6 rounded-[2rem] shadow-md border border-slate-100 transition-transform hover:scale-[1.02]">
 
-                                                        {/* Member Info & BIB */}
-                                                        <div className="flex-1">
-                                                            <p className="text-[10px] font-black text-teal-600 uppercase mb-1 tracking-widest">
-                                                                {member.firstName} {member.lastName}
+                                                        {/* Member Details Above QR */}
+                                                        <div className="text-center mb-4 w-full">
+                                                            <p className="text-[12px] font-black text-teal-600 uppercase tracking-widest truncate leading-tight">
+                                                                {member.firstName} <br /> {member.lastName}
                                                             </p>
-                                                            <div className="mt-2">
-                                                                <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-1">Individual BIB</p>
-                                                                <p className="text-lg font-black text-slate-900">
-                                                                    {/* FIX: Force check the nested expoDetails specifically */}
+                                                            <div className="mt-2 py-1 px-3 bg-slate-50 rounded-full inline-block border border-slate-100">
+                                                                <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-0.5">Individual BIB</p>
+                                                                <p className="text-xl font-black text-slate-600 leading-none">
                                                                     {member.expoDetails && member.expoDetails.bibNumber
                                                                         ? member.expoDetails.bibNumber
-                                                                        : "WAITING"}
+                                                                        : "PROCESS PENDING"}
                                                                 </p>
                                                             </div>
                                                         </div>
 
                                                         {/* Member QR */}
-                                                        <div className="flex flex-col items-center ml-4">
-                                                            <QRCodeSVG
-                                                                value={btoa(secretSalt + reg._id + "_" + (member._id || idx))}
-                                                                size={80}
-                                                                fgColor="#0d9488"
-                                                                level="H"
-                                                            />
-                                                            <p className="mt-2 text-[7px] font-bold text-slate-400 uppercase italic">Scan to Assign</p>
+                                                        <div className="flex flex-col items-center w-full">
+                                                            <div className="bg-white p-2 rounded-2xl border-2 border-dashed border-teal-100 flex items-center justify-center">
+                                                                <QRCodeSVG
+                                                                    value={btoa(secretSalt + reg._id + "_" + (member._id || idx))}
+                                                                    size={120}
+                                                                    fgColor="#0d9488"
+                                                                    level="H"
+                                                                    includeMargin={false}
+                                                                />
+                                                            </div>
+                                                            <p className="mt-3 text-[9px] font-black text-slate-400 uppercase italic tracking-widest">Scan AT BIB COUNTER</p>
                                                         </div>
 
                                                     </div>
