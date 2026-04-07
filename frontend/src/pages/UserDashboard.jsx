@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../AuthProvider";
 import { api } from "../api";
 import { toast } from "react-toastify";
-import { QRCodeSVG } from 'qrcode.react'; 
+import { QRCodeSVG } from 'qrcode.react';
 
 const secretSalt = "SPRINTS_SAGA_2026_"; // Keep this private
 
@@ -26,32 +26,32 @@ const UserDashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-    const fetchDashboardData = async () => {
-        try {
-            const response = await api("/api/register/my-registration", { token });
-            if (response.success) {
-                const normalizedData = Array.isArray(response.data)
-                    ? response.data
-                    : response.data ? [response.data] : [];
-                setRegistrations(normalizedData);
+        const fetchDashboardData = async () => {
+            try {
+                const response = await api("/api/register/my-registration", { token });
+                if (response.success) {
+                    const normalizedData = Array.isArray(response.data)
+                        ? response.data
+                        : response.data ? [response.data] : [];
+                    setRegistrations(normalizedData);
+                }
+            } catch (err) {
+                console.error("Dashboard error:", err);
+            } finally {
+                setLoading(false);
             }
-        } catch (err) {
-            console.error("Dashboard error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
 
-    fetchDashboardData();
-
-    // --- ADD POLLING HERE ---
-    // Check for updates every 5 seconds
-    const interval = setInterval(() => {
         fetchDashboardData();
-    }, 5000); 
 
-    return () => clearInterval(interval); // Cleanup on unmount
-}, [token]);
+        // --- ADD POLLING HERE ---
+        // Check for updates every 5 seconds
+        const interval = setInterval(() => {
+            fetchDashboardData();
+        }, 5000);
+
+        return () => clearInterval(interval); // Cleanup on unmount
+    }, [token]);
 
     const handleDownload = (regId) => {
         window.open(`${import.meta.env.VITE_API_BASE_URL}/api/payment/invoice/${regId}`, "_blank");
@@ -84,7 +84,7 @@ const UserDashboard = () => {
 
                     return (
                         <div key={reg._id} className="grid md:grid-cols-4 gap-8 bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100 mb-8 relative overflow-hidden transition-all hover:shadow-2xl">
-                            
+
                             <div className="md:col-span-2 space-y-6">
                                 <div>
                                     <h2 className="text-2xl font-black text-slate-900 uppercase italic">
@@ -102,16 +102,15 @@ const UserDashboard = () => {
                                             {reg.paymentStatus}
                                         </span>
                                     </div>
-                                    <div>
-                                        <p className="text-slate-400 font-black uppercase text-[9px] tracking-widest mb-1">BIB Number</p>
-                                        <p className="text-xl font-black text-slate-900">
-                                            {reg.expoDetails?.bibNumber || "Process Pending"}
-                                        </p>
-                                    </div>
-                                    {/* <div>
-                                        <p className="text-slate-400 font-black uppercase text-[9px] tracking-widest mb-1">Shirt Size</p>
-                                        <p className="font-bold text-slate-700 text-lg uppercase">{reg.runnerDetails?.tshirtSize || reg.groupMembers?.[0]?.tshirtSize || "NA"}</p>
-                                    </div> */}
+                                    {reg.registrationType !== 'group' && (
+                                        <div>
+                                            <p className="text-slate-400 font-black uppercase text-[9px] tracking-widest mb-1">BIB Number</p>
+                                            <p className="text-xl font-black text-slate-900">
+                                                {reg.expoDetails?.bibNumber || "Process Pending"}
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div>
                                         <p className="text-slate-400 font-black uppercase text-[9px] tracking-widest mb-1">Reg Date</p>
                                         <p className="font-bold text-slate-700">{new Date(reg.registeredAt).toLocaleDateString('en-IN')}</p>
@@ -139,67 +138,67 @@ const UserDashboard = () => {
                                     </div>
                                 )}
                             </div> */}
-<div className="flex flex-col items-center justify-center bg-slate-50 rounded-3xl p-6 border-2 border-dashed border-slate-200">
-    {reg.paymentStatus === 'paid' ? (
-        <div className="space-y-6 w-full">
-            {/* If Group, show all members. If individual, show the main runner */}
-            {reg.registrationType === 'group' && reg.groupMembers?.length > 0 ? (
-    <div className="space-y-6 w-full">
-        {reg.groupMembers.map((member, idx) => (
-            <div key={member._id || idx} className="flex flex-row items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                
-                {/* Member Info & BIB */}
-                <div className="flex-1">
-                    <p className="text-[10px] font-black text-teal-600 uppercase mb-1 tracking-widest">
-                        {member.firstName} {member.lastName}
-                    </p>
-                    <div className="mt-2">
-    <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-1">Individual BIB</p>
-    <p className="text-lg font-black text-slate-900">
-        {/* FIX: Force check the nested expoDetails specifically */}
-        {member.expoDetails && member.expoDetails.bibNumber 
-            ? member.expoDetails.bibNumber 
-            : "WAITING"}
-    </p>
-</div>
-                </div>
+                            <div className="flex flex-col items-center justify-center bg-slate-50 rounded-3xl p-6 border-2 border-dashed border-slate-200">
+                                {reg.paymentStatus === 'paid' ? (
+                                    <div className="space-y-6 w-full">
+                                        {/* If Group, show all members. If individual, show the main runner */}
+                                        {reg.registrationType === 'group' && reg.groupMembers?.length > 0 ? (
+                                            <div className="space-y-6 w-full">
+                                                {reg.groupMembers.map((member, idx) => (
+                                                    <div key={member._id || idx} className="flex flex-row items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
 
-                {/* Member QR */}
-                <div className="flex flex-col items-center ml-4">
-                    <QRCodeSVG 
-                        value={btoa(secretSalt + reg._id + "_" + (member._id || idx))} 
-                        size={80} 
-                        fgColor="#0d9488"
-                        level="H" 
-                    />
-                    <p className="mt-2 text-[7px] font-bold text-slate-400 uppercase italic">Scan to Assign</p>
-                </div>
+                                                        {/* Member Info & BIB */}
+                                                        <div className="flex-1">
+                                                            <p className="text-[10px] font-black text-teal-600 uppercase mb-1 tracking-widest">
+                                                                {member.firstName} {member.lastName}
+                                                            </p>
+                                                            <div className="mt-2">
+                                                                <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-1">Individual BIB</p>
+                                                                <p className="text-lg font-black text-slate-900">
+                                                                    {/* FIX: Force check the nested expoDetails specifically */}
+                                                                    {member.expoDetails && member.expoDetails.bibNumber
+                                                                        ? member.expoDetails.bibNumber
+                                                                        : "WAITING"}
+                                                                </p>
+                                                            </div>
+                                                        </div>
 
-            </div>
-        ))}
-    </div>
-) : (
-                /* Standard Individual View */
-                <div className="flex flex-col items-center">
-                    <p className="text-[10px] font-black text-teal-600 uppercase mb-3 tracking-widest">Digital Entry QR</p>
-                    <div className="bg-white p-3 rounded-2xl shadow-sm">
-                        <QRCodeSVG 
-                            value={encryptedID} 
-                            size={120} 
-                            fgColor="#0d9488"
-                            level="H" 
-                        />
-                    </div>
-                    <p className="mt-3 text-[9px] font-bold text-slate-400 uppercase italic text-center">Scan at Bib Counter</p>
-                </div>
-            )}
-        </div>
-    ) : (
-        <div className="text-center">
-            <p className="text-xs font-bold text-rose-500 uppercase leading-tight">QR Locked<br/>Complete Payment</p>
-        </div>
-    )}
-</div>
+                                                        {/* Member QR */}
+                                                        <div className="flex flex-col items-center ml-4">
+                                                            <QRCodeSVG
+                                                                value={btoa(secretSalt + reg._id + "_" + (member._id || idx))}
+                                                                size={80}
+                                                                fgColor="#0d9488"
+                                                                level="H"
+                                                            />
+                                                            <p className="mt-2 text-[7px] font-bold text-slate-400 uppercase italic">Scan to Assign</p>
+                                                        </div>
+
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            /* Standard Individual View */
+                                            <div className="flex flex-col items-center">
+                                                <p className="text-[10px] font-black text-teal-600 uppercase mb-3 tracking-widest">Digital Entry QR</p>
+                                                <div className="bg-white p-3 rounded-2xl shadow-sm">
+                                                    <QRCodeSVG
+                                                        value={encryptedID}
+                                                        size={120}
+                                                        fgColor="#0d9488"
+                                                        level="H"
+                                                    />
+                                                </div>
+                                                <p className="mt-3 text-[9px] font-bold text-slate-400 uppercase italic text-center">Scan at Bib Counter</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="text-center">
+                                        <p className="text-xs font-bold text-rose-500 uppercase leading-tight">QR Locked<br />Complete Payment</p>
+                                    </div>
+                                )}
+                            </div>
                             <div className="flex flex-col justify-center gap-4 text-center border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-8">
                                 <div>
                                     <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">Total Paid</p>
