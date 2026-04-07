@@ -154,12 +154,14 @@ const UserDashboard = () => {
                         {member.firstName} {member.lastName}
                     </p>
                     <div className="mt-2">
-                        <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-1">Individual BIB</p>
-                        <p className="text-lg font-black text-slate-900">
-                            {/* Check for bib in member object, otherwise show waiting */}
-                            {member.bibNumber || member.expoDetails?.bibNumber || "WAITING"}
-                        </p>
-                    </div>
+    <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-1">Individual BIB</p>
+    <p className="text-lg font-black text-slate-900">
+        {/* FIX: Force check the nested expoDetails specifically */}
+        {member.expoDetails && member.expoDetails.bibNumber 
+            ? member.expoDetails.bibNumber 
+            : "WAITING"}
+    </p>
+</div>
                 </div>
 
                 {/* Member QR */}
