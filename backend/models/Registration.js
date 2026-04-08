@@ -39,9 +39,11 @@ const PaymentDetailsSchema = new mongoose.Schema({
     paidAt: { type: Date, default: Date.now },
 }, { _id: false });
 
-// NEW: Expo specific data sub-schema
+// NEW: Expo specific data sub-schema (Standardized for both Individual & Group)
 const ExpoDetailsSchema = new mongoose.Schema({
-    bibNumber: { type: String, unique: true, sparse: true },
+    bibNumber: { type: String, sparse: true }, // Removed unique: true to prevent null-collision errors
+    assignedBib: { type: String }, // For pre-assignment storage
+    isVerifiedByScan: { type: Boolean, default: false }, // The "Lock" mechanism
     bibCollected: { type: Boolean, default: false },
     tshirtIssued: { type: Boolean, default: false },
     kitIssued: { type: Boolean, default: false },
@@ -85,12 +87,8 @@ const RegistrationSchema = new mongoose.Schema({
         gender: { type: String, required: true },
         tshirtSize: { type: String, required: true },
         raceCategory: { type: String, required: true },
-        // Track Expo status for each group member
-        expoDetails: {
-            bibNumber: { type: String },
-            bibCollected: { type: Boolean, default: false },
-            tshirtIssued: { type: Boolean, default: false }
-        },
+        // Track Expo status using the standardized sub-schema
+        expoDetails: { type: ExpoDetailsSchema, default: () => ({}) },
         nationality: { type: String },
         address: { type: String },
         city: { type: String },
