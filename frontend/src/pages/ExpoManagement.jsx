@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { api } from "../api";
 import { toast } from "react-toastify";
 // ADDED FiPackage to the list below
-import { FiSearch, FiCheckCircle, FiShield, FiCamera, FiX, FiUser, FiPackage } from "react-icons/fi";
+import { FiSearch, FiCheckCircle, FiShield, FiCamera, FiX, FiUser, FiPackage, FiEye, } from "react-icons/fi";
 import { Html5QrcodeScanner, Html5Qrcode } from "html5-qrcode";
 import { useAuth } from "../AuthProvider";
+
 
 const ExpoManagement = () => {
   // Runner Insights
@@ -83,6 +84,21 @@ const ExpoManagement = () => {
     }
     return a.expoDetails?.kitIssued ? -1 : 1;
   });
+
+
+  // insights
+  const [insightsSearch, setInsightsSearch] = useState("");
+
+  const filteredInsights = allRunners.filter(r => {
+    const fullName = `${r.runnerDetails?.firstName} ${r.runnerDetails?.lastName}`.toLowerCase();
+    const email = (r.runnerDetails?.email || "").toLowerCase();
+    const bib = (r.expoDetails?.bibNumber || "").toString();
+    const search = insightsSearch.toLowerCase();
+
+    return fullName.includes(search) || email.includes(search) || bib.includes(search);
+  });
+
+  const [viewingIdUrl, setViewingIdUrl] = useState(null);
 
 
   // inventory tshirt insights
@@ -432,6 +448,19 @@ const ExpoManagement = () => {
               <span className="text-[10px] font-black bg-white/20 px-3 py-1 rounded-full uppercase">{allRunners.length} Total</span>
             </div>
             <div className="overflow-x-auto">
+              {/* SEARCH FILTER BAR */}
+              <div className="p-6 bg-slate-50 border-b border-slate-200">
+                <div className="relative w-full">
+                  <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by BIB, Name, or Email..."
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-teal-500 outline-none transition-all font-bold text-sm shadow-sm"
+                    value={insightsSearch}
+                    onChange={(e) => setInsightsSearch(e.target.value)}
+                  />
+                </div>
+              </div>
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50/80 border-b border-slate-200">
                   <tr>
@@ -440,6 +469,8 @@ const ExpoManagement = () => {
                     <th className="px-4 py-4 text-[10px] font-black uppercase text-slate-500 tracking-wider border-r border-slate-100">Last Name</th>
                     <th className="px-4 py-4 text-[10px] font-black uppercase text-slate-500 tracking-wider border-r border-slate-100 text-center">Category</th>
                     <th className="px-4 py-4 text-[10px] font-black uppercase text-slate-500 tracking-wider border-r border-slate-100">Member Email</th>
+                    <th className="px-4 py-4 text-[10px] font-black uppercase text-slate-500 tracking-wider border-r border-slate-100 text-center">ID Type</th>
+                    <th className="px-4 py-4 text-[10px] font-black uppercase text-slate-500 tracking-wider border-r border-slate-100 text-center">Verification</th>
                     <th className="px-4 py-4 text-[10px] font-black uppercase text-slate-500 tracking-wider border-r border-slate-100 text-center">Identity</th>
                     <th className="px-4 py-4 text-[10px] font-black uppercase text-slate-500 tracking-wider border-r border-slate-100 text-center">T-Shirt</th>
                     <th className="px-4 py-4 text-[10px] font-black uppercase text-slate-500 tracking-wider border-r border-slate-100 text-center">Kit</th>
@@ -447,7 +478,7 @@ const ExpoManagement = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {allRunners.map((r) => (
+                  {filteredInsights.map((r) => (
                     <tr key={r._id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
 
                       {/* BIB NO */}
@@ -475,6 +506,27 @@ const ExpoManagement = () => {
                       {/* EMAIL */}
                       <td className="px-4 py-4 border-r border-slate-100">
                         <p className="text-[11px] font-medium text-slate-600 lowercase">{r.runnerDetails?.email}</p>
+                      </td>
+
+                      {/* ID TYPE */}
+                      <td className="px-4 py-4 border-r border-slate-100 text-center">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase">
+                          {r.idProof?.idType || "---"}
+                        </span>
+                      </td>
+
+                      {/* VERIFICATION POPUP TRIGGER */}
+                      <td className="px-4 py-4 border-r border-slate-100 text-center">
+                        {r.idProof?.path ? (
+                          <button
+                            onClick={() => setViewingIdUrl(r.idProof.path)}
+                            className="bg-teal-50 text-teal-600 hover:bg-teal-100 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all flex items-center gap-1 mx-auto"
+                          >
+                            <FiEye size={12} /> View ID
+                          </button>
+                        ) : (
+                          <span className="text-slate-300 text-[9px] font-black italic">No ID</span>
+                        )}
                       </td>
 
                       {/* IDENTITY */}
@@ -741,8 +793,8 @@ const ExpoManagement = () => {
 
                         <div className="text-right">
                           <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-lg border ${isIssued
-                              ? "bg-green-50 text-green-700 border-green-100"
-                              : "bg-orange-50 text-orange-600 border-orange-100"
+                            ? "bg-green-50 text-green-700 border-green-100"
+                            : "bg-orange-50 text-orange-600 border-orange-100"
                             }`}>
                             {isIssued ? "Issued" : "Pending"}
                           </span>
@@ -765,6 +817,56 @@ const ExpoManagement = () => {
               >
                 Close Registry
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ID DOCUMENT POPUP */}
+      {viewingIdUrl && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10 bg-slate-900/90 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="relative bg-white rounded-[2rem] overflow-hidden shadow-2xl max-w-4xl w-full flex flex-col max-h-full">
+
+            {/* Popup Header */}
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="font-black uppercase italic text-slate-800 tracking-tighter">Identity Verification</h3>
+              <button
+                onClick={() => setViewingIdUrl(null)}
+                className="bg-slate-200 hover:bg-rose-500 hover:text-white p-2 rounded-xl transition-all"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+
+            {/* --- PLACE THE NEW DEBUG CODE HERE --- */}
+            <div className="flex-1 overflow-auto p-4 bg-slate-200/50 flex justify-center items-center">
+  {viewingIdUrl?.toLowerCase().endsWith('.pdf') ? (
+    /* PDF VIEWER */
+    <iframe
+      src={`${viewingIdUrl}#toolbar=0`}
+      className="w-full h-full rounded-lg shadow-lg min-h-[500px]"
+      title="ID PDF"
+    />
+  ) : (
+    /* IMAGE VIEWER */
+    <img
+      src={viewingIdUrl}
+      alt="Runner ID"
+      className="max-w-full h-auto rounded-lg shadow-lg"
+      onLoad={() => console.log("ID LOAD SUCCESS:", viewingIdUrl)}
+      onError={(e) => {
+        console.error("S3 FETCH ERROR:", viewingIdUrl);
+        e.target.src = "https://placehold.co/600x400?text=S3+Access+Denied+or+Missing+File";
+        toast.error("Format mismatch or S3 Block");
+      }}
+    />
+  )}
+</div>
+            {/* --------------------------------------- */}
+
+            {/* Footer */}
+            <div className="p-4 text-center">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sprints Saga India Security Protocol</p>
             </div>
           </div>
         </div>
