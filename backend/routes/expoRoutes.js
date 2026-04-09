@@ -13,4 +13,7 @@ router.get('/search/:query', authMiddleware, staffMiddleware, expoController.sea
 // Route for final check-in/bib assignment
 router.post('/checkin/:registrationId', authMiddleware, staffMiddleware, expoController.checkInRunner);
 
+
+router.get('/all-runners', authMiddleware, staffMiddleware, expoController.getAllRunners);
+
 module.exports = router;
