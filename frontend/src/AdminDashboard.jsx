@@ -269,6 +269,30 @@ function AdminDashboard() {
     return age.toString();
   };
 
+  // TShirt Size 
+    const sizeMap = {
+    male: {
+        "XS": "36", "S": "38", "M": "40", "L": "42", "XL": "44", "XXL": "46", "XXXL": "48"
+    },
+    female: {
+        "XS": "34", "S": "36", "M": "38", "L": "40", "XL": "42", "XXL": "44", "XXXL": "46"
+    }
+};
+
+const getTshirtLabel = (size, gender) => {
+    if (!size || size === "N/A") return "N/A";
+    
+    const cleanGender = (gender || "").toString().toLowerCase().trim();
+    const cleanSize = size.toUpperCase().trim();
+    
+    // Default to male mapping if gender is not strictly 'female'
+    const targetMap = cleanGender === "female" ? sizeMap.female : sizeMap.male;
+    const numericSize = targetMap[cleanSize];
+    
+    return numericSize ? `${numericSize} (${cleanSize})` : cleanSize;
+};
+
+
   const resetFilters = () => {
     setRegFilter("all");
     setCatFilter("all");
@@ -512,7 +536,7 @@ function AdminDashboard() {
         "State": r.displayDetails?.state || "N/A",
         "Pincode": r.displayDetails?.pincode || "N/A",
         "Experience": r.displayDetails?.experience || "N/A",
-        "T-Shirt Size": r.displayDetails?.tshirtSize || "N/A",
+        "T-Shirt Size": getTshirtLabel(r.displayDetails?.tshirtSize, r.displayDetails?.gender),
         "Parent Name": r.displayDetails?.parentName || "N/A",
         "Parent Phone": r.displayDetails?.parentPhone || "N/A",
         "Registration Fee": (!r.isGroupMember || r.memberPosLabel === "Member 1") ? (r.registrationFee || 0) : "—",
@@ -1097,8 +1121,8 @@ function AdminDashboard() {
                             key={option}
                             onClick={() => setGenderFilter(option)}
                             className={`py-2 px-3 rounded-xl text-xs font-black uppercase tracking-wider transition ${genderFilter === option
-                                ? 'bg-teal-600 text-white shadow-md'
-                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                              ? 'bg-teal-600 text-white shadow-md'
+                              : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                               }`}
                           >
                             {option === 'all' ? 'All' : option.charAt(0).toUpperCase() + option.slice(1)}
@@ -1204,8 +1228,8 @@ function AdminDashboard() {
                             key={option}
                             onClick={() => setRevGenderFilter(option)}
                             className={`py-3 px-8 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all duration-300 shadow-sm ${revGenderFilter === option
-                                ? 'bg-teal-600 text-white shadow-teal-200 scale-105'
-                                : 'bg-slate-50 text-slate-400 hover:bg-white hover:border-slate-200 border border-transparent'
+                              ? 'bg-teal-600 text-white shadow-teal-200 scale-105'
+                              : 'bg-slate-50 text-slate-400 hover:bg-white hover:border-slate-200 border border-transparent'
                               }`}
                           >
                             {option}
@@ -1432,7 +1456,9 @@ function AdminDashboard() {
                               <td className="p-5">{r.displayDetails?.experience || "N/A"}</td>
                               <td className="p-5">{r.displayDetails?.finishTime || "N/A"}</td>
                               <td className="p-5">{r.displayDetails?.dietary || "N/A"}</td>
-                              <td className="p-5 font-black">{r.displayDetails?.tshirtSize || "N/A"}</td>
+                              <td className="p-5 font-black">
+                                {getTshirtLabel(r.displayDetails?.tshirtSize, r.displayDetails?.gender)}
+                              </td>
                               <td className="p-5">{r.displayDetails?.parentName || "N/A"}</td>
                               <td className="p-5">{r.displayDetails?.parentPhone || "N/A"}</td>
                               <td className="p-5">
