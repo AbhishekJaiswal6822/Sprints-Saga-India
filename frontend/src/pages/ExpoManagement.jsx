@@ -57,32 +57,32 @@ const ExpoManagement = () => {
   // view logs
   const [showLogModal, setShowLogModal] = useState(false);
 
-const distributionLogs = allRunners
-  .filter(r => r.expoDetails?.kitIssued)
-  .sort((a, b) => new Date(b.expoDetails.collectedAt) - new Date(a.expoDetails.collectedAt))
-  .slice(0, 50); // Show only the latest 50 to keep it fast
+  const distributionLogs = allRunners
+    .filter(r => r.expoDetails?.kitIssued)
+    .sort((a, b) => new Date(b.expoDetails.collectedAt) - new Date(a.expoDetails.collectedAt))
+    .slice(0, 50); // Show only the latest 50 to keep it fast
 
   const [logSearch, setLogSearch] = useState("");
-const [statusFilter, setStatusFilter] = useState("all"); // "all", "issued", "pending"
+  const [statusFilter, setStatusFilter] = useState("all"); // "all", "issued", "pending"
 
-const filteredLogs = allRunners.filter(r => {
+  const filteredLogs = allRunners.filter(r => {
     const fullName = `${r.runnerDetails?.firstName} ${r.runnerDetails?.lastName}`.toLowerCase();
     const bib = (r.expoDetails?.bibNumber || "").toString();
     const matchesSearch = fullName.includes(logSearch.toLowerCase()) || bib.includes(logSearch);
-    
+
     const isIssued = r.expoDetails?.kitIssued;
-    const matchesStatus = 
-        statusFilter === "all" ? true :
+    const matchesStatus =
+      statusFilter === "all" ? true :
         statusFilter === "issued" ? isIssued : !isIssued;
 
     return matchesSearch && matchesStatus;
-}).sort((a, b) => {
+  }).sort((a, b) => {
     // Sort issued ones to the top by time, then pending ones
     if (a.expoDetails?.kitIssued && b.expoDetails?.kitIssued) {
-        return new Date(b.expoDetails.collectedAt) - new Date(a.expoDetails.collectedAt);
+      return new Date(b.expoDetails.collectedAt) - new Date(a.expoDetails.collectedAt);
     }
     return a.expoDetails?.kitIssued ? -1 : 1;
-});
+  });
 
 
   // inventory tshirt insights
@@ -92,38 +92,38 @@ const filteredLogs = allRunners.filter(r => {
   const tShirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
   // Calculate stats per size based on allRunners data
- // 1. Get ALL unique sizes present in the data (Dynamic detection)
-const uniqueSizes = [...new Set(allRunners.map(r => r.runnerDetails?.tshirtSize?.toUpperCase()))]
-  .filter(Boolean) // Remove null/undefined
-  .sort(); // Sorts them alphabetically/logical order
+  // 1. Get ALL unique sizes present in the data (Dynamic detection)
+  const uniqueSizes = [...new Set(allRunners.map(r => r.runnerDetails?.tshirtSize?.toUpperCase()))]
+    .filter(Boolean) // Remove null/undefined
+    .sort(); // Sorts them alphabetically/logical order
 
-// 2. Calculate stats based on EVERY runner found
-const sizeBreakdown = uniqueSizes.map(size => {
-  const runnersForSize = allRunners.filter(r => 
-    r.runnerDetails?.tshirtSize?.toUpperCase() === size
-  );
-  
-  const collected = runnersForSize.filter(r => r.expoDetails?.tshirtIssued).length;
-  const total = runnersForSize.length;
-  
-  return {
-    size,
-    total,
-    collected,
-    remaining: total - collected
-  };
-});
+  // 2. Calculate stats based on EVERY runner found
+  const sizeBreakdown = uniqueSizes.map(size => {
+    const runnersForSize = allRunners.filter(r =>
+      r.runnerDetails?.tshirtSize?.toUpperCase() === size
+    );
 
-// 3. Optional: Add a "Missing Info" row if any runners have no size selected
-const missingSizeCount = allRunners.filter(r => !r.runnerDetails?.tshirtSize).length;
-if (missingSizeCount > 0) {
-  sizeBreakdown.push({
-    size: "N/A",
-    total: missingSizeCount,
-    collected: allRunners.filter(r => !r.runnerDetails?.tshirtSize && r.expoDetails?.tshirtIssued).length,
-    remaining: missingSizeCount
+    const collected = runnersForSize.filter(r => r.expoDetails?.tshirtIssued).length;
+    const total = runnersForSize.length;
+
+    return {
+      size,
+      total,
+      collected,
+      remaining: total - collected
+    };
   });
-}
+
+  // 3. Optional: Add a "Missing Info" row if any runners have no size selected
+  const missingSizeCount = allRunners.filter(r => !r.runnerDetails?.tshirtSize).length;
+  if (missingSizeCount > 0) {
+    sizeBreakdown.push({
+      size: "N/A",
+      total: missingSizeCount,
+      collected: allRunners.filter(r => !r.runnerDetails?.tshirtSize && r.expoDetails?.tshirtIssued).length,
+      remaining: missingSizeCount
+    });
+  }
 
 
   useEffect(() => {
@@ -602,12 +602,12 @@ if (missingSizeCount > 0) {
                       <p className="text-4xl font-black text-slate-900">{totalInventory - kitsAllocated}</p>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Units Available</p>
                     </div>
-                    <button 
-  onClick={() => setShowLogModal(true)}
-  className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95"
->
-  View Log
-</button>
+                    <button
+                      onClick={() => setShowLogModal(true)}
+                      className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95"
+                    >
+                      View Log
+                    </button>
                   </div>
                 </div>
               </div>
@@ -617,8 +617,9 @@ if (missingSizeCount > 0) {
 
       </div>
       {showSizeModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl border border-white">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 animate-in fade-in duration-300">
+          {/* Increased max-width and added height constraints */}
+          <div className="bg-white rounded-[2.5rem] w-full max-w-7xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-white">
             {/* Header */}
             <div className="bg-slate-900 p-8 text-white flex justify-between items-center">
               <div>
@@ -670,107 +671,104 @@ if (missingSizeCount > 0) {
       )}
 
       {showLogModal && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-    <div className="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl border border-white flex flex-col max-h-[90vh]">
-      
-      {/* Header with Search */}
-      <div className="bg-blue-600 p-8 text-white">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-black uppercase italic tracking-tighter leading-none">Distribution Master Log</h2>
-            <p className="text-[10px] font-bold uppercase tracking-widest opacity-70 mt-2">Live Registry Status</p>
-          </div>
-          <button onClick={() => setShowLogModal(false)} className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-all">
-            <FiX size={24} />
-          </button>
-        </div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl border border-white flex flex-col max-h-[90vh]">
 
-        {/* SEARCH BAR */}
-        <div className="relative mb-4">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-300" />
-            <input 
-                type="text"
-                placeholder="Search by Name or BIB..."
-                className="w-full bg-blue-700/50 border border-blue-400/30 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold placeholder:text-blue-300 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
-                value={logSearch}
-                onChange={(e) => setLogSearch(e.target.value)}
-            />
-        </div>
+            {/* Header with Search */}
+            <div className="bg-blue-600 p-8 text-white">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-black uppercase italic tracking-tighter leading-none">Distribution Master Log</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-70 mt-2">Live Registry Status</p>
+                </div>
+                <button onClick={() => setShowLogModal(false)} className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-all">
+                  <FiX size={24} />
+                </button>
+              </div>
 
-        {/* FILTERS */}
-        <div className="flex gap-2">
-            {[
-                { id: 'all', label: 'All' },
-                { id: 'issued', label: 'Issued' },
-                { id: 'pending', label: 'Pending' }
-            ].map(tab => (
-                <button 
+              {/* SEARCH BAR */}
+              <div className="relative mb-4">
+                <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-300" />
+                <input
+                  type="text"
+                  placeholder="Search by Name or BIB..."
+                  className="w-full bg-blue-700/50 border border-blue-400/30 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold placeholder:text-blue-300 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+                  value={logSearch}
+                  onChange={(e) => setLogSearch(e.target.value)}
+                />
+              </div>
+
+              {/* FILTERS */}
+              <div className="flex gap-2">
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'issued', label: 'Issued' },
+                  { id: 'pending', label: 'Pending' }
+                ].map(tab => (
+                  <button
                     key={tab.id}
                     onClick={() => setStatusFilter(tab.id)}
-                    className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                        statusFilter === tab.id ? "bg-white text-blue-600 shadow-lg" : "bg-blue-700/50 text-blue-200 hover:bg-blue-700"
-                    }`}
-                >
+                    className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === tab.id ? "bg-white text-blue-600 shadow-lg" : "bg-blue-700/50 text-blue-200 hover:bg-blue-700"
+                      }`}
+                  >
                     {tab.label}
-                </button>
-            ))}
-        </div>
-      </div>
-
-      {/* LIST CONTENT */}
-      <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
-        <div className="space-y-3">
-          {filteredLogs.length > 0 ? (
-            filteredLogs.map((log, index) => {
-              const isIssued = log.expoDetails?.kitIssued;
-              return (
-                <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:border-blue-200">
-                  <div className={`p-3 rounded-full font-black text-xs h-12 w-12 flex items-center justify-center border-2 ${
-                    isIssued ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
-                  }`}>
-                    {log.expoDetails?.bibNumber || '---'}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <p className="font-black text-slate-900 uppercase text-sm leading-none mb-1">
-                      {log.runnerDetails?.firstName} {log.runnerDetails?.lastName}
-                    </p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
-                        {log.raceCategory} {isIssued && `| Handed at ${new Date(log.expoDetails.collectedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-lg border ${
-                        isIssued 
-                        ? "bg-green-50 text-green-700 border-green-100" 
-                        : "bg-orange-50 text-orange-600 border-orange-100"
-                    }`}>
-                      {isIssued ? "Issued" : "Pending"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="text-center py-20">
-              <p className="text-slate-400 font-black uppercase text-xs tracking-[0.2em]">No runners match your search</p>
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      <div className="p-6 bg-white border-t border-slate-100">
-        <button 
-          onClick={() => setShowLogModal(false)}
-          className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
-        >
-          Close Registry
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            {/* LIST CONTENT */}
+            <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+              <div className="space-y-3">
+                {filteredLogs.length > 0 ? (
+                  filteredLogs.map((log, index) => {
+                    const isIssued = log.expoDetails?.kitIssued;
+                    return (
+                      <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:border-blue-200">
+                        <div className={`p-3 rounded-full font-black text-xs h-12 w-12 flex items-center justify-center border-2 ${isIssued ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-slate-50 text-slate-400 border-slate-100"
+                          }`}>
+                          {log.expoDetails?.bibNumber || '---'}
+                        </div>
+
+                        <div className="flex-1">
+                          <p className="font-black text-slate-900 uppercase text-sm leading-none mb-1">
+                            {log.runnerDetails?.firstName} {log.runnerDetails?.lastName}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                            {log.raceCategory} {isIssued && `| Handed at ${new Date(log.expoDetails.collectedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-lg border ${isIssued
+                              ? "bg-green-50 text-green-700 border-green-100"
+                              : "bg-orange-50 text-orange-600 border-orange-100"
+                            }`}>
+                            {isIssued ? "Issued" : "Pending"}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-20">
+                    <p className="text-slate-400 font-black uppercase text-xs tracking-[0.2em]">No runners match your search</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="p-6 bg-white border-t border-slate-100">
+              <button
+                onClick={() => setShowLogModal(false)}
+                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
+              >
+                Close Registry
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
