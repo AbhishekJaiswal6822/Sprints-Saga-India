@@ -108,28 +108,32 @@ exports.checkInRunner = async (req, res) => {
 // 3. GET ALL RUNNERS (For Insights Tab)
 exports.getAllRunners = async (req, res) => {
     try {
-        // Fetch all registrations that are "Verified" or "Awaiting" 
-        // We only need specific fields to keep the response fast
+        // --- FIX 1: Added 'idProof' to the select string ---
         const runners = await Registration.find({ paymentStatus: 'paid' })
-            .select('runnerDetails raceCategory expoDetails registeredAt registrationType groupMembers')
+            .select('runnerDetails raceCategory expoDetails registeredAt registrationType groupMembers idProof')
             .sort({ registeredAt: -1 });
 
-        // Flatten the data: If it's a group, we want to see the members too
         let flatList = [];
 
         runners.forEach(reg => {
             if (reg.registrationType === 'group') {
-                reg.groupMembers.forEach(member => {
+                reg.groupMembers.forEach((member, index) => {
                     flatList.push({
                         _id: member._id,
                         runnerDetails: {
                             firstName: member.firstName,
                             lastName: member.lastName,
-                            email: member.email
+                            email: member.email,
+                            // --- FIX 2: Added tshirtSize here so it shows in the table ---
+                            tshirtSize: member.tshirtSize 
                         },
+                        // FALLBACK: Use member ID if exists, otherwise group leader's ID
+                        idProof: member.idProof || reg.idProof, 
+                        
                         expoDetails: member.expoDetails,
                         raceCategory: member.raceCategory || reg.raceCategory,
-                        isGroup: true
+                        isGroup: true,
+                        memberLabel: `Member ${index + 1}`
                     });
                 });
             } else {
