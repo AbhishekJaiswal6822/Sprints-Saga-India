@@ -104,3 +104,42 @@ exports.checkInRunner = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+// 3. GET ALL RUNNERS (For Insights Tab)
+exports.getAllRunners = async (req, res) => {
+    try {
+        // Fetch all registrations that are "Verified" or "Awaiting" 
+        // We only need specific fields to keep the response fast
+        const runners = await Registration.find({ paymentStatus: 'paid' })
+            .select('runnerDetails raceCategory expoDetails registeredAt registrationType groupMembers')
+            .sort({ registeredAt: -1 });
+
+        // Flatten the data: If it's a group, we want to see the members too
+        let flatList = [];
+
+        runners.forEach(reg => {
+            if (reg.registrationType === 'group') {
+                reg.groupMembers.forEach(member => {
+                    flatList.push({
+                        _id: member._id,
+                        runnerDetails: {
+                            firstName: member.firstName,
+                            lastName: member.lastName,
+                            email: member.email
+                        },
+                        expoDetails: member.expoDetails,
+                        raceCategory: member.raceCategory || reg.raceCategory,
+                        isGroup: true
+                    });
+                });
+            } else {
+                flatList.push(reg);
+            }
+        });
+
+        res.status(200).json({ success: true, data: flatList });
+    } catch (error) {
+        console.error("Fetch Insights Error:", error);
+        res.status(500).json({ success: false, message: "Server error fetching insights" });
+    }
+};
