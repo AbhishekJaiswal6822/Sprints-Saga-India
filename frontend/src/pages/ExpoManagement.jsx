@@ -116,7 +116,7 @@ const ExpoManagement = () => {
 
   // 2. Calculate stats based on EVERY runner found
   const sizeBreakdown = tShirtSizes.map(size => {
-    const runnersForSize = allRunners.filter(r => 
+    const runnersForSize = allRunners.filter(r =>
       r.runnerDetails?.tshirtSize?.toUpperCase() === size
     );
 
@@ -193,13 +193,37 @@ const ExpoManagement = () => {
         }
       };
 
+      // Define a function for a truly dynamic and responsive scan area
+      const qrboxFunction = (viewfinderWidth, viewfinderHeight) => {
+        let minEdgePercentage = 0.7; // 70% of the smallest edge
+        let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+        let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+
+        // Ensure the box doesn't get too small or too huge
+        return {
+          width: Math.max(qrboxSize, 250),
+          height: Math.max(qrboxSize, 250)
+        };
+      };
+
       // Forces HP Wide Vision / Laptop Camera
+      // Optimized start for a much larger and faster scanning experience
       html5QrCode.start(
-        { facingMode: facingMode }, // Uses the dynamic state
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        { facingMode: facingMode },
+        {
+          fps: 30, // Much faster detection
+          qrbox: { width: 600, height: 600 }, // Forced large size
+          aspectRatio: 1.0,
+          disableFlip: false
+        },
         qrCodeSuccessCallback
       ).catch(err => {
-        console.error("Camera start error:", err);
+        // Fallback if 600 is too large for a low-res camera
+        html5QrCode.start(
+          { facingMode: facingMode },
+          { fps: 20, qrbox: { width: 250, height: 250 } },
+          qrCodeSuccessCallback
+        );
       });
     }
 
@@ -856,28 +880,28 @@ const ExpoManagement = () => {
 
             {/* --- PLACE THE NEW DEBUG CODE HERE --- */}
             <div className="flex-1 overflow-auto p-4 bg-slate-200/50 flex justify-center items-center">
-  {viewingIdUrl?.toLowerCase().endsWith('.pdf') ? (
-    /* PDF VIEWER */
-    <iframe
-      src={`${viewingIdUrl}#toolbar=0`}
-      className="w-full h-full rounded-lg shadow-lg min-h-[500px]"
-      title="ID PDF"
-    />
-  ) : (
-    /* IMAGE VIEWER */
-    <img
-      src={viewingIdUrl}
-      alt="Runner ID"
-      className="max-w-full h-auto rounded-lg shadow-lg"
-      onLoad={() => console.log("ID LOAD SUCCESS:", viewingIdUrl)}
-      onError={(e) => {
-        console.error("S3 FETCH ERROR:", viewingIdUrl);
-        e.target.src = "https://placehold.co/600x400?text=S3+Access+Denied+or+Missing+File";
-        toast.error("Format mismatch or S3 Block");
-      }}
-    />
-  )}
-</div>
+              {viewingIdUrl?.toLowerCase().endsWith('.pdf') ? (
+                /* PDF VIEWER */
+                <iframe
+                  src={`${viewingIdUrl}#toolbar=0`}
+                  className="w-full h-full rounded-lg shadow-lg min-h-[500px]"
+                  title="ID PDF"
+                />
+              ) : (
+                /* IMAGE VIEWER */
+                <img
+                  src={viewingIdUrl}
+                  alt="Runner ID"
+                  className="max-w-full h-auto rounded-lg shadow-lg"
+                  onLoad={() => console.log("ID LOAD SUCCESS:", viewingIdUrl)}
+                  onError={(e) => {
+                    console.error("S3 FETCH ERROR:", viewingIdUrl);
+                    e.target.src = "https://placehold.co/600x400?text=S3+Access+Denied+or+Missing+File";
+                    toast.error("Format mismatch or S3 Block");
+                  }}
+                />
+              )}
+            </div>
             {/* --------------------------------------- */}
 
             {/* Footer */}
