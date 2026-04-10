@@ -106,7 +106,9 @@ const UserDashboard = () => {
                                         <div>
                                             <p className="text-slate-400 font-black uppercase text-[9px] tracking-widest mb-1">BIB Number</p>
                                             <p className="text-xl font-black text-slate-900">
-                                                {reg.expoDetails?.bibNumber || "Process Pending"}
+                                                {reg.expoDetails?.bibCollected && reg.expoDetails?.bibNumber
+                                                    ? reg.expoDetails.bibNumber
+                                                    : "PROCESS PENDING"}
                                             </p>
                                         </div>
                                     )}
@@ -155,7 +157,7 @@ const UserDashboard = () => {
                                                             <div className="mt-2 py-1 px-3 bg-slate-50 rounded-full inline-block border border-slate-100">
                                                                 <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-0.5">Individual BIB</p>
                                                                 <p className="text-xl font-black text-slate-600 leading-none">
-                                                                    {member.expoDetails && member.expoDetails.bibNumber
+                                                                    {member.expoDetails?.bibCollected && member.expoDetails?.bibNumber
                                                                         ? member.expoDetails.bibNumber
                                                                         : "PROCESS PENDING"}
                                                                 </p>
@@ -180,18 +182,37 @@ const UserDashboard = () => {
                                                 ))}
                                             </div>
                                         ) : (
-                                            /* Standard Individual View */
-                                            <div className="flex flex-col items-center">
-                                                <p className="text-[10px] font-black text-teal-600 uppercase mb-3 tracking-widest">Digital Entry QR</p>
-                                                <div className="bg-white p-3 rounded-2xl shadow-sm">
-                                                    <QRCodeSVG
-                                                        value={encryptedID}
-                                                        size={120}
-                                                        fgColor="#0d9488"
-                                                        level="H"
-                                                    />
+                                            /* Standard Individual View (Standardized Layout) */
+                                            <div className="w-full max-w-[200px] mx-auto flex flex-col items-center bg-white p-6 rounded-[2rem] shadow-md border border-slate-100 transition-transform hover:scale-[1.02]">
+
+                                                {/* Name and BIB Status Badge */}
+                                                <div className="text-center mb-4 w-full">
+                                                    <p className="text-[12px] font-black text-teal-600 uppercase tracking-widest truncate leading-tight">
+                                                        {reg.runnerDetails?.firstName} <br /> {reg.runnerDetails?.lastName}
+                                                    </p>
+                                                    <div className="mt-2 py-1 px-3 bg-slate-50 rounded-full inline-block border border-slate-100">
+                                                        <p className="text-slate-400 font-black uppercase text-[8px] tracking-widest mb-0.5">Individual BIB</p>
+                                                        <p className="text-xl font-black text-slate-600 leading-none">
+                                                            {reg.expoDetails?.bibCollected && reg.expoDetails?.bibNumber
+                                                                ? reg.expoDetails.bibNumber
+                                                                : "PROCESS PENDING"}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <p className="mt-3 text-[9px] font-bold text-slate-400 uppercase italic text-center">Scan at Bib Counter</p>
+
+                                                {/* QR Code Container with dashed border */}
+                                                <div className="flex flex-col items-center w-full">
+                                                    <div className="bg-white p-2 rounded-2xl border-2 border-dashed border-teal-100 flex items-center justify-center">
+                                                        <QRCodeSVG
+                                                            value={encryptedID}
+                                                            size={120}
+                                                            fgColor="#0d9488"
+                                                            level="H"
+                                                            includeMargin={false}
+                                                        />
+                                                    </div>
+                                                    <p className="mt-3 text-[9px] font-black text-slate-400 uppercase italic tracking-widest">Scan AT BIB COUNTER</p>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
