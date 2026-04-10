@@ -108,7 +108,6 @@ exports.checkInRunner = async (req, res) => {
 // 3. GET ALL RUNNERS (For Insights Tab)
 exports.getAllRunners = async (req, res) => {
     try {
-        // --- FIX 1: Added 'idProof' to the select string ---
         const runners = await Registration.find({ paymentStatus: 'paid' })
             .select('runnerDetails raceCategory expoDetails registeredAt registrationType groupMembers idProof')
             .sort({ registeredAt: -1 });
@@ -118,26 +117,38 @@ exports.getAllRunners = async (req, res) => {
         runners.forEach(reg => {
             if (reg.registrationType === 'group') {
                 reg.groupMembers.forEach((member, index) => {
+                    // Convert to object to manipulate
+                    const memberObj = member.toObject();
+                    
+                    // PERMANENT FIX: Ensure bibNumber is populated from assignedBib if empty
+                    if (memberObj.expoDetails) {
+                        memberObj.expoDetails.bibNumber = memberObj.expoDetails.bibNumber || memberObj.expoDetails.assignedBib;
+                    }
+
                     flatList.push({
                         _id: member._id,
                         runnerDetails: {
                             firstName: member.firstName,
                             lastName: member.lastName,
                             email: member.email,
-                            // --- FIX 2: Added tshirtSize here so it shows in the table ---
                             tshirtSize: member.tshirtSize 
                         },
-                        // FALLBACK: Use member ID if exists, otherwise group leader's ID
                         idProof: member.idProof || reg.idProof, 
-                        
-                        expoDetails: member.expoDetails,
+                        expoDetails: memberObj.expoDetails,
                         raceCategory: member.raceCategory || reg.raceCategory,
                         isGroup: true,
                         memberLabel: `Member ${index + 1}`
                     });
                 });
             } else {
-                flatList.push(reg);
+                const regObj = reg.toObject();
+                
+                // PERMANENT FIX: Ensure bibNumber is populated from assignedBib if empty
+                if (regObj.expoDetails) {
+                    regObj.expoDetails.bibNumber = regObj.expoDetails.bibNumber || regObj.expoDetails.assignedBib;
+                }
+                
+                flatList.push(regObj);
             }
         });
 
