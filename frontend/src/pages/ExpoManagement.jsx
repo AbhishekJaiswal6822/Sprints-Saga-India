@@ -1,3 +1,4 @@
+// C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\frontend\src\pages\ExpoManagement.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { api } from "../api";
 import { toast } from "react-toastify";
@@ -114,8 +115,8 @@ const ExpoManagement = () => {
     .sort(); // Sorts them alphabetically/logical order
 
   // 2. Calculate stats based on EVERY runner found
-  const sizeBreakdown = uniqueSizes.map(size => {
-    const runnersForSize = allRunners.filter(r =>
+  const sizeBreakdown = tShirtSizes.map(size => {
+    const runnersForSize = allRunners.filter(r => 
       r.runnerDetails?.tshirtSize?.toUpperCase() === size
     );
 
@@ -128,7 +129,22 @@ const ExpoManagement = () => {
       collected,
       remaining: total - collected
     };
+  }).filter(item => item.total > 0); // Only show sizes that have registrations
+
+  // Handle messy "NA", null, or empty sizes into one single "Not Specified" row
+  const missingRunners = allRunners.filter(r => {
+    const size = r.runnerDetails?.tshirtSize?.toUpperCase();
+    return !size || size === "NA" || size === "N/A" || !tShirtSizes.includes(size);
   });
+
+  if (missingRunners.length > 0) {
+    sizeBreakdown.push({
+      size: "NOT SPECIFIED",
+      total: missingRunners.length,
+      collected: missingRunners.filter(r => r.expoDetails?.tshirtIssued).length,
+      remaining: missingRunners.length - missingRunners.filter(r => r.expoDetails?.tshirtIssued).length
+    });
+  }
 
   // 3. Optional: Add a "Missing Info" row if any runners have no size selected
   const missingSizeCount = allRunners.filter(r => !r.runnerDetails?.tshirtSize).length;
