@@ -232,7 +232,22 @@ const RaceDay = () => {
                 {[
                   { icon: Calendar, label: "Date", value: "11th April 2026", color: "orange" },
                   { icon: Clock, label: "Time", value: "9 AM to 5 PM", color: "cyan" },
-                  { icon: MapPin, label: "Venue", value: <>University Athletic Field,<br/>Savitribai Phule Pune University</>, color: "orange" }
+                  { 
+  icon: MapPin, 
+  label: "Venue", 
+  value: (
+    <a 
+      // href="https://www.google.com/maps/search/?api=1&query=University+Athletic+Field+Savitribai+Phule+Pune+University" 
+      href="https://maps.app.goo.gl/veKqmGFUdTMsXBrTA"
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="hover:text-orange-600 transition-colors cursor-pointer"
+    >
+      University Athletic Field,<br/>Savitribai Phule Pune University
+    </a>
+  ), 
+  color: "orange" 
+}
                 ].map((item, idx) => (
                   <motion.div
                     key={idx}
