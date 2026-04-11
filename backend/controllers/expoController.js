@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 const Registration = require('../models/Registration');
-const nodemailer = require('nodemailer'); 
+const nodemailer = require('nodemailer');
 
 // --- GMAIL TRANSPORTER CONFIGURATION ---
 const transporter = nodemailer.createTransport({
@@ -10,8 +10,8 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-        user: 'lokrajamarathon2026@gmail.com', 
-        pass: 'wfconrpqxbqawuko'     
+        user: 'lokrajamarathon2026@gmail.com',
+        pass: 'wfconrpqxbqawuko'
     }
 });
 
@@ -23,13 +23,13 @@ exports.searchRunner = async (req, res) => {
         const { memberId } = req.query; // Capture memberId from query string
 
         const runner = await Registration.findOne({
-    $or: [
-        { "runnerDetails.phone": query },
-        { "runnerDetails.email": query.toLowerCase() },
-        { "expoDetails.assignedBib": query }, // Added Assigned Bib search
-        { "_id": mongoose.Types.ObjectId.isValid(query) ? query : null }
-    ]
-});
+            $or: [
+                { "runnerDetails.phone": query },
+                { "runnerDetails.email": query.toLowerCase() },
+                { "expoDetails.assignedBib": query }, // Added Assigned Bib search
+                { "_id": mongoose.Types.ObjectId.isValid(query) ? query : null }
+            ]
+        });
 
         if (!runner) {
             return res.status(404).json({ success: false, message: "No runner found." });
@@ -76,9 +76,9 @@ exports.checkInRunner = async (req, res) => {
         }
 
         if (!target?.expoDetails?.assignedBib) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "STRICT ERROR: Runner not in Excel Master List. Update Excel and Sync first." 
+            return res.status(400).json({
+                success: false,
+                message: "STRICT ERROR: Runner not in Excel Master List. Update Excel and Sync first."
             });
         }
 
@@ -131,12 +131,18 @@ exports.checkInRunner = async (req, res) => {
             `
         };
 
-        transporter.sendMail(mailOptions).catch(err => console.error("Email Error:", err));
+        try {
+            // This forces the LIVE server to wait until Gmail says "Received"
+            await transporter.sendMail(mailOptions);
+            console.log("Email sent successfully on live");
+        } catch (mailErr) {
+            console.error("Mail failed on live:", mailErr);
+        }
 
         // Send ONLY ONE response
-        return res.status(200).json({ 
-            success: true, 
-            bibAssigned: finalBib 
+        return res.status(200).json({
+            success: true,
+            bibAssigned: finalBib
         });
 
     } catch (error) {
@@ -159,7 +165,7 @@ exports.getAllRunners = async (req, res) => {
                 reg.groupMembers.forEach((member, index) => {
                     // Convert to object to manipulate
                     const memberObj = member.toObject();
-                    
+
                     // PERMANENT FIX: Ensure bibNumber is populated from assignedBib if empty
                     if (memberObj.expoDetails) {
                         memberObj.expoDetails.bibNumber = memberObj.expoDetails.bibNumber || memberObj.expoDetails.assignedBib;
@@ -171,9 +177,9 @@ exports.getAllRunners = async (req, res) => {
                             firstName: member.firstName,
                             lastName: member.lastName,
                             email: member.email,
-                            tshirtSize: member.tshirtSize 
+                            tshirtSize: member.tshirtSize
                         },
-                        idProof: member.idProof || reg.idProof, 
+                        idProof: member.idProof || reg.idProof,
                         expoDetails: memberObj.expoDetails,
                         raceCategory: member.raceCategory || reg.raceCategory,
                         isGroup: true,
@@ -182,12 +188,12 @@ exports.getAllRunners = async (req, res) => {
                 });
             } else {
                 const regObj = reg.toObject();
-                
+
                 // PERMANENT FIX: Ensure bibNumber is populated from assignedBib if empty
                 if (regObj.expoDetails) {
                     regObj.expoDetails.bibNumber = regObj.expoDetails.bibNumber || regObj.expoDetails.assignedBib;
                 }
-                
+
                 flatList.push(regObj);
             }
         });
