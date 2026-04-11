@@ -232,21 +232,29 @@ const RaceDay = () => {
                 {[
                   { icon: Calendar, label: "Date", value: "11th April 2026", color: "orange" },
                   { icon: Clock, label: "Time", value: "9 AM to 5 PM", color: "cyan" },
-                  { 
-  icon: MapPin, 
-  label: "Venue", 
+                  {
+  icon: MapPin,
+  label: "Venue",
   value: (
     <a 
-      // href="https://www.google.com/maps/search/?api=1&query=University+Athletic+Field+Savitribai+Phule+Pune+University" 
-      href="https://maps.app.goo.gl/veKqmGFUdTMsXBrTA"
+      href="https://maps.app.goo.gl/veKqmGFUdTmsXBrTA" 
       target="_blank" 
       rel="noopener noreferrer"
-      className="hover:text-orange-600 transition-colors cursor-pointer"
+      className="group block"
     >
-      University Athletic Field,<br/>Savitribai Phule Pune University
+      <p className="text-slate-900 font-bold leading-tight hover:text-orange-600 active:scale-95 transition-all duration-200 cursor-pointer underline decoration-orange-300 underline-offset-4 md:no-underline md:border-b-2 md:border-transparent md:hover:border-orange-200 inline-block md:block">
+        University Athletic Field,<br />
+        <span className="group-hover:text-orange-600 transition-colors">
+          Savitribai Phule Pune University
+        </span>
+      </p>
+      {/* Mobile Hint */}
+      <p className="text-[9px] font-black text-orange-500 mt-2 md:hidden flex items-center gap-1 animate-pulse uppercase tracking-tighter">
+        Tap to open Maps →
+      </p>
     </a>
-  ), 
-  color: "orange" 
+  ),
+  color: "orange"
 }
                 ].map((item, idx) => (
                   <motion.div
