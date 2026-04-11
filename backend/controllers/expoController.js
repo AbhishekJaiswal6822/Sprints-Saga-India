@@ -1,6 +1,19 @@
 // C:\Users\abhis\OneDrive\Desktop\SOFTWARE_DEVELOPER_LEARNING\marathon_project\backend\controllers\expoController.js
+
 const mongoose = require('mongoose');
 const Registration = require('../models/Registration');
+const nodemailer = require('nodemailer'); 
+
+// Initialize the transporter once at the top level
+const transporter = nodemailer.createTransport({
+    host: "smtp.zoho.in",
+    port: 465,
+    secure: true, 
+    auth: {
+        user: "info@sprintssagaindia.com",
+        pass: "q7aVA1xBzCYh" 
+    }
+});
 
 
 // 1. SEARCH RUNNER (Handles memberId for Groups)
@@ -10,12 +23,13 @@ exports.searchRunner = async (req, res) => {
         const { memberId } = req.query; // Capture memberId from query string
 
         const runner = await Registration.findOne({
-            $or: [
-                { "runnerDetails.phone": query },
-                { "runnerDetails.email": query.toLowerCase() },
-                { "_id": mongoose.Types.ObjectId.isValid(query) ? query : null }
-            ]
-        });
+    $or: [
+        { "runnerDetails.phone": query },
+        { "runnerDetails.email": query.toLowerCase() },
+        { "expoDetails.assignedBib": query }, // Added Assigned Bib search
+        { "_id": mongoose.Types.ObjectId.isValid(query) ? query : null }
+    ]
+});
 
         if (!runner) {
             return res.status(404).json({ success: false, message: "No runner found." });
@@ -97,7 +111,42 @@ exports.checkInRunner = async (req, res) => {
         }
 
         await registration.save();
-        res.status(200).json({ success: true, bibAssigned: finalBib });
+
+        // --- BACKGROUND EMAIL NOTIFICATION ---
+        const mailOptions = {
+            from: '"Sprints Saga India" <info@sprintssagaindia.com>',
+            to: target.runnerDetails.email,
+            subject: `BIB Allocated: ${finalBib} - Sprints Saga India 2026`,
+            html: `
+                <div style="font-family: sans-serif; border: 1px solid #e2e8f0; padding: 20px; border-radius: 15px; max-width: 600px;">
+                    <h2 style="color: #0d9488;">BIB Allocation Successful! 🏃‍♂️</h2>
+                    <p>Hello <strong>${target.runnerDetails.firstName}</strong>,</p>
+                    <p>Your bib verification has been successful. Here are your details:</p>
+                    <div style="background: #f1f5f9; padding: 15px; border-radius: 10px; text-align: center; margin: 20px 0;">
+                        <span style="font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Your BIB Number</span><br/>
+                        <span style="font-size: 48px; font-weight: 900; color: #0f172a;">${finalBib}</span>
+                    </div>
+                    <p>Get excited to be a part of the <strong>LokRaja Marathon 2026 - Chapter Pune</strong>!</p>
+                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                    <p style="font-size: 12px; color: #94a3b8;">For any queries, mail us at <a href="mailto:info@sprintssagaindia.com" style="color: #0d9488;">info@sprintssagaindia.com</a></p>
+                </div>
+            `
+        };
+
+        // Fire and forget (don't use await so the volunteer doesn't wait for the email to send)
+        transporter.sendMail(mailOptions).catch(err => console.error("Email Error:", err));
+
+        // Return the response immediately to the volunteer
+        res.status(200).json({ 
+            success: true, 
+            bibAssigned: finalBib 
+        });
+
+    
+       res.status(200).json({ 
+            success: true, 
+            bibAssigned: finalBib 
+        });
 
     } catch (error) {
         console.error("Check-in Error:", error);
