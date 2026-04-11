@@ -275,13 +275,15 @@ const ExpoManagement = () => {
         method: "POST",
         token: token,
         body: {
-          ...checklist,
-          memberId: runner.activeMemberId // Use the ID we attached in performSearch
+          isVerifiedByScan: checklist.isVerified, // Map frontend state to backend key
+          tshirtIssued: checklist.tshirtIssued,
+          kitIssued: checklist.kitIssued,
+          memberId: runner.activeMemberId
         },
       });
 
       if (res.success) {
-        toast.success(`Success! Bib Assigned: ${res.bibAssigned}`);
+        toast.success(`Success! Bib Assigned: ${res.bibAssigned}. Email sent to runner.`);
         setRunner(null);
         setSearchQuery("");
       }
@@ -383,7 +385,11 @@ const ExpoManagement = () => {
                     type="submit"
                     className="absolute right-3 top-3 bg-teal-600 text-white p-3 rounded-xl hover:bg-teal-700 transition-colors"
                   >
-                    {loading ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : <FiSearch size={20} />}
+                    {loading ? (
+                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                    ) : (
+                      <FiSearch size={20} />
+                    )}
                   </button>
                 </form>
               )}
@@ -571,8 +577,8 @@ const ExpoManagement = () => {
 
                       {/* IDENTITY */}
                       <td className="px-4 py-4 border-r border-slate-100 text-center">
-                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${r.expoDetails?.isVerified ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'}`}>
-                          {r.expoDetails?.isVerified ? 'Verified' : 'Pending'}
+                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${r.expoDetails?.isVerifiedByScan ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'}`}>
+                          {r.expoDetails?.isVerifiedByScan ? 'Verified' : 'Pending'}
                         </span>
                       </td>
 
