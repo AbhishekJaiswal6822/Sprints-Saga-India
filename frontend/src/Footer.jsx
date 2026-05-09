@@ -86,15 +86,15 @@ function Footer() {
 
               {/* PHONE */}
               <div>
-                <h5 className="text-white font-medium mb-2">Contact Number</h5>
+                {/* <h5 className="text-white font-medium mb-2">Contact Number</h5>
 
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm"> */}
                   {/* <div className="flex items-center gap-3">
                     <FaPhoneAlt size={14} />
                     <span> +91 8850943813</span>
                   </div> */}
 
-                  <div className="flex items-center gap-3">
+                  {/* <div className="flex items-center gap-3">
                     <FaPhoneAlt size={14} />
                     <span>+91 9967707306</span>
                   </div>
@@ -103,7 +103,7 @@ function Footer() {
                     <FaWhatsapp size={17} className="text-green-500" />
                     <span>+91 9987190415</span>
                   </div>
-                </div>
+                </div> */}
               </div>
 
             </div>
