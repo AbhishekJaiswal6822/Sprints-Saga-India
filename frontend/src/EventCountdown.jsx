@@ -58,9 +58,9 @@ function EventCountdown() {
     <section className="py-12 bg-transparent  max-h-screen">
       <div className="max-w-4xl mx-auto text-center px-4">
         {/* Heading */}
-        <h2 className="text-4xl font-extrabold text-slate-800 mb-1">
+        {/* <h2 className="text-4xl font-extrabold text-slate-800 mb-1">
           {time.finished ? "Happy New Year 2026! 🎉" : "Event Starts In"}
-        </h2>
+        </h2> */}
 
         {!time.finished && (
           <>
